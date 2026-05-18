@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ghumna Jam - Login</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+    --sage:#7f8d7a;
+    --dark:#1f2a27;
+    --accent:#f4c64f;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:linear-gradient(120deg,#d6ddd7,#e6ece6);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.card{
+    width:100%;
+    max-width:1120px;
+    min-height:680px;
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    border-radius:24px;
+    overflow:hidden;
+    background:#7f8d7a;
+    box-shadow:0 30px 80px rgba(0,0,0,.25);
+}
+
+.left{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:38px;
+    overflow:hidden;
+    background-image:url("{{ url_for('static', filename='mountainbg.jpg') }}");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+}
+
+.left::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(
+        180deg,
+        rgba(18,25,22,.25),
+        rgba(10,15,13,.82)
+    );
+    z-index:0;
+}
+
+.logo{
+    position:relative;
+    z-index:2;
+    width:260px;
+    max-width:75%;
+    object-fit:contain;
+    filter:drop-shadow(0 8px 18px rgba(0,0,0,.4));
+}
+
+.left-content{
+    position:relative;
+    z-index:2;
+    max-width:420px;
+    color:white;
+}
+
+.left-content h2{
+    font-family:'Playfair Display',serif;
+    font-size:56px;
+    line-height:1.05;
+    margin-bottom:18px;
+    text-shadow:0 3px 8px rgba(0,0,0,.4);
+}
+
+.left-content p{
+    font-size:16px;
+    line-height:1.8;
+    opacity:.96;
+}
+
+.right{
+    background:rgba(127,141,122,.96);
+    padding:50px 54px;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+}
+
+.tabs{
+    display:flex;
+    gap:30px;
+    font-weight:700;
+    color:#eef2ed;
+}
+
+.tabs .active{
+    position:relative;
+    color:white;
+    padding-bottom:10px;
+}
+
+.tabs .active::after{
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:34px;
+    height:3px;
+    background:var(--accent);
+    border-radius:10px;
+}
+
+.right h1{
+    font-family:'Playfair Display',serif;
+    font-size:62px;
+    color:var(--dark);
+    line-height:1.05;
+}
+
+.subtitle{
+    color:#26322f;
+    opacity:.85;
+    font-size:15px;
+    line-height:1.7;
+    margin-top:-8px;
+}
+
+.field{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    font-size:14px;
+    font-weight:700;
+    color:#24302d;
+}
+
+.input{
+    background:white;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:15px 16px;
+    border-radius:15px;
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+    transition:.2s;
+}
+
+.input:focus-within{
+    box-shadow:0 8px 18px rgba(244,198,79,.25);
+}
+
+.input input{
+    border:none;
+    outline:none;
+    width:100%;
+    font-size:15px;
+    background:transparent;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:13px;
+}
+
+.row a{
+    color:var(--accent);
+    text-decoration:none;
+    font-weight:700;
+}
+
+.row a:hover{
+    text-decoration:underline;
+}
+
+.btn{
+    background:var(--accent);
+    border:none;
+    padding:16px;
+    border-radius:16px;
+    font-size:18px;
+    font-weight:700;
+    cursor:pointer;
+    color:#3a2a00;
+    box-shadow:0 14px 24px rgba(244,198,79,.35);
+    transition:.2s;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+}
+
+.divider{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:11px;
+    opacity:.6;
+    color:#2c3835;
+}
+
+.divider span{
+    flex:1;
+    height:1px;
+    background:rgba(0,0,0,.2);
+}
+
+.socials{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.social-btn{
+    background:white;
+    border:none;
+    padding:14px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.social-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 16px rgba(0,0,0,.1);
+}
+
+.footer{
+    margin-top:auto;
+    text-align:center;
+    font-size:11px;
+    color:#27332f;
+    opacity:.7;
+    letter-spacing:.8px;
+}
+
+@media(max-width:950px){
+    .card{
+        grid-template-columns:1fr;
+    }
+
+    .left{
+        min-height:350px;
+    }
+
+    .right{
+        padding:36px;
+    }
+
+    .right h1{
+        font-size:46px;
+    }
+
+    .left-content h2{
+        font-size:42px;
+    }
+
+    .logo{
+        width:200px;
+    }
+}
+
+@media(max-width:560px){
+    body{
+        padding:0;
+        align-items:stretch;
+    }
+
+    .card{
+        min-height:100vh;
+        border-radius:0;
+    }
+
+    .left{
+        min-height:300px;
+        padding:28px;
+    }
+
+    .left-content h2{
+        font-size:34px;
+    }
+
+    .right{
+        padding:30px 24px;
+    }
+
+    .right h1{
+        font-size:40px;
+    }
+
+    .row,
+    .socials{
+        grid-template-columns:1fr;
+    }
+
+    .row{
+        gap:14px;
+        align-items:flex-start;
+        flex-direction:column;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<main class="card">
+    <section class="left">
+        <img class="logo"
+             src="{{ url_for('static', filename='logobg.png') }}"
+             alt="Ghumna Jam Logo">
+
+        <div class="left-content">
+            <h2>Your expedition starts here.</h2>
+
+            <p>
+                Join a heritage of mountain explorers and
+                document your journey across the highest
+                trails on Earth.
+            </p>
+        </div>
+    </section>
+
+    <section class="right">
+        <div class="tabs" aria-label="Authentication tabs">
+            <div class="active">Log In</div>
+            <div>Sign Up</div>
+        </div>
+
+        <h1>Welcome Back</h1>
+
+        <p class="subtitle">
+            Please enter your credentials to access your
+            adventure registry.
+        </p>
+
+        <label class="field">
+            Email Address
+
+            <div class="input">
+                <span aria-hidden="true">✉️</span>
+                <input type="email"
+                       placeholder="explorer@alpine.com"
+                       autocomplete="email">
+            </div>
+        </label>
+
+        <label class="field">
+            Password
+
+            <div class="input">
+                <span aria-hidden="true">🔒</span>
+                <input type="password"
+                       placeholder="••••••••"
+                       autocomplete="current-password">
+            </div>
+        </label>
+
+        <div class="row">
+            <label style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox">
+                Remember me
+            </label>
+
+            <a href="#">Forgot password?</a>
+        </div>
+
+        <button class="btn" type="button">Log In</button>
+
+        <div class="divider">
+            <span></span>
+            OR CONTINUE WITH
+            <span></span>
+        </div>
+
+        <div class="socials">
+            <button class="social-btn" type="button">
+                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+
+                Google
+            </button>
+
+            <button class="social-btn" type="button">
+                <span aria-hidden="true">🍎</span>
+                Apple
+            </button>
+        </div>
+
+        <div class="footer">
+            © 2026 GHUMNA JAM. DESIGNED FOR THE ALPINE HERITAGE.
+        </div>
+    </section>
+</main>
+
+</body>
+</html>
