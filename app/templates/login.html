@@ -46,9 +46,7 @@ body{
 
 .left{
     position:relative;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
+    display:block;
     padding:38px;
     overflow:hidden;
     background-image:url("{{ url_for('static', filename='mountainbg.jpg') }}");
@@ -70,16 +68,27 @@ body{
 }
 
 .logo{
-    position:relative;
+    position:absolute;
+    top: -80px;
+    left:10px;
     z-index:2;
-    width:260px;
-    max-width:75%;
+
+    width:300px;
+    max-width:60%;
+
     object-fit:contain;
-    filter:drop-shadow(0 8px 18px rgba(0,0,0,.4));
+
+    filter:drop-shadow(0 8px 18px rgba(0,0,0,.45));
+
+    /* optional */
+    transform:rotate(-0deg);
 }
 
 .left-content{
-    position:relative;
+    position:absolute;
+    left:38px;
+    right:38px;
+    bottom:38px;
     z-index:2;
     max-width:420px;
     color:white;
@@ -271,6 +280,12 @@ body{
         min-height:350px;
     }
 
+    .left-content{
+        left:36px;
+        right:36px;
+        bottom:36px;
+    }
+
     .right{
         padding:36px;
     }
@@ -284,7 +299,7 @@ body{
     }
 
     .logo{
-        width:200px;
+        width:240px;
     }
 }
 
@@ -304,8 +319,20 @@ body{
         padding:28px;
     }
 
+    .logo{
+        top:24px;
+        left:24px;
+        width:210px;
+    }
+
     .left-content h2{
         font-size:34px;
+    }
+
+    .left-content{
+        left:28px;
+        right:28px;
+        bottom:28px;
     }
 
     .right{
@@ -336,8 +363,9 @@ body{
 <main class="card">
     <section class="left">
         <img class="logo"
-             src="{{ url_for('static', filename='logobg.png') }}"
-             alt="Ghumna Jam Logo">
+             src="{{ url_for('static', filename='logobg.png') }}?v=3"
+             alt=""
+             aria-hidden="true">
 
         <div class="left-content">
             <h2>Your expedition starts here.</h2>
