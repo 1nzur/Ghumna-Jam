@@ -34,5 +34,9 @@ def old_login():
 def old_signup():
     return redirect(url_for('auth.signup'))
 
+@app.route("/edit-profile")
+def signup():
+    return render_template("edit-profile.html)
+
 if __name__ == "__main__":
     app.run(debug=True, port=5055)
