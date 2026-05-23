@@ -6,7 +6,7 @@ app = Flask(
     static_folder="app/static"
 )
 
-@app.route("/")
+@app.route("/landpage")
 def home():
     return render_template("landpage.html")
 
