@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book a Trek | Ghumna Jam</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sage: #72866f;
+      --pine: #21322e;
+      --mist: #edf4f2;
+      --accent: #f4c64f;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #dfe9e6, #aebfb9);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 1120px;
+      min-height: 700px;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      border-radius: 24px;
+      overflow: hidden;
+      background: var(--sage);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, .25);
+    }
+
+    .left {
+      position: relative;
+      padding: 38px;
+      background-image: url("https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1400&q=85");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      overflow: hidden;
+    }
+
+    .left::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(13, 25, 22, .08), rgba(8, 18, 15, .82)),
+        linear-gradient(90deg, rgba(10, 22, 18, .5), rgba(10, 22, 18, .05));
+      z-index: 0;
+    }
+
+    .logo {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 18px;
+      background: rgba(255, 255, 255, .92);
+      border-radius: 18px;
+      color: var(--pine);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, .15);
+    }
+
+    .left-content {
+      position: absolute;
+      left: 38px;
+      right: 38px;
+      bottom: 38px;
+      z-index: 2;
+      max-width: 460px;
+      color: white;
+    }
+
+    .left-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 56px;
+      line-height: 1.05;
+      margin-bottom: 18px;
+      text-shadow: 0 3px 12px rgba(0, 0, 0, .45);
+    }
+
+    .left-content p {
+      font-size: 16px;
+      line-height: 1.8;
+      opacity: .96;
+      max-width: 420px;
+    }
+
+    .right {
+      background: rgba(114, 134, 111, .96);
+      padding: 50px 54px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .right h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 62px;
+      color: var(--pine);
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      color: #26322f;
+      opacity: .9;
+      font-size: 15px;
+      line-height: 1.7;
+      margin-top: -8px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #24302d;
+    }
+
+    .field span {
+      display: block;
+      font-weight: 700;
+      color: #24302d;
+    }
+
+    .input {
+      background: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px 16px;
+      border-radius: 15px;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, .08);
+      transition: .2s;
+    }
+
+    .input:focus-within {
+      box-shadow: 0 8px 18px rgba(244, 198, 79, .25);
+    }
+
+    .input input,
+    .input select,
+    .input textarea {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 15px;
+      background: transparent;
+      font-family: inherit;
+      color: var(--pine);
+    }
+
+    .input textarea {
+      resize: vertical;
+      min-height: 110px;
+    }
+
+    .btn {
+      background: var(--accent);
+      border: none;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #3a2a00;
+      box-shadow: 0 14px 24px rgba(244, 198, 79, .35);
+      transition: .2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      cursor: wait;
+      opacity: .7;
+      transform: none;
+    }
+
+    .form-message {
+      color: var(--pine);
+      font-weight: 700;
+      margin-top: 4px;
+      min-height: 22px;
+    }
+
+    .form-message.error {
+      color: #6f1d1b;
+    }
+
+    .footer {
+      margin-top: auto;
+      text-align: center;
+      font-size: 11px;
+      color: #27332f;
+      opacity: .7;
+      letter-spacing: .8px;
+    }
+
+    @media (max-width: 950px) {
+      .card {
+        grid-template-columns: 1fr;
+      }
+
+      .left {
+        min-height: 350px;
+      }
+
+      .left-content {
+        left: 36px;
+        right: 36px;
+        bottom: 36px;
+      }
+
+      .right {
+        padding: 36px;
+      }
+
+      .right h1 {
+        font-size: 46px;
+      }
+
+      .left-content h2 {
+        font-size: 42px;
+      }
+
+      .logo {
+        width: 240px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 0;
+        align-items: stretch;
+      }
+
+      .card {
+        min-height: 100vh;
+        border-radius: 0;
+      }
+
+      .left {
+        min-height: 300px;
+        padding: 28px;
+      }
+
+      .logo {
+        top: 24px;
+        left: 24px;
+        width: 210px;
+      }
+
+      .left-content h2 {
+        font-size: 34px;
+      }
+
+      .left-content {
+        left: 28px;
+        right: 28px;
+        bottom: 28px;
+      }
+
+      .right {
+        padding: 30px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <section class="left">
+      <div class="logo">Ghumna Jam</div>
+      <div class="left-content">
+        <h2>Climb where the hills rise into snow.</h2>
+        <p>From quiet terraced villages to bright Himalayan ridgelines, your trail begins with fresh air, green valleys, and mountain light.</p>
+      </div>
+    </section>
+
+    <section class="right">
+      <h1>Book your trek</h1>
+      <p class="subtitle">Send your trekking request for Nepal's mountain and hill routes. We will use your details to help plan the best trail, date, and group size.</p>
+
+      <form id="bookingForm">
+        <div class="field">
+          <span>Full name</span>
+          <label class="input">
+            <input type="text" name="name" placeholder="Your name" required>
+          </label>
+        </div>
+
+        <div class="field">
+          <span>Email</span>
+          <label class="input">
+            <input type="email" name="email" placeholder="you@example.com" required>
+          </label>
+        </div>
+
+        <div class="field">
+          <span>Choose trek</span>
+          <label class="input">
+            <select name="trek" required>
+              <option value="">Select a trek</option>
+              <option>Everest Base Camp</option>
+              <option>Annapurna Circuit</option>
+              <option>Langtang Valley</option>
+              <option>Ghorepani Poon Hill</option>
+              <option>Manaslu Circuit</option>
+              <option>Mardi Himal</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field">
+          <span>Preferred date</span>
+          <label class="input">
+            <input type="date" name="date" required>
+          </label>
+        </div>
+
+        <div class="field">
+          <span>Number of trekkers</span>
+          <label class="input">
+            <input type="number" name="people" min="1" max="20" value="1" required>
+          </label>
+        </div>
+
+        <div class="field">
+          <span>Message</span>
+          <label class="input">
+            <textarea name="message" rows="4" placeholder="Tell us about your pace, experience, or questions."></textarea>
+          </label>
+        </div>
+
+        <button class="btn" type="submit">Submit booking</button>
+        <p class="form-message" id="bookingMessage"></p>
+      </form>
+
+      <div class="footer">
+        &copy; 2026 GHUMNA JAM. DESIGNED FOR NEPAL'S HILL AND HIMALAYAN TRAILS.
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
