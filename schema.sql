@@ -1,0 +1,17 @@
+CREATE DATABASE IF NOT EXISTS `ghumna_jam`
+  DEFAULT CHARACTER SET utf8mb4
+  DEFAULT COLLATE utf8mb4_unicode_ci;
+
+USE `ghumna_jam`;
+
+CREATE TABLE IF NOT EXISTS `bookings` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `full_name` VARCHAR(120) NOT NULL,
+  `email` VARCHAR(160) NOT NULL,
+  `trek` VARCHAR(80) NOT NULL,
+  `preferred_date` DATE NOT NULL,
+  `people` INT NOT NULL,
+  `message` TEXT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
