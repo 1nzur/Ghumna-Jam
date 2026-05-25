@@ -15,38 +15,44 @@
     adventure registry.
 </p>
 
-<label class="field">
-    Email Address
+<form method="post" action="{{ url_for('login') }}" style="display:contents;">
+    <label class="field">
+        Email Address
 
-    <div class="input">
-        <span aria-hidden="true">&#9993;</span>
-        <input type="email"
-               placeholder="explorer@alpine.com"
-               autocomplete="email">
-    </div>
-</label>
-
-<label class="field">
-    Password
-
-    <div class="input">
-        <span aria-hidden="true">&#128274;</span>
-        <input type="password"
-               placeholder="........"
-               autocomplete="current-password">
-    </div>
-</label>
-
-<div class="row">
-    <label style="display:flex; align-items:center; gap:8px;">
-        <input type="checkbox">
-        Remember me
+        <div class="input">
+            <span aria-hidden="true">&#9993;</span>
+            <input type="email"
+                   name="email"
+                   placeholder="explorer@alpine.com"
+                   autocomplete="email"
+                   required>
+        </div>
     </label>
 
-    <a href="#">Forgot password?</a>
-</div>
+    <label class="field">
+        Password
 
-<button class="btn" type="button">Log In</button>
+        <div class="input">
+            <span aria-hidden="true">&#128274;</span>
+            <input type="password"
+                   name="password"
+                   placeholder="........"
+                   autocomplete="current-password"
+                   required>
+        </div>
+    </label>
+
+    <div class="row">
+        <label style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" name="remember">
+            Remember me
+        </label>
+
+        <a href="#">Forgot password?</a>
+    </div>
+
+    <button class="btn" type="submit">Log In</button>
+</form>
 
 <div class="divider">
     <span></span>

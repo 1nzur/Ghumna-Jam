@@ -19,49 +19,57 @@
     documenting your mountain journeys.
 </p>
 
-<label class="field">
-    Full Name
+<form method="post" action="{{ url_for('signup') }}" style="display:contents;">
+    <label class="field">
+        Full Name
 
-    <div class="input">
-        <span aria-hidden="true">&#128100;</span>
-        <input type="text"
-               placeholder="John Doe"
-               autocomplete="name">
-    </div>
-</label>
-
-<label class="field">
-    Email Address
-
-    <div class="input">
-        <span aria-hidden="true">&#9993;</span>
-        <input type="email"
-               placeholder="explorer@alpine.com"
-               autocomplete="email">
-    </div>
-</label>
-
-<label class="field">
-    Password
-
-    <div class="input">
-        <span aria-hidden="true">&#128274;</span>
-        <input type="password"
-               placeholder="Create a password"
-               autocomplete="new-password">
-    </div>
-</label>
-
-<div class="row">
-    <label style="display:flex; align-items:center; gap:8px;">
-        <input type="checkbox">
-        I agree to the terms
+        <div class="input">
+            <span aria-hidden="true">&#128100;</span>
+            <input type="text"
+                   name="full_name"
+                   placeholder="John Doe"
+                   autocomplete="name"
+                   required>
+        </div>
     </label>
 
-    <a href="{{ url_for('login') }}">Already joined?</a>
-</div>
+    <label class="field">
+        Email Address
 
-<button class="btn" type="button">Create Account</button>
+        <div class="input">
+            <span aria-hidden="true">&#9993;</span>
+            <input type="email"
+                   name="email"
+                   placeholder="explorer@alpine.com"
+                   autocomplete="email"
+                   required>
+        </div>
+    </label>
+
+    <label class="field">
+        Password
+
+        <div class="input">
+            <span aria-hidden="true">&#128274;</span>
+            <input type="password"
+                   name="password"
+                   placeholder="Create a password"
+                   autocomplete="new-password"
+                   required>
+        </div>
+    </label>
+
+    <div class="row">
+        <label style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" required>
+            I agree to the terms
+        </label>
+
+        <a href="{{ url_for('login') }}">Already joined?</a>
+    </div>
+
+    <button class="btn" type="submit">Create Account</button>
+</form>
 
 <div class="divider">
     <span></span>

@@ -153,6 +153,28 @@ body{
     margin-top:-8px;
 }
 
+.messages{
+    display:grid;
+    gap:10px;
+}
+
+.message{
+    padding:12px 14px;
+    border-radius:12px;
+    font-size:13px;
+    font-weight:700;
+}
+
+.message.success{
+    background:rgba(255,255,255,.76);
+    color:#264b31;
+}
+
+.message.error{
+    background:rgba(82,26,22,.16);
+    color:#4a1814;
+}
+
 .field{
     display:flex;
     flex-direction:column;
@@ -370,6 +392,16 @@ body{
     </section>
 
     <section class="right">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="messages">
+                    {% for category, message in messages %}
+                        <div class="message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         {% block auth_content %}{% endblock %}
 
         <div class="footer">
