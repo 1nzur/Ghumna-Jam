@@ -8,8 +8,8 @@
 
 {% block auth_content %}
 <div class="tabs" aria-label="Authentication tabs">
-    <a href="{{ url_for('login') }}">Log In</a>
-    <a class="active" href="{{ url_for('signup') }}">Sign Up</a>
+    <a href="{{ url_for('auth.login') }}">Log In</a>
+    <a class="active" href="{{ url_for('auth.signup') }}">Sign Up</a>
 </div>
 
 <h1>Join Ghumna Jam</h1>
@@ -19,7 +19,7 @@
     documenting your mountain journeys.
 </p>
 
-<form method="post" action="{{ url_for('signup') }}" style="display:contents;">
+<form method="post" action="{{ url_for('auth.signup') }}" style="display:contents;">
     <label class="field">
         Full Name
 
@@ -65,7 +65,7 @@
             I agree to the terms
         </label>
 
-        <a href="{{ url_for('login') }}">Already joined?</a>
+        <a href="{{ url_for('auth.login') }}">Already joined?</a>
     </div>
 
     <button class="btn" type="submit">Create Account</button>

@@ -4,8 +4,8 @@
 
 {% block auth_content %}
 <div class="tabs" aria-label="Authentication tabs">
-    <a class="active" href="{{ url_for('login') }}">Log In</a>
-    <a href="{{ url_for('signup') }}">Sign Up</a>
+    <a class="active" href="{{ url_for('auth.login') }}">Log In</a>
+    <a href="{{ url_for('auth.signup') }}">Sign Up</a>
 </div>
 
 <h1>Welcome Back</h1>
@@ -15,7 +15,7 @@
     adventure registry.
 </p>
 
-<form method="post" action="{{ url_for('login') }}" style="display:contents;">
+<form method="post" action="{{ url_for('auth.login') }}" style="display:contents;">
     <label class="field">
         Email Address
 
