@@ -59,8 +59,23 @@ def init_db(app):
                     full_name VARCHAR(120) NOT NULL,
                     email VARCHAR(255) NOT NULL UNIQUE,
                     password_hash VARCHAR(255) NOT NULL,
+                    phone_number VARCHAR(30),
+                    date_of_birth DATE,
+                    profile_picture_url VARCHAR(500),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
                 """
             )
+
+            cursor.execute("SHOW COLUMNS FROM users")
+            existing_columns = {column["Field"] for column in cursor.fetchall()}
+            profile_columns = {
+                "phone_number": "ALTER TABLE users ADD COLUMN phone_number VARCHAR(30)",
+                "date_of_birth": "ALTER TABLE users ADD COLUMN date_of_birth DATE",
+                "profile_picture_url": "ALTER TABLE users ADD COLUMN profile_picture_url VARCHAR(500)",
+            }
+
+            for column_name, statement in profile_columns.items():
+                if column_name not in existing_columns:
+                    cursor.execute(statement)
         db.commit()

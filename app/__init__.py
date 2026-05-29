@@ -1,7 +1,7 @@
 from flask import Flask, redirect, session, url_for
 
 from app.models.database import Database, close_db
-from app.routes.auth import AuthRoute
+from app.routes.auth import AuthRoutes
 
 
 def create_app():
@@ -12,7 +12,8 @@ def create_app():
     startup_db.close()
 
     app.teardown_appcontext(close_db)
-    app.register_blueprint(AuthRoute().bp)
+    auth_routes = AuthRoutes()
+    app.register_blueprint(auth_routes.register())
 
     @app.route("/")
     def index():
