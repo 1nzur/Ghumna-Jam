@@ -3,11 +3,10 @@ from flask import Blueprint
 from app.controllers.ControllerAuth import AuthController
 
 
-class AuthRoute:
+class AuthRoutes:
     def __init__(self):
         self.bp = Blueprint("auth", __name__)
         self.controller = AuthController()
-        self.register()
 
     def register(self):
         self.bp.route("/login", methods=["GET", "POST"])(
@@ -37,3 +36,29 @@ class AuthRoute:
         self.bp.route("/logout")(
             self.controller.logout
         )
+
+        self.bp.route("/forgot-password", methods=["GET", "POST"])(
+            self.controller.forgot_password
+        )
+
+        self.bp.route("/bookings")(
+            self.controller.bookings
+        )
+
+        self.bp.route("/destination/<int:dest_id>")(
+            self.controller.destination_detail
+        )
+
+        self.bp.route("/book/<int:dest_id>", methods=["POST"])(
+            self.controller.book_trip
+        )
+
+        self.bp.route("/edit-profile", methods=["GET", "POST"])(
+            self.controller.edit_profile
+        )
+
+        self.bp.route("/profile", methods=["GET", "POST"])(
+            self.controller.edit_profile
+        )
+
+        return self.bp
