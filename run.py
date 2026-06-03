@@ -36,7 +36,7 @@ def old_signup():
 
 @app.route("/edit-profile")
 def signup():
-    return render_template("edit-profile.html)
+    return render_template("edit-profile.html")
 
 if __name__ == "__main__":
     app.run(debug=True, port=5055)
