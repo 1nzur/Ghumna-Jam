@@ -3,6 +3,46 @@ from app.db import execute_query
 
 bookings_bp = Blueprint('bookings', __name__)
 
+@bookings_bp.route("/compare")
+def compare_destinations():
+    ids_param = request.args.get("ids", "")
+    destination_ids = []
+
+    for raw_id in ids_param.split(","):
+        raw_id = raw_id.strip()
+        if raw_id.isdigit():
+            destination_ids.append(int(raw_id))
+
+    # Keep comparisons readable and avoid very large query strings.
+    destination_ids = list(dict.fromkeys(destination_ids))[:4]
+
+    if len(destination_ids) < 2:
+        flash("Please select at least two destinations to compare.", "error")
+        return redirect(url_for('home') + "#destinations")
+
+    placeholders = ",".join(["?"] * len(destination_ids))
+    destinations = execute_query(
+        f"SELECT * FROM destinations WHERE id IN ({placeholders})",
+        tuple(destination_ids)
+    )
+    destinations_by_id = {destination["id"]: destination for destination in destinations}
+    ordered_destinations = [
+        destinations_by_id[destination_id]
+        for destination_id in destination_ids
+        if destination_id in destinations_by_id
+    ]
+
+    if len(ordered_destinations) < 2:
+        flash("Could not find enough destinations to compare.", "error")
+        return redirect(url_for('home') + "#destinations")
+
+    best_price = min(destination["price_per_person"] for destination in ordered_destinations)
+    return render_template(
+        "compare.html",
+        destinations=ordered_destinations,
+        best_price=best_price
+    )
+
 @bookings_bp.route("/destination/<int:dest_id>")
 def destination_detail(dest_id):
     # Fetch destination from database
