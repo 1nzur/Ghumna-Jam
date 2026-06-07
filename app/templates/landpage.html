@@ -73,7 +73,8 @@
             <div class="destination-card bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between hover:shadow-md transition duration-200"
                  data-name="{{ dest.name | lower }}"
                  data-difficulty="{{ dest.difficulty | lower }}"
-                 data-season="{{ dest.season | lower }}">
+                 data-season="{{ dest.season | lower }}"
+                 data-id="{{ dest.id }}">
                 <div>
                     <div class="h-48 bg-gray-200 relative bg-cover bg-center" style="background-image: url('{{ dest.image_url }}');">
                         {% if dest.name == "Everest Base Camp" %}
@@ -110,7 +111,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="px-5 pb-5">
+                <div class="px-5 pb-5 space-y-3">
+                    <label class="flex items-center justify-center gap-2 w-full border border-gray-200 hover:bg-gray-50 text-brandGreen text-xs font-semibold py-2.5 rounded-lg transition cursor-pointer">
+                        <input type="checkbox"
+                               class="compare-checkbox accent-[#03231C]"
+                               value="{{ dest.id }}"
+                               data-name="{{ dest.name }}"
+                               data-image="{{ dest.image_url }}">
+                        <span>Compare Price</span>
+                    </label>
                     <a href="{{ url_for('bookings.destination_detail', dest_id=dest.id) }}" class="block text-center w-full bg-brandGreen hover:bg-emerald-950 text-white text-xs font-semibold py-3 rounded-lg transition shadow-sm hover:shadow">
                         Explore & Book
                     </a>
@@ -120,17 +129,15 @@
         </div>
     </main>
 
-    <!-- Compare Floating Bar (Mockup) -->
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-xl">
+    <!-- Compare Floating Bar -->
+    <div id="compare-bar" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-xl">
         <div class="bg-brandGreen text-white rounded-full shadow-2xl px-4 py-2.5 flex items-center justify-between border border-emerald-950/40">
             <div class="flex items-center space-x-3">
-                <div class="flex -space-x-2">
-                    <div class="w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=100&q=80');"></div>
-                    <div class="w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=100&q=80');"></div>
+                <div id="compare-thumbs" class="flex -space-x-2">
                 </div>
-                <span class="text-xs font-medium text-gray-200"><span class="font-bold text-white">2</span> Trails Selected</span>
+                <span class="text-xs font-medium text-gray-200"><span id="compare-count" class="font-bold text-white">0</span> Trails Selected</span>
             </div>
-            <button class="bg-brandYellow hover:bg-yellow-500 text-brandGreen font-bold text-xs px-5 py-2 rounded-full transition shadow-md">
+            <button id="compare-button" type="button" class="bg-brandYellow hover:bg-yellow-500 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed text-brandGreen font-bold text-xs px-5 py-2 rounded-full transition shadow-md">
                 Compare Selected
             </button>
         </div>
@@ -182,5 +189,50 @@
             }
             filterTrails();
         }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const compareBar = document.getElementById("compare-bar");
+            const compareCount = document.getElementById("compare-count");
+            const compareThumbs = document.getElementById("compare-thumbs");
+            const compareButton = document.getElementById("compare-button");
+            const checkboxes = document.querySelectorAll(".compare-checkbox");
+            const maxSelections = 4;
+
+            function selectedDestinations() {
+                return Array.from(checkboxes)
+                    .filter((checkbox) => checkbox.checked)
+                    .map((checkbox) => ({
+                        id: checkbox.value,
+                        name: checkbox.dataset.name,
+                        image: checkbox.dataset.image
+                    }));
+            }
+
+            function renderCompareState() {
+                const selected = selectedDestinations();
+                compareCount.textContent = selected.length;
+                compareBar.classList.toggle("hidden", selected.length === 0);
+                compareButton.disabled = selected.length < 2;
+                compareThumbs.innerHTML = selected.slice(0, maxSelections).map((destination) => (
+                    `<div class="w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center bg-gray-200" title="${destination.name}" style="background-image: url('${destination.image}');"></div>`
+                )).join("");
+
+                checkboxes.forEach((checkbox) => {
+                    checkbox.disabled = !checkbox.checked && selected.length >= maxSelections;
+                });
+            }
+
+            checkboxes.forEach((checkbox) => {
+                checkbox.addEventListener("change", renderCompareState);
+            });
+
+            compareButton.addEventListener("click", () => {
+                const selectedIds = selectedDestinations().map((destination) => destination.id);
+                if (selectedIds.length < 2) return;
+                window.location.href = "{{ url_for('bookings.compare_destinations') }}?ids=" + selectedIds.join(",");
+            });
+
+            renderCompareState();
+        });
     </script>
 {% endblock %}

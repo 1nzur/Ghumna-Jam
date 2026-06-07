@@ -50,6 +50,7 @@
             <nav class="hidden md:flex space-x-8 text-sm font-medium text-gray-600">
                 <a href="{{ url_for('home') }}" class="hover:text-brandGreen transition">Home</a>
                 <a href="{{ url_for('home') }}#destinations" class="hover:text-brandGreen transition">Destinations</a>
+                <a href="{{ url_for('home') }}#destinations" class="hover:text-brandGreen transition">Compare</a>
                 {% if session.get('user_id') %}
                     <a href="{{ url_for('bookings.my_bookings') }}" class="hover:text-brandGreen transition">My Bookings</a>
                 {% endif %}
