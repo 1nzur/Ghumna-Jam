@@ -30,6 +30,8 @@ class AuthController:
             "season": "Mar-May, Sep-Nov",
             "description": "A classic Himalayan trek through Sherpa villages, alpine valleys, and dramatic views of the world's highest peaks.",
             "price_per_person": 1499.00 * self.EXCHANGE_RATE,
+            "altitude_meters": 5364,
+            "highlights": "Sherpa culture, Kala Patthar viewpoint, historic base camp",
         }
 
     def _sample_destinations(self):
@@ -44,6 +46,8 @@ class AuthController:
                 "season": "Oct-Nov",
                 "description": "A sweeping circuit through river valleys, high passes, and traditional mountain settlements.",
                 "price_per_person": 1199.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5416,
+                "highlights": "Thorong La Pass, Kali Gandaki Gorge, diverse landscapes",
             },
             {
                 "id": 3,
@@ -54,8 +58,250 @@ class AuthController:
                 "season": "Mar-May",
                 "description": "A beautiful alpine route with glacier views, yak pastures, and rich Tamang culture.",
                 "price_per_person": 799.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 3870,
+                "highlights": "Kyanjin Gompa, Yak pastures, panoramic glaciers",
+            },
+            {
+                "id": 4,
+                "name": "Manaslu Circuit",
+                "image_url": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 14,
+                "season": "Oct-Nov",
+                "description": "A remote, spectacular loop around the world's eighth-highest mountain, featuring the challenging Larkya La Pass.",
+                "price_per_person": 1399.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5106,
+                "highlights": "Larkya La Pass, Buddhist monasteries, border region cultures",
+            },
+            {
+                "id": 5,
+                "name": "Upper Mustang",
+                "image_url": "https://images.unsplash.com/photo-1548565431-7e8c312521f7?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Moderate",
+                "duration_days": 10,
+                "season": "May-Oct",
+                "description": "Explore the ancient, dry kingdom of Lo Manthang, characterized by red cliffs, cave dwellings, and Tibetan culture.",
+                "price_per_person": 1799.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 3840,
+                "highlights": "Lo Manthang walled city, sky caves, Tibetan-style palace",
+            },
+            {
+                "id": 6,
+                "name": "Gokyo Lakes & Ri",
+                "image_url": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Moderate",
+                "duration_days": 12,
+                "season": "Mar-May, Sep-Nov",
+                "description": "Trek to the turquoise glacial lakes of the Gokyo Valley and climb Gokyo Ri for premium views of Everest and Lhotse.",
+                "price_per_person": 1299.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5357,
+                "highlights": "Turquoise lakes, Ngozumpa Glacier, views of four 8,000m peaks",
+            },
+            {
+                "id": 7,
+                "name": "Kanchenjunga Base Camp",
+                "image_url": "https://images.unsplash.com/photo-1533240332313-0db49b459ad6?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 20,
+                "season": "Oct-Nov, Mar-May",
+                "description": "A long journey to the far eastern border of Nepal to reach the base camp of Kanchenjunga, the world's third highest peak.",
+                "price_per_person": 2199.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5143,
+                "highlights": "Remote wilderness, Limbu culture, views of Yalung glacier",
+            },
+            {
+                "id": 8,
+                "name": "Mardi Himal",
+                "image_url": "https://images.unsplash.com/photo-1491555180598-88ee14744f4f?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Easy",
+                "duration_days": 6,
+                "season": "Mar-May, Sep-Nov",
+                "description": "A short, beautiful trek offering up-close views of Mount Machapuchare (Fishtail) and the Annapurna range.",
+                "price_per_person": 599.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 4500,
+                "highlights": "Machapuchare views, forest trails, quiet teahouses",
+            },
+            {
+                "id": 9,
+                "name": "Poon Hill Trek",
+                "image_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Easy",
+                "duration_days": 5,
+                "season": "Sep-May",
+                "description": "A classic short trek in the Annapurna foothills, famous for its panoramic sunrise views over Dhaulagiri and Annapurna.",
+                "price_per_person": 499.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 3210,
+                "highlights": "Sunrise over Annapurna, rhododendron forests, Gurung heritage",
+            },
+            {
+                "id": 10,
+                "name": "Gosaikunda Lake",
+                "image_url": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Moderate",
+                "duration_days": 7,
+                "season": "May-Oct",
+                "description": "A holy alpine lake trek in the Langtang region, sacred to both Hindus and Buddhists.",
+                "price_per_person": 699.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 4380,
+                "highlights": "Sacred alpine lakes, Laurebina Pass, views of Ganesh Himal",
+            },
+            {
+                "id": 11,
+                "name": "Rara Lake Wilderness",
+                "image_url": "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Moderate",
+                "duration_days": 9,
+                "season": "Mar-May, Sep-Nov",
+                "description": "Trek through the untouched forests of western Nepal to the largest and deepest freshwater lake in the country.",
+                "price_per_person": 1099.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 2990,
+                "highlights": "Pristine pine forests, bird watching, boating on Rara Lake",
+            },
+            {
+                "id": 12,
+                "name": "Makalu Base Camp",
+                "image_url": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 18,
+                "season": "Sep-Nov, Mar-May",
+                "description": "A challenging journey through the Makalu Barun National Park to the base of the world's fifth-highest peak.",
+                "price_per_person": 1899.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 4870,
+                "highlights": "Barun river valley, hanging glaciers, granite cliffs",
+            },
+            {
+                "id": 13,
+                "name": "Upper Dolpo Wilderness",
+                "image_url": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 21,
+                "season": "Jun-Sep",
+                "description": "A high-altitude, trans-Himalayan trek in the isolated Shey Phoksundo National Park, featuring Bon Buddhist heritage.",
+                "price_per_person": 2499.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5130,
+                "highlights": "Phoksundo Lake, Shey Gompa, snow leopard habitats",
+            },
+            {
+                "id": 14,
+                "name": "Nar Phu Valley hidden villages",
+                "image_url": "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 11,
+                "season": "Sep-Nov, Mar-May",
+                "description": "Explore the hidden Tibetan valleys of Nar and Phu, with ancient stone villages and high pass crossings.",
+                "price_per_person": 1499.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5320,
+                "highlights": "Kang La Pass, ancient fortified villages, unique monasteries",
+            },
+            {
+                "id": 15,
+                "name": "Everest Three Passes",
+                "image_url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 19,
+                "season": "Mar-May, Sep-Nov",
+                "description": "The ultimate Khumbu adventure crossing three high passes: Renjo La, Cho La, and Kongma La.",
+                "price_per_person": 1999.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5535,
+                "highlights": "Kongma La, Cho La, Renjo La, Gokyo lakes, Everest Base Camp",
             },
         ]
+
+    def _hotel_options(self, dest_id):
+        hotels_by_destination = {
+            1: [
+                {
+                    "name": "Everest View Lodge",
+                    "location": "Namche Bazaar",
+                    "style": "Mountain lodge",
+                    "price_per_night": 8500,
+                    "perk": "Panoramic Everest sunrise views",
+                },
+                {
+                    "name": "Sherpa Heritage Inn",
+                    "location": "Khumjung",
+                    "style": "Family-run inn",
+                    "price_per_night": 6200,
+                    "perk": "Traditional Sherpa meals",
+                },
+                {
+                    "name": "Base Camp Retreat",
+                    "location": "Lobuche",
+                    "style": "High-altitude lodge",
+                    "price_per_night": 7800,
+                    "perk": "Warm dining hall and oxygen support",
+                },
+                {
+                    "name": "Yak & Yeti Trail House",
+                    "location": "Phakding",
+                    "style": "Trail guesthouse",
+                    "price_per_night": 4800,
+                    "perk": "Riverside rooms near the Dudh Koshi",
+                },
+            ],
+            2: [
+                {
+                    "name": "Annapurna Alpine Lodge",
+                    "location": "Manang",
+                    "style": "Alpine lodge",
+                    "price_per_night": 7200,
+                    "perk": "Acclimatization-day comfort",
+                },
+                {
+                    "name": "Thorong Pass Tea House",
+                    "location": "Thorong Phedi",
+                    "style": "Tea house",
+                    "price_per_night": 5600,
+                    "perk": "Closest rest before the pass",
+                },
+                {
+                    "name": "Marshyangdi River Stay",
+                    "location": "Chame",
+                    "style": "Riverside hotel",
+                    "price_per_night": 5100,
+                    "perk": "Hot showers and valley views",
+                },
+                {
+                    "name": "Apple Orchard Guesthouse",
+                    "location": "Braga",
+                    "style": "Village guesthouse",
+                    "price_per_night": 4600,
+                    "perk": "Quiet rooms near old monasteries",
+                },
+            ],
+            3: [
+                {
+                    "name": "Langtang Glacier Lodge",
+                    "location": "Kyanjin Gompa",
+                    "style": "Glacier-view lodge",
+                    "price_per_night": 5800,
+                    "perk": "Views toward Langtang Lirung",
+                },
+                {
+                    "name": "Tamang Heritage Stay",
+                    "location": "Langtang Village",
+                    "style": "Cultural homestay",
+                    "price_per_night": 4300,
+                    "perk": "Local Tamang hospitality",
+                },
+                {
+                    "name": "Rhododendron Trail Inn",
+                    "location": "Lama Hotel",
+                    "style": "Forest inn",
+                    "price_per_night": 3900,
+                    "perk": "Peaceful forest stopover",
+                },
+                {
+                    "name": "Valley View Guesthouse",
+                    "location": "Syabrubesi",
+                    "style": "Comfort guesthouse",
+                    "price_per_night": 4100,
+                    "perk": "Easy first-night access",
+                },
+            ],
+        }
+
+        return hotels_by_destination.get(dest_id, hotels_by_destination[1])
 
     def login(self):
         if request.method == "POST":
@@ -142,6 +388,35 @@ class AuthController:
             email=email,
             submitted_email=submitted_email,
         )
+    
+    def compare_treks(self):
+        selected_ids = []
+        for raw_id in request.args.getlist("treks"):
+            try:
+                trek_id = int(raw_id)
+            except ValueError:
+                continue
+
+            if trek_id not in selected_ids:
+                selected_ids.append(trek_id)
+
+        remove_id = request.args.get("remove", type=int)
+        if remove_id:
+            selected_ids = [trek_id for trek_id in selected_ids if trek_id != remove_id]
+
+        destinations = self._sample_destinations()
+        selected_treks = [
+            destination
+            for destination in destinations
+            if destination["id"] in selected_ids
+        ]
+
+        return render_template(
+            "compare.html",
+            destinations=destinations,
+            selected_treks=selected_treks,
+            selected_ids=[trek["id"] for trek in selected_treks],
+        )
 
     @login_required
     def bookings(self):
@@ -155,6 +430,7 @@ class AuthController:
         return render_template(
             "destination_detail.html",
             destination=destination,
+            hotel_options=self._hotel_options(dest_id),
         )
 
     @login_required
@@ -165,6 +441,7 @@ class AuthController:
         )
         travelers_count = int(request.form.get("travelers_count", 1) or 1)
         departure_date = request.form.get("departure_date", "Not selected")
+        selected_hotel = request.form.get("selected_hotel", "No hotel selected")
         bookings = session.get("bookings", [])
         bookings.append(
             {
@@ -175,6 +452,7 @@ class AuthController:
                 "travelers_count": travelers_count,
                 "duration_days": destination["duration_days"],
                 "difficulty": destination["difficulty"],
+                "selected_hotel": selected_hotel,
                 "booked_at": "Today",
                 "total_price": destination["price_per_person"] * travelers_count,
             }
@@ -227,3 +505,7 @@ class AuthController:
         session.clear()
         flash("You have been logged out.", "success")
         return redirect(url_for("auth.login"))
+
+    @login_required
+    def tracking(self):
+        return render_template("tracking.html")
