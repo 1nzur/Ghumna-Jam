@@ -57,6 +57,12 @@
                                     <span class="font-semibold text-gray-700 text-sm mt-0.5 block">{{ booking.difficulty }}</span>
                                 </div>
                             </div>
+                            {% if booking.selected_hotel %}
+                                <div class="text-xs text-gray-500 mb-4">
+                                    <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Selected Hotel</span>
+                                    <span class="font-semibold text-brandGreen text-sm mt-0.5 block">{{ booking.selected_hotel }}</span>
+                                </div>
+                            {% endif %}
                         </div>
 
                         <!-- Footer actions and prices -->

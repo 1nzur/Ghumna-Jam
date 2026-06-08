@@ -48,6 +48,9 @@ class AuthRoutes:
         self.bp.route("/destination/<int:dest_id>")(
             self.controller.destination_detail
         )
+        self.bp.route("/compare")(
+            self.controller.compare_treks
+        )
 
         self.bp.route("/book/<int:dest_id>", methods=["POST"])(
             self.controller.book_trip
@@ -59,6 +62,10 @@ class AuthRoutes:
 
         self.bp.route("/profile", methods=["GET", "POST"])(
             self.controller.edit_profile
+        )
+
+        self.bp.route("/tracking")(
+            self.controller.tracking
         )
 
         return self.bp
