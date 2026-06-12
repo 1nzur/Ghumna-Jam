@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ghumna Jam - Cost Breakdown</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f6f8f5;
+      color: #12251f;
+    }
+
+    .topbar {
+      height: 72px;
+      padding: 0 8%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: white;
+      border-bottom: 1px solid #dfe8e4;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: #003c2f;
+    }
+
+    .nav {
+      display: flex;
+      gap: 26px;
+      font-size: 14px;
+    }
+
+    .nav a {
+      color: #12251f;
+      text-decoration: none;
+    }
+
+    .nav a.active {
+      border-bottom: 2px solid #003c2f;
+      padding-bottom: 7px;
+    }
+
+    .hero {
+      min-height: 390px;
+      padding: 80px 8%;
+      background:
+        linear-gradient(rgba(0, 45, 38, 0.25), rgba(0, 45, 38, 0.75)),
+        url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1800&q=80");
+      background-size: cover;
+      background-position: center;
+      color: white;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero h1 {
+      max-width: 760px;
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: 58px;
+      line-height: 1.05;
+      font-weight: 500;
+    }
+
+    .hero p {
+      max-width: 570px;
+      margin: 18px 0 0;
+      font-size: 18px;
+      color: #e8f1ed;
+    }
+
+    .cost-section {
+      width: 84%;
+      margin: -48px auto 60px;
+      background: white;
+      border: 1px solid #dfe8e4;
+      border-radius: 8px;
+      box-shadow: 0 16px 40px rgba(10, 35, 28, 0.16);
+      padding: 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .cost-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    .cost-header h2 {
+      margin: 0 0 6px;
+      font-family: Georgia, serif;
+      font-size: 34px;
+      font-weight: 500;
+    }
+
+    .cost-header p {
+      margin: 0;
+      color: #6b7a73;
+    }
+
+    .total-box {
+      background: #003c2f;
+      color: white;
+      padding: 14px 18px;
+      border-radius: 8px;
+      white-space: nowrap;
+      font-weight: 800;
+    }
+
+    .cost-form {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr 1fr auto;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid #dfe8e4;
+      border-radius: 8px;
+      padding: 13px;
+      background: #f9fbfa;
+      font-size: 14px;
+      outline: none;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      background: #003c2f;
+      color: white;
+      font-weight: 800;
+      padding: 13px 18px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin: 20px 0;
+    }
+
+    .summary-card {
+      background: #f7faf8;
+      border: 1px solid #dfe8e4;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .summary-card span {
+      display: block;
+      color: #6b7a73;
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    .summary-card strong {
+      font-size: 22px;
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 22px;
+    }
+
+    .panel {
+      border: 1px solid #dfe8e4;
+      border-radius: 8px;
+      padding: 18px;
+      background: #ffffff;
+    }
+
+    .panel h3 {
+      margin: 0 0 16px;
+      font-size: 22px;
+    }
+
+    .cost-bars {
+      display: grid;
+      gap: 13px;
+    }
+
+    .cost-bar {
+      display: grid;
+      grid-template-columns: 130px 1fr 90px;
+      gap: 10px;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .bar-track {
+      height: 11px;
+      background: #e9f4ef;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: #f4c542;
+    }
+
+    .cost-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .cost-item {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 14px;
+      align-items: center;
+      border: 1px solid #dfe8e4;
+      border-radius: 8px;
+      padding: 14px;
+      background: #f9fbfa;
+    }
+
+    .cost-item small {
+      color: #6b7a73;
+    }
+
+    .status {
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: #e9f4ef;
+      color: #003c2f;
+      font-weight: 800;
+      font-size: 12px;
+      text-transform: capitalize;
+    }
+
+    .delete-btn {
+      background: #b83b3b;
+      padding: 9px 11px;
+    }
+
+    .empty {
+      border: 1px dashed #b8c7c0;
+      border-radius: 8px;
+      padding: 28px;
+      text-align: center;
+      color: #6b7a73;
+      background: #f9fbfa;
+    }
+
+    .empty strong {
+      display: block;
+      color: #003c2f;
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 950px) {
+      .cost-section {
+        width: 92%;
+      }
+
+      .cost-form,
+      .summary-grid,
+      .filter-row,
+      .content-grid,
+      .cost-item {
+        grid-template-columns: 1fr;
+      }
+
+      .cost-header {
+        display: block;
+      }
+
+      .total-box {
+        display: inline-block;
+        margin-top: 14px;
+      }
+
+      .hero h1 {
+        font-size: 40px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="logo">GHUMNA JAM</div>
+
+    <nav class="nav">
+      <a href="{{ url_for('auth.home') }}">Home</a>
+      <a href="{{ url_for('auth.compare_treks') }}">Destinations</a>
+      <a href="{{ url_for('auth.bookings') }}">Trails</a>
+      <a href="{{ url_for('auth.tracking') }}">Trip History</a>
+      <a class="active" href="{{ url_for('auth.cost_breakdown') }}">Cost Breakdown</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h1>Every trek expense, clearly broken down.</h1>
+      <p>
+        Track permits, transport, food, accommodation, guide fees, gear,
+        emergency costs, and pending payments in one clean dashboard.
+      </p>
+    </div>
+  </section>
+
+  <main class="cost-section">
+    <div class="cost-header">
+      <div>
+        <h2>Cost Breakdown</h2>
+        <p>Add trip expenses and see a detailed spending summary.</p>
+      </div>
+
+      <div class="total-box" id="costTotal">NPR 0</div>
+    </div>
+
+    <form class="cost-form" id="costForm">
+      <input id="costTitle" placeholder="Expense title" required />
+
+      <select id="costCategory" required>
+        <option value="">Category</option>
+        <option value="permit">Permit</option>
+        <option value="transport">Transport</option>
+        <option value="food">Food</option>
+        <option value="accommodation">Accommodation</option>
+        <option value="guide">Guide / Porter</option>
+        <option value="gear">Gear</option>
+        <option value="emergency">Emergency</option>
+        <option value="misc">Miscellaneous</option>
+      </select>
+
+      <input id="costAmount" type="number" min="1" placeholder="Amount" required />
+
+      <select id="costStatus">
+        <option value="paid">Paid</option>
+        <option value="pending">Pending</option>
+      </select>
+
+      <button type="submit">Add Cost</button>
+    </form>
+
+    <section class="summary-grid">
+      <div class="summary-card">
+        <span>Total Paid</span>
+        <strong id="paidTotal">NPR 0</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>Pending Amount</span>
+        <strong id="pendingTotal">NPR 0</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>Per Person Cost</span>
+        <strong id="perPersonCost">NPR 0</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>Total Items</span>
+        <strong id="itemCount">0</strong>
+      </div>
+    </section>
+
+    <div class="filter-row">
+      <input id="searchInput" placeholder="Search expenses..." />
+
+      <select id="filterCategory">
+        <option value="all">All Categories</option>
+        <option value="permit">Permit</option>
+        <option value="transport">Transport</option>
+        <option value="food">Food</option>
+        <option value="accommodation">Accommodation</option>
+        <option value="guide">Guide / Porter</option>
+        <option value="gear">Gear</option>
+        <option value="emergency">Emergency</option>
+        <option value="misc">Miscellaneous</option>
+      </select>
+    </div>
+
+    <div class="content-grid">
+      <section class="panel">
+        <h3>Category Spending</h3>
+        <div id="costBars" class="cost-bars"></div>
+      </section>
+
+      <section class="panel">
+        <h3>Expense Records</h3>
+        <div id="costList" class="cost-list"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    let costs = JSON.parse(localStorage.getItem("ghumnaJamCosts") || "[]");
+    const trekkerCount = 1;
+
+    const form = document.getElementById("costForm");
+    const searchInput = document.getElementById("searchInput");
+    const filterCategory = document.getElementById("filterCategory");
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const title = document.getElementById("costTitle").value.trim();
+      const category = document.getElementById("costCategory").value;
+      const amount = Number(document.getElementById("costAmount").value);
+      const status = document.getElementById("costStatus").value;
+
+      if (!title || !category || amount <= 0) {
+        alert("Please enter a valid expense title, category, and amount.");
+        return;
+      }
+
+      costs.push({
+        id: Date.now().toString(),
+        title: title,
+        category: category,
+        amount: amount,
+        status: status,
+        createdAt: new Date().toISOString()
+      });
+
+      saveCosts();
+      form.reset();
+      renderCosts();
+    });
+
+    searchInput.addEventListener("input", renderCosts);
+    filterCategory.addEventListener("change", renderCosts);
+
+    function renderCosts() {
+      const searchText = searchInput.value.toLowerCase();
+      const selectedCategory = filterCategory.value;
+
+      const filteredCosts = costs.filter(function (item) {
+        const matchesSearch = item.title.toLowerCase().includes(searchText);
+        const matchesCategory =
+          selectedCategory === "all" || item.category === selectedCategory;
+
+        return matchesSearch && matchesCategory;
+      });
+
+      updateSummary();
+      renderBars();
+      renderList(filteredCosts);
+    }
+
+    function updateSummary() {
+      const total = costs.reduce(function (sum, item) {
+        return sum + item.amount;
+      }, 0);
+
+      const paid = costs
+        .filter(function (item) {
+          return item.status === "paid";
+        })
+        .reduce(function (sum, item) {
+          return sum + item.amount;
+        }, 0);
+
+      const pending = costs
+        .filter(function (item) {
+          return item.status === "pending";
+        })
+        .reduce(function (sum, item) {
+          return sum + item.amount;
+        }, 0);
+
+      document.getElementById("costTotal").textContent = money(total);
+      document.getElementById("paidTotal").textContent = money(paid);
+      document.getElementById("pendingTotal").textContent = money(pending);
+      document.getElementById("perPersonCost").textContent = money(total / trekkerCount);
+      document.getElementById("itemCount").textContent = costs.length;
+    }
+
+    function renderBars() {
+      const container = document.getElementById("costBars");
+      const total = costs.reduce(function (sum, item) {
+        return sum + item.amount;
+      }, 0);
+
+      const categoryTotals = {};
+
+      costs.forEach(function (item) {
+        categoryTotals[item.category] =
+          (categoryTotals[item.category] || 0) + item.amount;
+      });
+
+      const entries = Object.entries(categoryTotals);
+
+      if (entries.length === 0) {
+        container.innerHTML = `
+          <div class="empty">
+            <strong>No cost data yet.</strong>
+            Add an expense to see category spending.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = entries.map(function ([category, amount]) {
+        const percent = total > 0 ? (amount / total) * 100 : 0;
+
+        return `
+          <div class="cost-bar">
+            <strong>${formatCategory(category)}</strong>
+
+            <div class="bar-track">
+              <div class="bar-fill" style="width: ${percent}%"></div>
+            </div>
+
+            <span>${money(amount)}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderList(items) {
+      const container = document.getElementById("costList");
+
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="empty">
+            <strong>No expense records found.</strong>
+            Add a cost or change the search/filter.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = items.map(function (item) {
+        return `
+          <div class="cost-item">
+            <div>
+              <strong>${escapeHtml(item.title)}</strong><br />
+              <small>${formatCategory(item.category)} | ${new Date(item.createdAt).toLocaleDateString()}</small>
+            </div>
+
+            <strong>${money(item.amount)}</strong>
+
+            <div>
+              <span class="status">${item.status}</span>
+              <button class="delete-btn" onclick="deleteCost('${item.id}')">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function deleteCost(id) {
+      costs = costs.filter(function (item) {
+        return item.id !== id;
+      });
+
+      saveCosts();
+      renderCosts();
+    }
+
+    function saveCosts() {
+      localStorage.setItem("ghumnaJamCosts", JSON.stringify(costs));
+    }
+
+    function money(amount) {
+      return "NPR " + Math.round(amount).toLocaleString();
+    }
+
+    function formatCategory(category) {
+      return category
+        .replace("_", " ")
+        .replace(/\b\w/g, function (letter) {
+          return letter.toUpperCase();
+        });
+    }
+
+    function escapeHtml(text) {
+      return String(text).replace(/[&<>"']/g, function (character) {
+        return {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        }[character];
+      });
+    }
+
+    renderCosts();
+  </script>
+</body>
+</html>
