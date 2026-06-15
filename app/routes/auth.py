@@ -68,4 +68,8 @@ class AuthRoutes:
             self.controller.tracking
         )
 
+        self.bp.route("/checklist")(
+            self.controller.packing_checklist
+        )
+
         return self.bp
