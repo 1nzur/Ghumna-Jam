@@ -85,6 +85,26 @@
 
         <div>
             <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-2">
+                Emergency Contact Name
+            </label>
+            <input type="text"
+                   id="emergency-contact-name"
+                   placeholder="e.g. Himalayan Rescue Association"
+                   class="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+        </div>
+
+        <div>
+            <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-2">
+                Emergency Contact Phone
+            </label>
+            <input type="text"
+                   id="emergency-contact-phone"
+                   placeholder="e.g. +977-1-4440293"
+                   class="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+        </div>
+
+        <div>
+            <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-2">
                 New Password
             </label>
             <input type="password"
@@ -111,6 +131,17 @@
         const pfpPlaceholder = document.getElementById('pfp-placeholder');
         const fileNameDisplay = document.getElementById('file-name-display');
 
+        const contactNameInput = document.getElementById('emergency-contact-name');
+        const contactPhoneInput = document.getElementById('emergency-contact-phone');
+
+        // Load emergency contacts from localStorage
+        if (contactNameInput) {
+            contactNameInput.value = localStorage.getItem('emergency_contact_name') || '';
+        }
+        if (contactPhoneInput) {
+            contactPhoneInput.value = localStorage.getItem('emergency_contact_phone') || '';
+        }
+
         if (fileInput) {
             fileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -130,6 +161,18 @@
                         }
                     };
                     reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', () => {
+                if (contactNameInput) {
+                    localStorage.setItem('emergency_contact_name', contactNameInput.value.trim());
+                }
+                if (contactPhoneInput) {
+                    localStorage.setItem('emergency_contact_phone', contactPhoneInput.value.trim());
                 }
             });
         }
