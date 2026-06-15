@@ -72,4 +72,8 @@ class AuthRoutes:
             self.controller.packing_checklist
         )
 
+        self.bp.route("/recommendations")(
+            self.controller.recommendations
+        )
+
         return self.bp

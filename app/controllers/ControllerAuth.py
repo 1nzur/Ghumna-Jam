@@ -299,6 +299,54 @@ class AuthController:
                     "perk": "Easy first-night access",
                 },
             ],
+            4: [
+                {"name": "Manaslu Mountain Resort", "location": "Samagaon", "style": "Resort", "price_per_night": 6000, "perk": "Close to Manaslu Base Camp"},
+                {"name": "Larkya Rest House", "location": "Dharmasala", "style": "Tea house", "price_per_night": 4500, "perk": "Last stop before the pass"},
+            ],
+            5: [
+                {"name": "Mustang Heritage Hotel", "location": "Lo Manthang", "style": "Heritage", "price_per_night": 7500, "perk": "Traditional Tibetan architecture"},
+                {"name": "Oasis Guesthouse", "location": "Charang", "style": "Guesthouse", "price_per_night": 5500, "perk": "Views of the ancient monastery"},
+            ],
+            6: [
+                {"name": "Gokyo Lake Resort", "location": "Gokyo", "style": "Lakeside Lodge", "price_per_night": 8000, "perk": "Direct views of Gokyo Lake"},
+                {"name": "Ngozumpa Inn", "location": "Machhermo", "style": "Inn", "price_per_night": 6500, "perk": "Cozy dining room"},
+            ],
+            7: [
+                {"name": "Kanchenjunga Base Camp Lodge", "location": "Pangpema", "style": "Base Camp Lodge", "price_per_night": 6000, "perk": "Closest to the mountain"},
+                {"name": "Yalung Glacier Retreat", "location": "Ramche", "style": "Retreat", "price_per_night": 5000, "perk": "Glacier views"},
+            ],
+            8: [
+                {"name": "Mardi High Camp Lodge", "location": "High Camp", "style": "Lodge", "price_per_night": 5500, "perk": "Sunset views of Machapuchare"},
+                {"name": "Forest Camp Rest", "location": "Forest Camp", "style": "Eco-lodge", "price_per_night": 4000, "perk": "Immersive forest experience"},
+            ],
+            9: [
+                {"name": "Poon Hill Sunrise Hotel", "location": "Ghorepani", "style": "Hotel", "price_per_night": 5000, "perk": "Quick access to Poon Hill"},
+                {"name": "Ulleri Steps Inn", "location": "Ulleri", "style": "Inn", "price_per_night": 3500, "perk": "Rest after the steep climb"},
+            ],
+            10: [
+                {"name": "Sacred Lake Lodge", "location": "Gosaikunda", "style": "Lakeside Lodge", "price_per_night": 6500, "perk": "Right by the holy lake"},
+                {"name": "Laurebina Pass Retreat", "location": "Laurebina", "style": "Retreat", "price_per_night": 5500, "perk": "Panoramic mountain views"},
+            ],
+            11: [
+                {"name": "Rara Lake View Resort", "location": "Rara", "style": "Resort", "price_per_night": 8000, "perk": "Boating and lake views"},
+                {"name": "Pine Forest Guesthouse", "location": "Talcha", "style": "Guesthouse", "price_per_night": 4500, "perk": "Quiet forest setting"},
+            ],
+            12: [
+                {"name": "Makalu Base Camp Hut", "location": "Makalu Base Camp", "style": "Hut", "price_per_night": 7000, "perk": "Base camp experience"},
+                {"name": "Barun Valley Inn", "location": "Yangle Kharka", "style": "Inn", "price_per_night": 5000, "perk": "Beautiful valley views"},
+            ],
+            13: [
+                {"name": "Phoksundo Lake Hotel", "location": "Ringmo", "style": "Hotel", "price_per_night": 8500, "perk": "Overlooking the turquoise lake"},
+                {"name": "Shey Gompa Rest", "location": "Shey Gompa", "style": "Rest house", "price_per_night": 6000, "perk": "Near the ancient monastery"},
+            ],
+            14: [
+                {"name": "Nar Village Homestay", "location": "Nar", "style": "Homestay", "price_per_night": 4500, "perk": "Authentic local culture"},
+                {"name": "Phu Heritage Lodge", "location": "Phu", "style": "Lodge", "price_per_night": 5000, "perk": "Historic stone village setting"},
+            ],
+            15: [
+                {"name": "Kongma La Rest", "location": "Chukhung", "style": "Lodge", "price_per_night": 6000, "perk": "Preparation for the first pass"},
+                {"name": "Renjo La Viewpoint Hotel", "location": "Lungden", "style": "Hotel", "price_per_night": 6500, "perk": "Stunning sunset views"},
+            ],
         }
 
         return hotels_by_destination.get(dest_id, hotels_by_destination[1])
@@ -513,3 +561,8 @@ class AuthController:
     @login_required
     def packing_checklist(self):
         return render_template("packing_checklist.html")
+
+    @login_required
+    def recommendations(self):
+        destinations = self._sample_destinations()
+        return render_template("recommended_treks.html", destinations=destinations)
