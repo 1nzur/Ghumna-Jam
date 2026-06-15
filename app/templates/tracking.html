@@ -55,6 +55,10 @@
                     <button id="btn-clear-log" class="border border-gray-200 hover:bg-red-50 hover:text-red-700 text-gray-600 font-semibold text-xs px-5 py-3 rounded-xl transition">
                         Clear Path
                     </button>
+                    <button id="btn-sos" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2">
+                        <span>🚨</span>
+                        <span>SOS Trigger</span>
+                    </button>
                 </div>
                 <button id="btn-export-data" class="bg-brandYellow hover:bg-yellow-500 text-brandGreen font-bold text-xs px-6 py-3 rounded-xl transition shadow-sm">
                     Export Trail (JSON)
@@ -132,6 +136,25 @@
 
     </div>
 </section>
+
+<!-- SOS Modal Overlay -->
+<div id="sos-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300">
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-2xl p-6 sm:p-8 max-w-md w-full transform scale-95 opacity-0 transition-all duration-300 flex flex-col items-center text-center space-y-4" id="sos-modal-content">
+        <div class="w-16 h-16 rounded-full bg-red-50 border border-red-100 flex items-center justify-center text-3xl animate-bounce">
+            🚨
+        </div>
+        <h3 class="font-serif text-2xl text-red-600 font-bold">Emergency Signal Broadcasted</h3>
+        <p class="text-sm text-gray-600 leading-relaxed font-sans">
+            Your current coordinates and profile data have been sent to our alpine response center. Local rescue authorities and guides in your region have been notified.
+        </p>
+        <div class="bg-red-50 border border-red-100/60 p-4 rounded-xl w-full text-xs text-red-800 font-medium font-sans">
+            Help is on the way. Please remain at your location.
+        </div>
+        <button id="btn-close-sos" class="w-full bg-brandGreen hover:bg-emerald-950 text-white font-bold text-xs py-3 rounded-xl transition">
+            Acknowledge & Close
+        </button>
+    </div>
+</div>
 
 <!-- Client side Offline GPS Tracking System -->
 <script>
@@ -451,6 +474,34 @@
             downloadAnchor.click();
             downloadAnchor.remove();
         });
+
+        // 11. SOS Modal Event Listeners
+        const btnSos = document.getElementById('btn-sos');
+        const sosModal = document.getElementById('sos-modal');
+        const sosModalContent = document.getElementById('sos-modal-content');
+        const btnCloseSos = document.getElementById('btn-close-sos');
+
+        if (btnSos) {
+            btnSos.addEventListener('click', () => {
+                sosModal.classList.remove('hidden');
+                sosModal.classList.add('flex');
+                setTimeout(() => {
+                    sosModalContent.classList.remove('scale-95', 'opacity-0');
+                    sosModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            });
+        }
+
+        if (btnCloseSos) {
+            btnCloseSos.addEventListener('click', () => {
+                sosModalContent.classList.remove('scale-100', 'opacity-100');
+                sosModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    sosModal.classList.remove('flex');
+                    sosModal.classList.add('hidden');
+                }, 300);
+            });
+        }
 
         // Load saved state on start
         loadSavedTrail();
