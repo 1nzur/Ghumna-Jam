@@ -115,6 +115,8 @@
                         </div>
 
                         <p class="text-xs text-gray-500 line-clamp-3 mb-4 leading-relaxed">{{ dest.description }}</p>
+
+                        {% include "partials/weather-forecast-card.html" %}
                         
                         <div class="flex justify-between items-center pt-2">
                             <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400">Price</span>
@@ -261,4 +263,6 @@
             }
         }
     </script>
+
+    <script src="{{ url_for('static', filename='js/weather-forecast.js') }}?v=1"></script>
 {% endblock %}
