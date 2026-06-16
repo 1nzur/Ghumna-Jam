@@ -90,6 +90,8 @@
                     </li>
                 </ul>
             </div>
+
+            {% include "partials/weather-forecast.html" %}
         </div>
 
         <!-- Right: Booking Form Card (takes 1 col) -->
@@ -196,4 +198,6 @@
         travelersInput.addEventListener('input', updatePrice);
     });
 </script>
+
+<script src="{{ url_for('static', filename='js/weather-forecast.js') }}?v=1"></script>
 {% endblock %}
