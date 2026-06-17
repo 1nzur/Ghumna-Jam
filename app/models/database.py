@@ -78,4 +78,32 @@ def init_db(app):
             for column_name, statement in profile_columns.items():
                 if column_name not in existing_columns:
                     cursor.execute(statement)
+
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS follows (
+                    follower_id INT NOT NULL,
+                    following_id INT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (follower_id, following_id),
+                    FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+                """
+            )
+
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS notifications (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    actor_id INT,
+                    message TEXT NOT NULL,
+                    is_read TINYINT(1) DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE SET NULL
+                )
+                """
+            )
         db.commit()

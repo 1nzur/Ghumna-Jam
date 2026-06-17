@@ -501,6 +501,67 @@ class AuthController:
 
         return render_template("edit-profile.html", user=user)
 
+    @login_required
+    def follow_page(self):
+        current_user_id = session["user_id"]
+        search_query = request.args.get("q", "").strip()
+        all_users = BaseModel.get_all_users(exclude_user_id=current_user_id)
+
+        if search_query:
+            normalized_query = search_query.lower()
+            all_users = [
+                user for user in all_users
+                if normalized_query in user["full_name"].lower()
+                or normalized_query in user["email"].lower()
+            ]
+
+        followers = BaseModel.get_followers(current_user_id)
+        following = BaseModel.get_following(current_user_id)
+        notifications = BaseModel.get_notifications(current_user_id)
+        following_ids = {user["id"] for user in following}
+
+        return render_template(
+            "follow.html",
+            users=all_users,
+            followers=followers,
+            following=following,
+            following_ids=following_ids,
+            notifications=notifications,
+            search_query=search_query,
+        )
+
+    @login_required
+    def toggle_follow(self, user_id):
+        current_user_id = session["user_id"]
+        action = request.form.get("action", "follow")
+
+        if action == "follow":
+            if user_id != current_user_id:
+                BaseModel.follow_user(current_user_id, user_id)
+                flash("You are now following that trekker.", "success")
+        else:
+            BaseModel.unfollow_user(current_user_id, user_id)
+            flash("You are no longer following that trekker.", "success")
+
+        return redirect(url_for("auth.follow_page"))
+
+    @login_required
+    def post_activity(self):
+        current_user_id = session["user_id"]
+        activity_type = request.form.get("activity_type", "comment")
+        activity_text = request.form.get("activity_text", "shared a new update with followers.").strip()
+        actor = BaseModel.get_user_by_id(current_user_id)
+
+        if not activity_text:
+            flash("Please add a message before sharing your update.", "error")
+            return redirect(url_for("auth.follow_page"))
+
+        notification_message = f"{actor['full_name']} left a new {activity_type}: {activity_text}"
+        BaseModel.notify_followers(current_user_id, notification_message)
+
+        flash("Your followers have been notified of your latest post.", "success")
+        return redirect(url_for("auth.follow_page"))
+
     def logout(self):
         session.clear()
         flash("You have been logged out.", "success")

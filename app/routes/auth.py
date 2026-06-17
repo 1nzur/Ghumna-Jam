@@ -64,6 +64,18 @@ class AuthRoutes:
             self.controller.edit_profile
         )
 
+        self.bp.route("/follow")(
+            self.controller.follow_page
+        )
+
+        self.bp.route("/follow/<int:user_id>", methods=["POST"])(
+            self.controller.toggle_follow
+        )
+
+        self.bp.route("/follow/activity", methods=["POST"])(
+            self.controller.post_activity
+        )
+
         self.bp.route("/tracking")(
             self.controller.tracking
         )
