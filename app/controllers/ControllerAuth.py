@@ -338,9 +338,14 @@ class AuthController:
             full_name = request.form.get("full_name", "").strip()
             email = request.form.get("email", "").strip().lower()
             password = request.form.get("password", "")
+            terms_accepted = request.form.get("terms_accepted")
 
             if not full_name or not email or not password:
                 flash("Please fill in every required field.", "error")
+                return render_template("signup.html"), 400
+
+            if terms_accepted != "accepted":
+                flash("Please review and accept the Terms & Conditions before creating an account.", "error")
                 return render_template("signup.html"), 400
 
             try:
@@ -360,6 +365,9 @@ class AuthController:
 
     def signup(self):
         return self.register()
+
+    def terms(self):
+        return render_template("terms.html")
 
     @login_required
     def home(self):

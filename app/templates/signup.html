@@ -64,10 +64,17 @@
         </div>
     </label>
 
-    <div class="row">
-        <label style="display:flex; align-items:center; gap:8px;">
-            <input type="checkbox" required>
-            I agree to the terms
+    <div class="row terms-row">
+        <label class="terms-consent" for="terms_accepted">
+            <input id="terms_accepted"
+                   type="checkbox"
+                   name="terms_accepted"
+                   value="accepted"
+                   required>
+            <span>
+                I agree to the
+                <a href="{{ url_for('auth.terms') }}" target="_blank" rel="noopener">Terms &amp; Conditions</a>
+            </span>
         </label>
 
         <a href="{{ url_for('auth.login') }}">Already joined?</a>
