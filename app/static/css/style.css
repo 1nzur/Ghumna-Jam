@@ -228,6 +228,35 @@ body{
     text-decoration:underline;
 }
 
+.terms-row{
+    gap:14px;
+}
+
+.terms-consent{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    line-height:1.45;
+    max-width:280px;
+}
+
+.terms-consent input{
+    margin-top:2px;
+    flex:0 0 auto;
+}
+
+.terms-consent a{
+    color:var(--accent);
+    font-weight:800;
+    text-decoration:underline;
+    text-underline-offset:3px;
+}
+
+.terms-consent a:hover,
+.terms-consent a:focus{
+    color:#fff3bd;
+}
+
 .btn{
     background:var(--accent);
     border:none;

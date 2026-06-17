@@ -21,6 +21,10 @@ class AuthRoutes:
             self.controller.signup
         )
 
+        self.bp.route("/terms")(
+            self.controller.terms
+        )
+
         self.bp.route("/home")(
             self.controller.home
         )
