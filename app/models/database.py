@@ -106,4 +106,18 @@ def init_db(app):
                 )
                 """
             )
+
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS trek_records (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    distance_km DECIMAL(8,3) NOT NULL,
+                    duration_seconds INT NOT NULL,
+                    points_json LONGTEXT,
+                    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+                """
+            )
         db.commit()

@@ -76,6 +76,10 @@ class AuthRoutes:
             self.controller.post_activity
         )
 
+        self.bp.route("/follow/complete-trek", methods=["POST"])(
+            self.controller.complete_trek
+        )
+
         self.bp.route("/tracking")(
             self.controller.tracking
         )

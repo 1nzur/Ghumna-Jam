@@ -129,6 +129,39 @@ class BaseModel:
             raise
 
     @staticmethod
+    def record_trek(user_id, distance_km, duration_seconds, points_json=None):
+        db = get_db()
+        try:
+            with db.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO trek_records (user_id, distance_km, duration_seconds, points_json)
+                    VALUES (%s, %s, %s, %s)
+                    """,
+                    (user_id, distance_km, duration_seconds, points_json),
+                )
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+
+    @staticmethod
+    def get_last_trek(user_id):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT distance_km, duration_seconds, completed_at
+                FROM trek_records
+                WHERE user_id = %s
+                ORDER BY completed_at DESC
+                LIMIT 1
+                """,
+                (user_id,),
+            )
+            return cursor.fetchone()
+
+    @staticmethod
     def get_all_users(exclude_user_id=None):
         db = get_db()
         with db.cursor() as cursor:

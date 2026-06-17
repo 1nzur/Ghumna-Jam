@@ -562,6 +562,35 @@ class AuthController:
         flash("Your followers have been notified of your latest post.", "success")
         return redirect(url_for("auth.follow_page"))
 
+    @login_required
+    def complete_trek(self):
+        payload = request.get_json(silent=True)
+        if not payload:
+            flash("Unable to complete trek. Please try again.", "error")
+            return redirect(url_for("auth.follow_page"))
+
+        distance = payload.get("distance_km")
+        duration_seconds = payload.get("duration_seconds")
+        points = payload.get("points")
+
+        if distance is None or duration_seconds is None:
+            flash("Distance and duration are required to complete the trek.", "error")
+            return redirect(url_for("auth.follow_page"))
+
+        try:
+            BaseModel.record_trek(
+                session["user_id"],
+                float(distance),
+                int(duration_seconds),
+                str(points) if points is not None else None,
+            )
+        except Exception:
+            flash("Could not save trek summary at this time.", "error")
+            return redirect(url_for("auth.follow_page"))
+
+        flash("Trek completed and saved successfully.", "success")
+        return ("", 204)
+
     def logout(self):
         session.clear()
         flash("You have been logged out.", "success")
