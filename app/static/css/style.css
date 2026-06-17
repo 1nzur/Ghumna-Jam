@@ -195,6 +195,21 @@ body{
     font-size:15px;
     background:transparent;
 }
+.password-toggle{
+    border:none;
+    background:transparent;
+    color:#24302d;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:700;
+    padding:4px 0 4px 8px;
+    white-space:nowrap;
+}
+
+.password-toggle:hover,
+.password-toggle:focus{
+    color:#6a4f00;
+}
 
 .row{
     display:flex;
