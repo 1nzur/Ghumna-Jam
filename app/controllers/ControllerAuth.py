@@ -1,3 +1,4 @@
+import re
 from functools import wraps
 
 from flask import current_app, flash, redirect, render_template, request, session, url_for
@@ -19,6 +20,19 @@ def login_required(view):
 
 class AuthController:
     EXCHANGE_RATE = 134.0
+
+    @staticmethod
+    def _is_valid_email(email):
+        return bool(re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email))
+
+    @staticmethod
+    def _is_strong_password(password):
+        return (
+            len(password) >= 8
+            and re.search(r"[A-Z]", password)
+            and re.search(r"\d", password)
+            and re.search(r"[!@#$%^&*(),.?\":{}|<>~`_\-\\\[\];'\/+=]", password)
+        )
 
     def _sample_destination(self, dest_id=1):
         return {
@@ -343,10 +357,25 @@ class AuthController:
                 flash("Please fill in every required field.", "error")
                 return render_template("signup.html"), 400
 
+            if not self._is_valid_email(email):
+                flash("Please enter a valid email address with a domain (for example user@example.com).", "error")
+                return render_template("signup.html"), 400
+
+            if not self._is_strong_password(password):
+                flash(
+                    "Password must be at least 8 characters and include 1 uppercase letter, 1 number, and 1 special character.",
+                    "error",
+                )
+                return render_template("signup.html"), 400
+
             try:
                 init_db(current_app)
                 BaseModel.create_user(full_name, email, password)
             except ValueError as exc:
+                message = str(exc).strip().lower()
+                if "already exists" in message or "already used" in message:
+                    flash("Account already registered, please log in.", "error")
+                    return redirect(url_for("auth.login"))
                 flash(str(exc), "error")
                 return render_template("signup.html"), 400
             except Exception:
