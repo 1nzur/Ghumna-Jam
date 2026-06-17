@@ -506,7 +506,19 @@ class AuthController:
                 flash("Name and email are required.", "error")
                 return render_template("edit-profile.html", user=user), 400
 
+            if not self._is_valid_email(email):
+                flash("Please enter a valid email address with a domain (for example user@example.com).", "error")
+                return render_template("edit-profile.html", user=user), 400
+
+            if password and not self._is_strong_password(password):
+                flash(
+                    "Password must be at least 8 characters and include 1 uppercase letter, 1 number, and 1 special character.",
+                    "error",
+                )
+                return render_template("edit-profile.html", user=user), 400
+
             try:
+                init_db(current_app)
                 BaseModel.update_user(
                     session["user_id"],
                     full_name,
