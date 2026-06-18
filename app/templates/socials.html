@@ -137,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
             createdAt: Date.now() - 7200000,
             likes: 128,
             liked: false,
+            recommendations: 34,
             comments: [
                 { author: 'Arjun Rai', text: 'How cold was it at dawn?', replies: [{ author: 'Maya Sherpa', text: 'Around -8 C, but the wind made it feel colder.' }] }
             ]
@@ -153,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             createdAt: Date.now() - 14400000,
             likes: 94,
             liked: false,
+            recommendations: 27,
             comments: [
                 { author: 'Pemba Lama', text: 'This route is on my list.', replies: [] }
             ]
@@ -169,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
             createdAt: Date.now() - 19800000,
             likes: 76,
             liked: false,
+            recommendations: 19,
             comments: []
         }
     ];
@@ -184,7 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            return JSON.parse(stored);
+            return JSON.parse(stored).map(post => ({
+                ...post,
+                recommendations: Number(post.recommendations || 0)
+            }));
         } catch (error) {
             localStorage.setItem(storageKey, JSON.stringify(starterPosts));
             return starterPosts;
@@ -252,10 +258,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="flex items-center gap-4">
                         <button class="like-post text-sm font-bold ${post.liked ? 'text-red-600' : 'text-brandGreen'}" type="button">${post.liked ? 'Liked' : 'Like'}</button>
                         <button class="focus-comment text-sm font-bold text-brandGreen" type="button">Comment</button>
-                        <button class="recommend-post text-sm font-bold text-gray-500" type="button">Recommend</button>
+                        <button class="recommend-post text-sm font-bold text-brandGreen" type="button">Recommend</button>
                     </div>
 
                     <p class="text-sm font-bold text-brandGreen">${post.likes} likes</p>
+                    <p class="text-sm font-bold text-brandGreen">${post.recommendations || 0} people recommended this</p>
                     <p class="text-sm text-gray-700 leading-relaxed"><strong class="text-brandGreen">${escapeHtml(post.author)}</strong> ${escapeHtml(post.caption)}</p>
 
                     <div class="space-y-3">
@@ -355,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             container.querySelector('.recommend-post')?.addEventListener('click', () => {
-                post.likes += 3;
+                post.recommendations = Number(post.recommendations || 0) + 1;
                 savePosts();
                 renderFeed();
             });
@@ -442,6 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
             createdAt: Date.now(),
             likes: 0,
             liked: false,
+            recommendations: 0,
             comments: []
         });
 
