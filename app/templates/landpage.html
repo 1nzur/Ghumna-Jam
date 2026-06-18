@@ -59,6 +59,37 @@
         <button onclick="setSuggestionFilter('easy')" class="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-1.5 rounded-full transition">Beginner Friendly</button>
     </section>
 
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400">Achievement Spotlight</p>
+                    <h2 class="font-serif text-2xl text-brandGreen mt-1">Earn badges as you complete each trek</h2>
+                </div>
+                <a href="{{ url_for('auth.badges') }}" class="inline-flex items-center justify-center bg-brandGreen hover:bg-emerald-950 text-white text-sm font-semibold px-5 py-3 rounded-xl transition">
+                    View Badge Tracker
+                </a>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                <div class="bg-amber-50 rounded-xl p-4">
+                    <span class="text-2xl">🥾</span>
+                    <h3 class="font-semibold text-brandGreen mt-2">First Trek</h3>
+                    <p class="text-xs text-gray-500">Complete your first adventure</p>
+                </div>
+                <div class="bg-sky-50 rounded-xl p-4">
+                    <span class="text-2xl">🏔️</span>
+                    <h3 class="font-semibold text-brandGreen mt-2">Summit Scout</h3>
+                    <p class="text-xs text-gray-500">Reach 3 completed treks</p>
+                </div>
+                <div class="bg-orange-50 rounded-xl p-4">
+                    <span class="text-2xl">👑</span>
+                    <h3 class="font-semibold text-brandGreen mt-2">Trail Master</h3>
+                    <p class="text-xs text-gray-500">Unlock all 5 milestone rewards</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Dynamic featured destinations grid -->
     <main id="destinations" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 scroll-mt-24">
         <div class="flex justify-between items-end mb-8">
