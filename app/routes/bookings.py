@@ -130,3 +130,29 @@ def my_bookings():
     my_bookings_list = execute_query(query, (user_id,))
     
     return render_template("bookings.html", bookings=my_bookings_list)
+
+
+@bookings_bp.route("/bookings/<int:booking_id>/cancel", methods=["POST"])
+def cancel_booking(booking_id):
+    if "user_id" not in session:
+        flash("Please log in to manage your bookings.", "error")
+        return redirect(url_for("auth.login", next=url_for("bookings.my_bookings")))
+
+    booking_rows = execute_query(
+        "SELECT id, status FROM bookings WHERE id = ? AND user_id = ?",
+        (booking_id, session["user_id"]),
+    )
+    if not booking_rows:
+        abort(404)
+
+    if booking_rows[0]["status"] == "Cancelled":
+        flash("That booking is already cancelled.", "error")
+        return redirect(url_for("bookings.my_bookings"))
+
+    execute_query(
+        "UPDATE bookings SET status = ? WHERE id = ? AND user_id = ?",
+        ("Cancelled", booking_id, session["user_id"]),
+        commit=True,
+    )
+    flash("Your booking has been cancelled.", "success")
+    return redirect(url_for("bookings.my_bookings"))
