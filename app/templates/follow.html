@@ -165,6 +165,37 @@
             </div>
 
             <div class="bg-white border border-gray-100 rounded-3xl shadow-sm p-6">
+                <h2 class="font-semibold text-brandGreen text-xl">Suggested Trekkers</h2>
+                <p class="text-sm text-gray-500 mt-1">Trekkers you might like to follow.</p>
+                <div class="mt-4 space-y-3">
+                    {% for user in suggested_users %}
+                        <div class="flex items-center gap-3 rounded-3xl border border-gray-100 p-3">
+                            <div class="w-11 h-11 rounded-full bg-brandGreen/10 overflow-hidden flex items-center justify-center text-brandGreen font-semibold text-lg">
+                                {% if user.profile_picture_url %}
+                                    <img src="{{ user.profile_picture_url }}" alt="{{ user.full_name }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    {{ user.full_name[0] | upper }}
+                                {% endif %}
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-brandGreen">
+                                    <a href="{{ url_for('auth.trekker_profile', user_id=user.id) }}" class="hover:text-emerald-950 transition">{{ user.full_name }}</a>
+                                </p>
+                                <p class="text-xs text-gray-500">Suggested</p>
+                            </div>
+                            <form action="{{ url_for('auth.toggle_follow', user_id=user.id) }}" method="POST" class="ml-auto">
+                                <input type="hidden" name="action" value="follow">
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <button type="submit" class="px-4 py-2 rounded-full bg-brandGreen text-white text-xs font-semibold hover:bg-emerald-950 transition">Follow</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <p class="text-sm text-gray-500">No suggestions right now.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-100 rounded-3xl shadow-sm p-6">
                 <h2 class="font-semibold text-brandGreen text-xl">Followers</h2>
                 <div class="mt-4 space-y-3">
                     {% for user in followers %}

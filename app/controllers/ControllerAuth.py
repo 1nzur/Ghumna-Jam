@@ -1,4 +1,5 @@
 from functools import wraps
+import random
 
 from flask import current_app, flash, redirect, render_template, request, session, url_for
 
@@ -566,12 +567,23 @@ class AuthController:
         notifications = BaseModel.get_notifications(current_user_id)
         following_ids = {user["id"] for user in following}
 
+        # Suggest up to 3 users the current user isn't following yet
+        candidates = [u for u in all_users if u["id"] not in following_ids and u["id"] != current_user_id]
+        suggested_users = []
+        try:
+            if candidates:
+                suggested_users = random.sample(candidates, min(3, len(candidates)))
+        except Exception:
+            # fallback deterministic slice if sampling fails
+            suggested_users = candidates[:3]
+
         return render_template(
             "follow.html",
             users=all_users,
             followers=followers,
             following=following,
             following_ids=following_ids,
+            suggested_users=suggested_users,
             notifications=notifications,
             search_query=search_query,
         )
