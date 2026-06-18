@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Ghumna Jam - Trip History{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold">Your Trip History</h1>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">Review every booked trek, status, and travel details.</p>
+        </div>
+        <a href="{{ url_for('auth.home') }}" class="text-xs font-semibold text-brandGreen hover:text-emerald-900 transition">Back to Home</a>
+    </div>
+
+    {% if trips %}
+        <div class="grid gap-6">
+            {% for trip in trips %}
+                <a href="{{ url_for('auth.trip_detail', trip_id=trip.trip_id) }}" class="group block bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-lg transition duration-200 overflow-hidden">
+                    <div class="grid gap-4 md:grid-cols-[240px_minmax(0,1fr)] items-center p-6">
+                        <div class="relative h-52 md:h-40 rounded-3xl overflow-hidden bg-gray-100">
+                            <img src="{{ trip.dest_image }}" alt="{{ trip.dest_name }}" class="h-full w-full object-cover object-center">
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                                <div>
+                                    <span class="text-[10px] uppercase tracking-wider font-semibold text-gray-400">Trip</span>
+                                    <h2 class="font-serif text-xl sm:text-2xl text-brandGreen font-semibold mt-1">{{ trip.dest_name }}</h2>
+                                </div>
+                                <span class="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider {{ 'bg-emerald-50 text-emerald-800 border border-emerald-100' if trip.history_status == 'Completed' else 'bg-blue-50 text-blue-800 border border-blue-100' if trip.history_status == 'Yet to be' else 'bg-red-50 text-red-800 border border-red-100' }}">
+                                    {{ trip.history_status }}
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 text-xs text-gray-500 border-t border-b border-gray-100 py-4">
+                                <div>
+                                    <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Departure</span>
+                                    <span class="mt-1 block font-semibold text-gray-700">{{ trip.departure_date }}</span>
+                                </div>
+                                <div>
+                                    <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Travelers</span>
+                                    <span class="mt-1 block font-semibold text-gray-700">{{ trip.travelers_count }}</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 text-xs text-gray-500">
+                                <div class="rounded-3xl bg-gray-50 p-4">
+                                    <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Duration</span>
+                                    <span class="mt-1 block font-semibold text-brandGreen">{{ trip.duration_days }} Days</span>
+                                </div>
+                                <div class="rounded-3xl bg-gray-50 p-4">
+                                    <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Difficulty</span>
+                                    <span class="mt-1 block font-semibold text-brandGreen">{{ trip.difficulty }}</span>
+                                </div>
+                                <div class="rounded-3xl bg-gray-50 p-4">
+                                    <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Total Cost</span>
+                                    <span class="mt-1 block font-semibold text-brandGreen">Rs. {{ "{:,.2f}".format(trip.total_price) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+            <span class="text-5xl block mb-4">📜</span>
+            <h3 class="font-serif text-xl text-brandGreen font-semibold mb-2">No trip history yet</h3>
+            <p class="text-sm text-gray-500 mb-6">All completed bookings will appear here so you can review past itineraries and details.</p>
+            <a href="{{ url_for('auth.home') }}" class="bg-brandGreen hover:bg-emerald-950 text-white font-bold text-sm px-6 py-3 rounded-xl transition shadow-md">Start a new booking</a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

@@ -68,6 +68,14 @@ class AuthRoutes:
             self.controller.follow_page
         )
 
+        self.bp.route("/trip-history")(
+            self.controller.trip_history
+        )
+
+        self.bp.route("/trip-history/<int:trip_id>")(
+            self.controller.trip_detail
+        )
+
         self.bp.route("/follow/<int:user_id>", methods=["POST"])(
             self.controller.toggle_follow
         )

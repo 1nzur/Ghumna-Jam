@@ -422,6 +422,44 @@ class AuthController:
     def bookings(self):
         return render_template("bookings.html", bookings=session.get("bookings", []))
 
+    @login_required
+    def trip_history(self):
+        trips = session.get("bookings", [])
+        today = None
+        try:
+            from datetime import date
+            today = date.today()
+        except Exception:
+            today = None
+
+        def compute_status(trip):
+            if trip.get("status") == "Cancelled":
+                return "Cancelled"
+            if trip.get("departure_date") and today is not None:
+                try:
+                    from datetime import datetime
+                    dep = datetime.strptime(trip["departure_date"], "%Y-%m-%d").date()
+                    if dep < today:
+                        return "Completed"
+                    return "Yet to be"
+                except Exception:
+                    return trip.get("status", "Confirmed")
+            return trip.get("status", "Confirmed")
+
+        for trip in trips:
+            trip["history_status"] = compute_status(trip)
+        return render_template("trip_history.html", trips=trips)
+
+    @login_required
+    def trip_detail(self, trip_id):
+        trips = session.get("bookings", [])
+        trip = next((item for item in trips if item.get("trip_id") == trip_id), None)
+        if trip is None:
+            flash("Trip not found.", "error")
+            return redirect(url_for("auth.trip_history"))
+
+        return render_template("trip_detail.html", trip=trip)
+
     def destination_detail(self, dest_id):
         destination = next(
             (dest for dest in self._sample_destinations() if dest["id"] == dest_id),
@@ -443,8 +481,10 @@ class AuthController:
         departure_date = request.form.get("departure_date", "Not selected")
         selected_hotel = request.form.get("selected_hotel", "No hotel selected")
         bookings = session.get("bookings", [])
+        trip_id = max((item.get("trip_id", 0) for item in bookings), default=0) + 1
         bookings.append(
             {
+                "trip_id": trip_id,
                 "dest_name": destination["name"],
                 "dest_image": destination["image_url"],
                 "status": "Confirmed",
@@ -453,6 +493,7 @@ class AuthController:
                 "duration_days": destination["duration_days"],
                 "difficulty": destination["difficulty"],
                 "selected_hotel": selected_hotel,
+                "guide_name": "Sherpa Guide Dorje",
                 "booked_at": "Today",
                 "total_price": destination["price_per_person"] * travelers_count,
             }
