@@ -1,3 +1,5 @@
+from datetime import date
+
 from flask import Blueprint, render_template, redirect, url_for, request, session, flash, abort
 from app.db import execute_query
 
@@ -18,7 +20,7 @@ def compare_destinations():
 
     if len(destination_ids) < 2:
         flash("Please select at least two destinations to compare.", "error")
-        return redirect(url_for('home') + "#destinations")
+        return redirect(url_for('main.home') + "#destinations")
 
     placeholders = ",".join(["?"] * len(destination_ids))
     destinations = execute_query(
@@ -34,7 +36,7 @@ def compare_destinations():
 
     if len(ordered_destinations) < 2:
         flash("Could not find enough destinations to compare.", "error")
-        return redirect(url_for('home') + "#destinations")
+        return redirect(url_for('main.home') + "#destinations")
 
     best_price = min(destination["price_per_person"] for destination in ordered_destinations)
     return render_template(
@@ -71,13 +73,23 @@ def book_trip(dest_id):
     if not departure_date or not travelers_count_str:
         flash("Departure date and number of travelers are required.", "error")
         return redirect(url_for('bookings.destination_detail', dest_id=dest_id))
+
+    try:
+        selected_departure = date.fromisoformat(departure_date)
+    except ValueError:
+        flash("Please choose a valid departure date.", "error")
+        return redirect(url_for('bookings.destination_detail', dest_id=dest_id))
+
+    if selected_departure <= date.today():
+        flash("Departure date must be in the future.", "error")
+        return redirect(url_for('bookings.destination_detail', dest_id=dest_id))
         
     try:
         travelers_count = int(travelers_count_str)
-        if travelers_count < 1:
+        if travelers_count < 1 or travelers_count > 12:
             raise ValueError()
     except ValueError:
-        flash("Please enter a valid number of travelers (at least 1).", "error")
+        flash("Please enter a valid number of travelers between 1 and 12.", "error")
         return redirect(url_for('bookings.destination_detail', dest_id=dest_id))
         
     total_price = destination['price_per_person'] * travelers_count
