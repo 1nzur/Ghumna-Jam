@@ -1,16 +1,25 @@
 import os
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'alpine-heritage-secret-key-1823')
+    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-ghumna-jam-change-me")
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
     
-    # Database configs - Defaults to SQLite, falls back to MySQL if environment variables are set
-    DB_TYPE = os.environ.get('DB_TYPE', 'sqlite') # 'sqlite' or 'mysql'
+    DB_TYPE = os.environ.get("DB_TYPE", "sqlite").lower()
     
-    # SQLite Configuration
-    SQLITE_DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'db.sqlite')
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    SQLITE_DB_PATH = os.environ.get(
+        "SQLITE_DB_PATH",
+        os.path.join(BASE_DIR, "db.sqlite"),
+    )
     
-    # MySQL Configuration
-    MYSQL_HOST = os.environ.get('MYSQL_HOST', 'localhost')
-    MYSQL_USER = os.environ.get('MYSQL_USER', 'root')
-    MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', '')
-    MYSQL_DB = os.environ.get('MYSQL_DB', 'ghumnajam')
+    MYSQL_HOST = os.environ.get("MYSQL_HOST", "localhost")
+    MYSQL_USER = os.environ.get("MYSQL_USER", "root")
+    MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD", "")
+    MYSQL_DB = os.environ.get("MYSQL_DB", "ghumnajam")
+
+
+class TestConfig(Config):
+    TESTING = True
+    WTF_CSRF_ENABLED = False
+    SQLITE_DB_PATH = ":memory:"
