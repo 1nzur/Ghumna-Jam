@@ -9,6 +9,21 @@
         <p class="text-xs sm:text-sm text-gray-500 mt-1">Keep track of your active summits, treks, and planned alpine journeys.</p>
     </div>
 
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+            <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400">Trips booked</p>
+            <h2 class="font-serif text-3xl text-brandGreen mt-1">{{ bookings|length }}</h2>
+        </div>
+        <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+            <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400">Badge progress</p>
+            <h2 class="font-serif text-3xl text-brandGreen mt-1">{{ bookings|length }} / 5</h2>
+        </div>
+        <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+            <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400">Next reward</p>
+            <h2 class="font-serif text-xl text-brandGreen mt-1">{% if bookings|length >= 5 %}Trail Master{% elif bookings|length >= 3 %}Summit Scout{% elif bookings|length >= 1 %}First Trek{% else %}Start your first trek{% endif %}</h2>
+        </div>
+    </div>
+
     <!-- Bookings Listing -->
     {% if bookings %}
         <div class="space-y-6">
