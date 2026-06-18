@@ -3,6 +3,64 @@ import pymysql
 import pymysql.cursors
 from app.config import Config
 
+DEFAULT_DESTINATIONS = [
+    (
+        "Everest Base Camp",
+        "Hard",
+        14,
+        1500.0,
+        "The most iconic path across the roof of the world, leading to the foot of Mount Everest.",
+        "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=600&q=80",
+        "Autumn",
+    ),
+    (
+        "Annapurna Circuit",
+        "Moderate",
+        18,
+        1200.0,
+        "A classic trek offering incredibly diverse landscapes, from lush sub-tropical forests to alpine meadows.",
+        "https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=600&q=80",
+        "Spring",
+    ),
+    (
+        "Langtang Valley",
+        "Easy",
+        8,
+        800.0,
+        "A stunning valley trek rich in culture, ancient monasteries, and spectacular mountain views close to Kathmandu.",
+        "https://images.unsplash.com/photo-1486915309851-b0cc1f8a0084?auto=format&fit=crop&w=600&q=80",
+        "Spring",
+    ),
+    (
+        "Mardi Himal",
+        "Moderate",
+        5,
+        520.0,
+        "A compact ridge-line trek with close views of Machhapuchhre and quiet forest camps above Pokhara.",
+        "https://images.unsplash.com/photo-1533130061792-64b345e4a833?auto=format&fit=crop&w=600&q=80",
+        "Autumn",
+    ),
+    (
+        "Gosaikunda Lakes",
+        "Moderate",
+        6,
+        640.0,
+        "A sacred alpine lake route with dramatic passes, rhododendron forests, and wide Langtang panoramas.",
+        "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80",
+        "Spring",
+    ),
+    (
+        "Upper Mustang",
+        "Hard",
+        12,
+        1800.0,
+        "A remote trans-Himalayan journey through wind-carved cliffs, cave settlements, and Tibetan-influenced villages.",
+        "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=600&q=80",
+        "Autumn",
+    ),
+]
+
+
 def get_db_connection():
     """
     Returns a connection and a cursor object based on DB_TYPE in Config.
@@ -164,25 +222,18 @@ def init_db():
         cursor.close()
         conn.close()
 
-    # 2. Seed Default Destinations if table is empty
-    dests = execute_query("SELECT COUNT(*) as count FROM destinations")
-    if dests and dests[0]['count'] == 0:
-        print("Seeding default destinations...")
-        default_destinations = [
-            ("Everest Base Camp", "Hard", 14, 1500.0, 
-             "The most iconic path across the roof of the world, leading to the foot of Mount Everest.",
-             "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=600&q=80",
-             "Autumn"),
-            ("Annapurna Circuit", "Moderate", 18, 1200.0,
-             "A classic trek offering incredibly diverse landscapes, from lush sub-tropical forests to alpine meadows.",
-             "https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=600&q=80",
-             "Spring"),
-            ("Langtang Valley", "Easy", 8, 800.0,
-             "A stunning valley trek rich in culture, ancient monasteries, and spectacular mountain views close to Kathmandu.",
-             "https://images.unsplash.com/photo-1486915309851-b0cc1f8a0084?auto=format&fit=crop&w=600&q=80",
-             "Spring")
-        ]
-        for dest in default_destinations:
+    # 2. Seed default destinations without disturbing existing bookings.
+    existing_rows = execute_query("SELECT name FROM destinations")
+    existing_names = {row["name"] for row in existing_rows}
+    missing_destinations = [
+        destination
+        for destination in DEFAULT_DESTINATIONS
+        if destination[0] not in existing_names
+    ]
+
+    if missing_destinations:
+        print(f"Seeding {len(missing_destinations)} destination(s)...")
+        for dest in missing_destinations:
             execute_query(
                 "INSERT INTO destinations (name, difficulty, duration_days, price_per_person, description, image_url, season) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 dest,
