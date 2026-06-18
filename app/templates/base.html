@@ -82,15 +82,15 @@
                 <a href="{{ url_for('auth.home') }}#destinations" class="hover:text-brandGreen transition">Destinations</a>
                 {% if session.get('user_id') %}
                     <a href="{{ url_for('auth.bookings') }}" class="hover:text-brandGreen transition">My Bookings</a>
-                    <a href="{{ url_for('auth.tracking') }}" class="hover:text-brandGreen transition">Tracking</a>
-                    <a href="{{ url_for('auth.socials') }}" class="hover:text-brandGreen transition">Socials</a>
+                    <a href="{{ url_for('auth.badges') }}" class="hover:text-brandGreen transition">Badges</a>
+                    <a href="{{ url_for('auth.notifications') }}" class="hover:text-brandGreen transition">Notifications</a>
                 {% endif %}
             </nav>
 
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-6">
                 {% if session.get('user_id') %}
-                    <div class="hidden md:flex items-center space-x-4">
-                        <span class="text-xs text-gray-500">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-xs text-gray-500 hidden sm:inline-block">
                             Welcome, <strong class="text-brandGreen">{{ session['user_name'] }}</strong>
                         </span>
                         <a href="{{ url_for('auth.edit_profile') }}" class="w-8 h-8 rounded-full bg-brandGreen/10 flex items-center justify-center text-brandGreen font-bold text-xs overflow-hidden" title="Edit Profile">
@@ -100,57 +100,22 @@
                                 {{ session['user_name'][0] | upper }}
                             {% endif %}
                         </a>
-                        <a href="{{ url_for('auth.edit_profile') }}" class="text-xs font-semibold text-gray-600 hover:text-brandGreen transition">My Profile</a>
-                        <a href="{{ url_for('auth.logout') }}" class="text-xs font-semibold text-red-600 hover:text-red-700 transition">Log Out</a>
+                        <a href="{{ url_for('auth.edit_profile') }}" class="text-xs font-semibold text-gray-600 hover:text-brandGreen transition">
+                            My Profile
+                        </a>
+                        <a href="{{ url_for('auth.logout') }}" class="text-xs font-semibold text-red-600 hover:text-red-700 transition">
+                            Log Out
+                        </a>
                     </div>
                 {% else %}
-                    <div class="hidden md:flex items-center space-x-4">
+                    <div class="flex items-center space-x-4">
                         <a href="{{ url_for('auth.login') }}" class="text-xs font-semibold text-gray-600 hover:text-brandGreen transition">Log In</a>
                         <a href="{{ url_for('auth.signup') }}" class="text-xs bg-brandGreen text-white hover:bg-emerald-950 px-4 py-2 rounded-lg transition font-medium">Sign Up</a>
                     </div>
                 {% endif %}
-
-                <!-- Mobile hamburger -->
-                <button id="mobile-menu-btn" class="md:hidden flex flex-col justify-center items-center w-9 h-9 rounded-lg hover:bg-gray-50 transition" aria-label="Open menu">
-                    <span class="hamburger-line block w-5 h-0.5 bg-brandGreen mb-1 transition-all"></span>
-                    <span class="hamburger-line block w-5 h-0.5 bg-brandGreen mb-1 transition-all"></span>
-                    <span class="hamburger-line block w-5 h-0.5 bg-brandGreen transition-all"></span>
-                </button>
             </div>
         </div>
-
-        <!-- Mobile slide-down menu -->
-        <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white px-4 pb-5 pt-3 space-y-1">
-            <a href="{{ url_for('auth.home') }}" class="block rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-brandGreen transition">Home</a>
-            <a href="{{ url_for('auth.home') }}#destinations" class="block rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-brandGreen transition">Destinations</a>
-            {% if session.get('user_id') %}
-                <a href="{{ url_for('auth.bookings') }}" class="block rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-brandGreen transition">My Bookings</a>
-                <a href="{{ url_for('auth.tracking') }}" class="block rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-brandGreen transition">Tracking</a>
-                <a href="{{ url_for('auth.socials') }}" class="block rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-brandGreen transition">Socials</a>
-                <hr class="border-gray-100 my-1">
-                <a href="{{ url_for('auth.edit_profile') }}" class="block rounded-lg px-4 py-2.5 text-sm font-semibold text-brandGreen hover:bg-gray-50 transition">My Profile</a>
-                <a href="{{ url_for('auth.logout') }}" class="block rounded-lg px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition">Log Out</a>
-            {% else %}
-                <hr class="border-gray-100 my-1">
-                <a href="{{ url_for('auth.login') }}" class="block rounded-lg px-4 py-2.5 text-sm font-semibold text-brandGreen hover:bg-gray-50 transition">Log In</a>
-                <a href="{{ url_for('auth.signup') }}" class="block rounded-lg px-4 py-2.5 text-sm font-semibold bg-brandGreen text-white hover:bg-emerald-950 transition">Sign Up</a>
-            {% endif %}
-        </div>
     </header>
-
-    <script>
-    (function() {
-        const btn = document.getElementById('mobile-menu-btn');
-        const menu = document.getElementById('mobile-menu');
-        if (btn && menu) {
-            btn.addEventListener('click', () => {
-                const open = !menu.classList.contains('hidden');
-                menu.classList.toggle('hidden', open);
-                btn.setAttribute('aria-expanded', String(!open));
-            });
-        }
-    })();
-    </script>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -194,7 +159,7 @@
                 <h5 class="text-[10px] font-bold uppercase tracking-widest text-brandGreen mb-4">Company</h5>
                 <ul class="space-y-2 text-xs">
                     <li><a href="{{ url_for('auth.home') }}" class="hover:text-brandGreen">About Us</a></li>
-                    <li><a href="{{ url_for('auth.terms') }}" class="hover:text-brandGreen">Terms of Service</a></li>
+                    <li><a href="{{ url_for('auth.home') }}" class="hover:text-brandGreen">Terms of Service</a></li>
                     <li><a href="{{ url_for('auth.home') }}" class="hover:text-brandGreen">Privacy Policy</a></li>
                 </ul>
             </div>
@@ -206,20 +171,4 @@
     </footer>
 </body>
 {% endif %}
-
-<script>
-document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
-    const input = document.getElementById(toggle.dataset.passwordToggle);
-
-    if (!input) {
-        return;
-    }
-
-    toggle.addEventListener('click', () => {
-        const isPassword = input.type === 'password';
-        input.type = isPassword ? 'text' : 'password';
-        toggle.textContent = isPassword ? 'Hide' : 'Show';
-        toggle.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
-    });
-});
-</script></html>
+</html>
