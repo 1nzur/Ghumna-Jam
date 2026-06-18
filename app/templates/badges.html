@@ -16,9 +16,9 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {% for badge in badge_progress %}
-        <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+        <div class="badge-card bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
             <div class="flex items-start justify-between gap-3">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ badge.color }} flex items-center justify-center text-2xl shadow-sm">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ badge.color }} flex items-center justify-center text-2xl shadow-sm progress-track">
                     {{ badge.icon }}
                 </div>
                 {% if badge.earned %}
@@ -35,7 +35,7 @@
                     <span>Progress</span>
                     <span>{{ badge.progress_value }} / {{ badge.progress_total }}</span>
                 </div>
-                <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden progress-track">
                     <div class="h-full rounded-full bg-gradient-to-r {{ badge.color }}" style="width: {{ badge.progress_percent }}%"></div>
                 </div>
             </div>
