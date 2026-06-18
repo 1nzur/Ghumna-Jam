@@ -19,7 +19,9 @@
     documenting your mountain journeys.
 </p>
 
-<form method="post" action="{{ url_for('auth.signup') }}" style="display:contents;">
+<form method="post" action="{{ url_for('auth.signup') }}" style="display:contents;" aria-label="Signup form">
+    <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+
     <label class="field">
         Full Name
 
@@ -27,6 +29,7 @@
             <span aria-hidden="true">&#128100;</span>
             <input type="text"
                    name="full_name"
+                   value="{{ request.form.get('full_name', '') }}"
                    placeholder="John Doe"
                    autocomplete="name"
                    required>
@@ -40,6 +43,7 @@
             <span aria-hidden="true">&#9993;</span>
             <input type="email"
                    name="email"
+                   value="{{ request.form.get('email', '') }}"
                    placeholder="explorer@alpine.com"
                    autocomplete="email"
                    required>
@@ -61,7 +65,7 @@
 
     <div class="row">
         <label style="display:flex; align-items:center; gap:8px;">
-            <input type="checkbox" required>
+            <input type="checkbox" name="terms" required {% if request.form.get('terms') %}checked{% endif %}>
             I agree to the terms
         </label>
 

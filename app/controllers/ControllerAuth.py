@@ -344,9 +344,14 @@ class AuthController:
             full_name = request.form.get("full_name", "").strip()
             email = request.form.get("email", "").strip().lower()
             password = request.form.get("password", "")
+            terms = request.form.get("terms")
 
             if not full_name or not email or not password:
                 flash("Please fill in every required field.", "error")
+                return render_template("signup.html"), 400
+
+            if not terms:
+                flash("You must agree to the terms to create an account.", "error")
                 return render_template("signup.html"), 400
 
             try:
@@ -359,7 +364,10 @@ class AuthController:
                 flash("We could not create your account right now.", "error")
                 return render_template("signup.html"), 500
 
-            flash("Account created successfully. You can log in now.", "success")
+            flash("Account created successfully. Please log in to continue.", "success")
+            next_url = request.form.get("next") or request.args.get("next")
+            if next_url:
+                return redirect(url_for("auth.login", next=next_url))
             return redirect(url_for("auth.login"))
 
         return render_template("signup.html")
