@@ -13,7 +13,7 @@
         <div>
             <h1 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold">Offline Trail Tracker</h1>
             <p class="text-xs sm:text-sm text-gray-500 mt-1">
-                Record your real-time path, distance, and coordinates. Operates without an active internet connection.
+                Record your real-time route, elevation gain, descent, distance, and calories burned.
             </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
@@ -84,10 +84,62 @@
                         <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-distance">0.00 km</span>
                     </div>
                     <div class="bg-gray-50 p-4 rounded-xl">
-                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Recorded Logs</span>
-                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-logs-count">0 pts</span>
+                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Elevation</span>
+                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-elevation">--</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Ascended</span>
+                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-ascent">0 m</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Descended</span>
+                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-descent">0 m</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Calories</span>
+                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-calories">0 kcal</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Moving Time</span>
+                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-duration">00:00</span>
                     </div>
                 </div>
+
+                <div class="rounded-xl border border-gray-100 bg-white p-4 space-y-3">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Live Route</span>
+                            <span class="font-semibold text-brandGreen text-sm" id="route-status">Waiting to start</span>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400" id="stat-logs-count">0 pts</span>
+                    </div>
+                    <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+                        <div id="route-progress" class="h-full w-0 bg-brandYellow transition-all duration-500"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                            <span class="block text-gray-400">Started</span>
+                            <span class="font-semibold text-gray-700" id="route-started">--</span>
+                        </div>
+                        <div>
+                            <span class="block text-gray-400">Last Update</span>
+                            <span class="font-semibold text-gray-700" id="route-updated">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <label class="block rounded-xl border border-gray-100 bg-gray-50 p-4">
+                    <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400 mb-2">Trekker Weight For Calorie Estimate</span>
+                    <div class="flex items-center gap-3">
+                        <input id="trekker-weight"
+                               type="number"
+                               min="30"
+                               max="180"
+                               value="70"
+                               class="w-24 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-brandGreen outline-none focus:border-brandYellow">
+                        <span class="text-xs font-semibold text-gray-500">kg</span>
+                    </div>
+                </label>
 
                 <!-- Live Coordinate Specs -->
                 <div class="space-y-4 pt-2">
@@ -100,7 +152,7 @@
                         <span class="font-semibold text-gray-700" id="coord-longitude">--</span>
                     </div>
                     <div class="flex justify-between text-xs py-2.5 border-b border-gray-50">
-                        <span class="text-gray-400">Altitude</span>
+                        <span class="text-gray-400">Altitude From Sea Level</span>
                         <span class="font-semibold text-gray-700" id="coord-altitude">--</span>
                     </div>
                     <div class="flex justify-between text-xs py-2.5 border-b border-gray-50">
@@ -165,6 +217,7 @@
         let map = null;
         let pathLine = null;
         let currentMarker = null;
+        let trackingStartedAt = null;
 
         // DOM elements
         const connectionStatus = document.getElementById('connection-status');
@@ -175,6 +228,16 @@
 
         const statDistance = document.getElementById('stat-distance');
         const statLogsCount = document.getElementById('stat-logs-count');
+        const statElevation = document.getElementById('stat-elevation');
+        const statAscent = document.getElementById('stat-ascent');
+        const statDescent = document.getElementById('stat-descent');
+        const statCalories = document.getElementById('stat-calories');
+        const statDuration = document.getElementById('stat-duration');
+        const routeStatus = document.getElementById('route-status');
+        const routeProgress = document.getElementById('route-progress');
+        const routeStarted = document.getElementById('route-started');
+        const routeUpdated = document.getElementById('route-updated');
+        const trekkerWeight = document.getElementById('trekker-weight');
 
         const coordLatitude = document.getElementById('coord-latitude');
         const coordLongitude = document.getElementById('coord-longitude');
@@ -263,6 +326,7 @@
             if (stored) {
                 try {
                     trailPoints = JSON.parse(stored);
+                    trackingStartedAt = trailPoints[0]?.timestamp || null;
                     updateStats();
                     renderStoredTrail();
                 } catch (e) {
@@ -320,11 +384,104 @@
             return R * c;
         }
 
+        function calculateElevationTotals() {
+            if (trailPoints.length < 2) return { ascent: 0, descent: 0 };
+
+            let ascent = 0;
+            let descent = 0;
+
+            for (let i = 1; i < trailPoints.length; i++) {
+                const previousAlt = Number(trailPoints[i - 1].alt);
+                const currentAlt = Number(trailPoints[i].alt);
+
+                if (!Number.isFinite(previousAlt) || !Number.isFinite(currentAlt)) {
+                    continue;
+                }
+
+                const change = currentAlt - previousAlt;
+
+                if (Math.abs(change) < 3) {
+                    continue;
+                }
+
+                if (change > 0) {
+                    ascent += change;
+                } else {
+                    descent += Math.abs(change);
+                }
+            }
+
+            return { ascent, descent };
+        }
+
+        function calculateMovingMinutes() {
+            if (trailPoints.length < 2) return 0;
+
+            const firstTimestamp = Number(trailPoints[0].timestamp);
+            const lastTimestamp = Number(trailPoints[trailPoints.length - 1].timestamp);
+
+            if (!Number.isFinite(firstTimestamp) || !Number.isFinite(lastTimestamp)) {
+                return 0;
+            }
+
+            return Math.max(0, (lastTimestamp - firstTimestamp) / 60000);
+        }
+
+        function formatDuration(minutes) {
+            const totalMinutes = Math.floor(minutes);
+            const hours = Math.floor(totalMinutes / 60);
+            const mins = totalMinutes % 60;
+            return String(hours).padStart(2, '0') + ':' + String(mins).padStart(2, '0');
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return '--';
+
+            return new Date(timestamp).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function calculateCalories(distanceKm, ascentMeters, movingMinutes) {
+            const weightKg = Math.min(180, Math.max(30, Number(trekkerWeight?.value) || 70));
+            const hours = movingMinutes / 60;
+            const trekkingMet = 6.0;
+            const distanceCalories = distanceKm * weightKg * 1.05;
+            const ascentCalories = (ascentMeters / 100) * weightKg * 0.18;
+            const timeCalories = hours * trekkingMet * weightKg;
+
+            return Math.max(distanceCalories + ascentCalories, timeCalories);
+        }
+
         // 6. Update stats layout
         function updateStats() {
             statLogsCount.textContent = trailPoints.length + ' pts';
             const dist = calculateCumulativeDistance();
+            const elevation = calculateElevationTotals();
+            const movingMinutes = calculateMovingMinutes();
+            const lastPoint = trailPoints[trailPoints.length - 1];
+            const currentAltitude = Number(lastPoint?.alt);
+            const calories = calculateCalories(dist, elevation.ascent, movingMinutes);
+
             statDistance.textContent = dist.toFixed(2) + ' km';
+            statElevation.textContent = Number.isFinite(currentAltitude) ? currentAltitude.toFixed(0) + ' m' : '--';
+            statAscent.textContent = elevation.ascent.toFixed(0) + ' m';
+            statDescent.textContent = elevation.descent.toFixed(0) + ' m';
+            statCalories.textContent = Math.round(calories) + ' kcal';
+            statDuration.textContent = formatDuration(movingMinutes);
+
+            if (trailPoints.length > 0) {
+                routeStatus.textContent = isTracking ? 'Tracking live route' : 'Route saved locally';
+                routeStarted.textContent = formatTime(trackingStartedAt || trailPoints[0].timestamp);
+                routeUpdated.textContent = formatTime(lastPoint.timestamp);
+                routeProgress.style.width = Math.min(100, Math.max(8, dist * 10)) + '%';
+            } else {
+                routeStatus.textContent = isTracking ? 'Waiting for GPS signal' : 'Waiting to start';
+                routeStarted.textContent = '--';
+                routeUpdated.textContent = '--';
+                routeProgress.style.width = '0';
+            }
         }
 
         // 7. Geolocation Callbacks
@@ -356,6 +513,7 @@
                 }
 
                 const point = { lat, lng, alt, speed, acc, timestamp };
+                trackingStartedAt = trackingStartedAt || timestamp;
                 trailPoints.push(point);
                 localStorage.setItem('ghumna_jam_trail_log', JSON.stringify(trailPoints));
 
@@ -406,6 +564,8 @@
             }
 
             isTracking = true;
+            trackingStartedAt = trackingStartedAt || Date.now();
+            updateStats();
             btnToggleTracking.className = "bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2";
             btnToggleTracking.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-white animate-pulse"></span><span>Pause Tracking</span>';
 
@@ -430,6 +590,7 @@
             
             gpsStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-200";
             gpsStatus.textContent = "GPS Paused";
+            updateStats();
         }
 
         btnToggleTracking.addEventListener('click', () => {
@@ -445,6 +606,7 @@
             if (confirm("Are you sure you want to delete your current path? This action cannot be undone.")) {
                 localStorage.removeItem('ghumna_jam_trail_log');
                 trailPoints = [];
+                trackingStartedAt = null;
                 updateStats();
                 
                 if (pathLine) {
@@ -456,6 +618,7 @@
                 coordAltitude.textContent = '--';
                 coordSpeed.textContent = '--';
                 coordAccuracy.textContent = '--';
+                statElevation.textContent = '--';
             }
         });
 
@@ -466,7 +629,21 @@
                 return;
             }
 
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trailPoints, null, 2));
+            const distanceKm = calculateCumulativeDistance();
+            const elevation = calculateElevationTotals();
+            const movingMinutes = calculateMovingMinutes();
+            const exportPayload = {
+                summary: {
+                    distance_km: Number(distanceKm.toFixed(3)),
+                    ascended_meters: Math.round(elevation.ascent),
+                    descended_meters: Math.round(elevation.descent),
+                    moving_minutes: Math.round(movingMinutes),
+                    calories_burned: Math.round(calculateCalories(distanceKm, elevation.ascent, movingMinutes)),
+                    trekker_weight_kg: Number(trekkerWeight?.value) || 70
+                },
+                points: trailPoints
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportPayload, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
             downloadAnchor.setAttribute("download", `ghumna_jam_trail_${new Date().toISOString().slice(0,10)}.json`);
@@ -474,6 +651,10 @@
             downloadAnchor.click();
             downloadAnchor.remove();
         });
+
+        if (trekkerWeight) {
+            trekkerWeight.addEventListener('input', updateStats);
+        }
 
         // 11. SOS Modal Event Listeners
         const btnSos = document.getElementById('btn-sos');
