@@ -240,13 +240,18 @@
                     attribution: '© OpenStreetMap contributors'
                 }).addTo(map);
 
-                // Draw path line
-                pathLine = L.polyline([], {
+                // Draw path line from any existing route coordinates and keep it live for new points
+                const initialRoute = trailPoints.map(point => [point.lat, point.lng]);
+                pathLine = L.polyline(initialRoute, {
                     color: '#F5C647', // brandYellow
                     weight: 5,
                     opacity: 0.85,
                     lineJoin: 'round'
                 }).addTo(map);
+
+                if (initialRoute.length > 0) {
+                    map.fitBounds(pathLine.getBounds(), { padding: [24, 24] });
+                }
 
                 // Current location marker (styled circular indicator)
                 const locationIcon = L.divIcon({
