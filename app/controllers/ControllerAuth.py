@@ -449,7 +449,12 @@ class AuthController:
 
     @login_required
     def bookings(self):
-        return render_template("bookings.html", bookings=session.get("bookings", []))
+        try:
+            bookings = BaseModel.get_user_bookings(session["user_id"])
+        except Exception:
+            flash("Could not load booking history at the moment.", "error")
+            bookings = []
+        return render_template("bookings.html", bookings=bookings)
 
     def destination_detail(self, dest_id):
         destination = next(
@@ -463,31 +468,39 @@ class AuthController:
         )
 
     @login_required
+    @login_required
     def book_trip(self, dest_id):
         destination = next(
             (dest for dest in self._sample_destinations() if dest["id"] == dest_id),
             self._sample_destination(dest_id),
         )
         travelers_count = int(request.form.get("travelers_count", 1) or 1)
-        departure_date = request.form.get("departure_date", "Not selected")
+        departure_date = request.form.get("departure_date", None)
         selected_hotel = request.form.get("selected_hotel", "No hotel selected")
-        bookings = session.get("bookings", [])
-        bookings.append(
-            {
-                "dest_name": destination["name"],
-                "dest_image": destination["image_url"],
-                "status": "Confirmed",
-                "departure_date": departure_date,
-                "travelers_count": travelers_count,
-                "duration_days": destination["duration_days"],
-                "difficulty": destination["difficulty"],
-                "selected_hotel": selected_hotel,
-                "booked_at": "Today",
-                "total_price": destination["price_per_person"] * travelers_count,
-            }
-        )
-        session["bookings"] = bookings
-        session.modified = True
+
+        if travelers_count < 1:
+            flash("Please select at least one traveler.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+
+        try:
+            init_db(current_app)
+            BaseModel.create_booking(
+                session["user_id"],
+                destination["id"],
+                destination["name"],
+                destination["image_url"],
+                departure_date,
+                travelers_count,
+                destination["duration_days"],
+                destination["difficulty"],
+                selected_hotel,
+                "Confirmed",
+                destination["price_per_person"] * travelers_count,
+            )
+        except Exception:
+            flash("We could not complete your booking right now.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+
         flash("Your journey has been added to your bookings.", "success")
         return redirect(url_for("auth.bookings"))
 
