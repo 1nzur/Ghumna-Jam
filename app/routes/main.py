@@ -10,7 +10,26 @@ def home():
     destinations = execute_query(
         "SELECT * FROM destinations ORDER BY duration_days, price_per_person"
     )
-    return render_template("landpage.html", destinations=destinations)
+    review_rows = execute_query(
+        """
+        SELECT destination_id, COUNT(*) AS review_count, AVG(rating) AS average_rating
+        FROM reviews
+        WHERE status = 'Published'
+        GROUP BY destination_id
+        """
+    )
+    review_summary = {
+        row["destination_id"]: {
+            "count": row["review_count"],
+            "average": float(row["average_rating"]),
+        }
+        for row in review_rows
+    }
+    return render_template(
+        "landpage.html",
+        destinations=destinations,
+        review_summary=review_summary,
+    )
 
 
 @main_bp.route("/login")

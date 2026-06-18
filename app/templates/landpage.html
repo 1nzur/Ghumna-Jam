@@ -87,6 +87,16 @@
                     </div>
                     <div class="p-5">
                         <h3 class="font-serif text-xl text-brandGreen mb-3 font-semibold">{{ dest.name }}</h3>
+                        {% set summary = review_summary.get(dest.id) %}
+                        <div class="flex items-center justify-between text-[11px] text-gray-500 mb-3">
+                            {% if summary %}
+                                <span class="font-bold text-brandGreen">{{ "%.1f"|format(summary.average) }}/5 rating</span>
+                                <span>{{ summary.count }} review{% if summary.count != 1 %}s{% endif %}</span>
+                            {% else %}
+                                <span class="font-bold text-brandGreen">New to reviews</span>
+                                <span>No reviews yet</span>
+                            {% endif %}
+                        </div>
                         
                         <div class="grid grid-cols-3 gap-2 text-center border-t border-b border-gray-50 py-3 mb-4 text-[11px] text-gray-500">
                             <div>
