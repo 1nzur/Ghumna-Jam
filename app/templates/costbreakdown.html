@@ -318,7 +318,7 @@
 
     .plan-row {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 12px;
       margin-bottom: 20px;
     }
@@ -567,6 +567,7 @@
         <input id="planName" placeholder="Plan name" />
         <input id="startDate" type="date" />
         <input id="endDate" type="date" />
+        <input id="groupSize" type="number" min="1" value="1" placeholder="Group size" />
         <select id="templateSelector">
           <option value="">Choose saved template</option>
         </select>
@@ -617,7 +618,7 @@
 
     <section class="summary-grid">
       <div class="summary-card">
-        <span>Total Paid</span>
+        <span>Total Group Expenses</span>
         <strong id="paidTotal">NPR 0</strong>
       </div>
 
@@ -627,13 +628,13 @@
       </div>
 
       <div class="summary-card">
-        <span>Per Person Cost</span>
-        <strong id="perPersonCost">NPR 0</strong>
+        <span>Group Size</span>
+        <strong id="groupSizeTotal">1</strong>
       </div>
 
       <div class="summary-card">
-        <span>Total Items</span>
-        <strong id="itemCount">0</strong>
+        <span>Per Person Cost</span>
+        <strong id="perPersonCost">NPR 0</strong>
       </div>
     </section>
 
@@ -701,6 +702,7 @@
     const planNameInput = document.getElementById("planName");
     const startDateInput = document.getElementById("startDate");
     const endDateInput = document.getElementById("endDate");
+    const groupSizeInput = document.getElementById("groupSize");
     const routeSelect = document.getElementById("routeSelect");
     const routeInfo = document.getElementById("routeInfo");
     const gearChecklist = document.getElementById("gearChecklist");
@@ -812,6 +814,7 @@
 
     searchInput.addEventListener("input", renderCosts);
     filterCategory.addEventListener("change", renderCosts);
+    groupSizeInput.addEventListener("change", renderCosts);
     saveTemplateBtn.addEventListener("click", saveTemplate);
     createFromTemplateBtn.addEventListener("click", createFromSelectedTemplate);
     clearPlanBtn.addEventListener("click", clearPlan);
@@ -855,10 +858,14 @@
           return sum + item.amount;
         }, 0);
 
+      const groupSize = Math.max(1, Number(document.getElementById("groupSize").value) || 1);
+      const perPerson = total / groupSize;
+
       document.getElementById("costTotal").textContent = money(total);
-      document.getElementById("paidTotal").textContent = money(paid);
+      document.getElementById("paidTotal").textContent = money(total);
       document.getElementById("pendingTotal").textContent = money(pending);
-      document.getElementById("perPersonCost").textContent = money(total / trekkerCount);
+      document.getElementById("groupSizeTotal").textContent = groupSize;
+      document.getElementById("perPersonCost").textContent = money(perPerson);
       document.getElementById("itemCount").textContent = costs.length;
     }
 
