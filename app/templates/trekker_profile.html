@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Ghumna Jam - Trekker Profile{% endblock %}
+
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
+        <div class="lg:w-2/3 space-y-6">
+            <div class="bg-white border border-gray-100 rounded-3xl shadow-sm p-6">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h1 class="font-serif text-3xl text-brandGreen font-semibold">{{ user.full_name }}</h1>
+                        <p class="text-sm text-gray-500 mt-1">Trekker profile, connections and recent trek details.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ url_for('auth.follow_page') }}" class="text-xs font-semibold text-brandGreen hover:text-emerald-950 transition">← Back to follow hub</a>
+                    </div>
+                </div>
+                <div class="mt-6 grid gap-6 md:grid-cols-3">
+                    <div class="flex items-center gap-4 rounded-3xl border border-gray-100 p-5 bg-brandGreen/5">
+                        <div class="w-16 h-16 rounded-full bg-brandGreen/10 overflow-hidden flex items-center justify-center text-brandGreen font-semibold text-2xl">
+                            {% if user.profile_picture_url %}
+                                <img src="{{ user.profile_picture_url }}" alt="{{ user.full_name }}" class="w-full h-full object-cover">
+                            {% else %}
+                                {{ user.full_name[0] | upper }}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.3em] text-brandGreen/70">Profile</p>
+                            <p class="text-lg font-semibold text-brandGreen">{{ user.full_name }}</p>
+                            <p class="text-xs text-gray-500">{{ user.email }}</p>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-gray-100 p-5 bg-white">
+                        <div class="text-xs uppercase tracking-[0.3em] text-brandGreen/70">Followers</div>
+                        <div class="mt-4 text-4xl font-semibold text-brandGreen">{{ followers|length }}</div>
+                        <p class="text-sm text-gray-500 mt-2">Trekkers who follow {{ user.full_name.split(' ')[0] }}.</p>
+                    </div>
+
+                    <div class="rounded-3xl border border-gray-100 p-5 bg-white">
+                        <div class="text-xs uppercase tracking-[0.3em] text-brandGreen/70">Following</div>
+                        <div class="mt-4 text-4xl font-semibold text-brandGreen">{{ following|length }}</div>
+                        <p class="text-sm text-gray-500 mt-2">Trekkers {{ user.full_name.split(' ')[0] }} follows.</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 class="font-semibold text-brandGreen text-xl">Connection status</h2>
+                        <p class="text-sm text-gray-500 mt-1">
+                            {% if is_own_profile %}
+                                This is your public trekker profile.
+                            {% elif is_following %}
+                                You are following {{ user.full_name }}.
+                            {% else %}
+                                You are not following this trekker yet.
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if not is_own_profile %}
+                        <form action="{{ url_for('auth.toggle_follow', user_id=user.id) }}" method="POST" class="sm:flex-shrink-0">
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            {% if is_following %}
+                                <input type="hidden" name="action" value="unfollow">
+                                <button type="submit" class="px-6 py-3 rounded-full border border-gray-200 text-sm font-semibold text-brandGreen hover:bg-brandGreen/10 transition">Unfollow</button>
+                            {% else %}
+                                <input type="hidden" name="action" value="follow">
+                                <button type="submit" class="px-6 py-3 rounded-full bg-brandGreen text-white text-sm font-semibold hover:bg-emerald-950 transition">Follow</button>
+                            {% endif %}
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-100 rounded-3xl shadow-sm p-6">
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <h2 class="font-semibold text-brandGreen text-xl">Recent Trek</h2>
+                        <p class="text-sm text-gray-500 mt-1">Last recorded trek from this trekker's profile.</p>
+                    </div>
+                </div>
+                {% if last_trek %}
+                    <div class="mt-6 grid gap-4 sm:grid-cols-3">
+                        <div class="rounded-3xl border border-gray-100 p-4 bg-gray-50">
+                            <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Distance</span>
+                            <span class="font-serif text-2xl font-bold text-brandGreen mt-2 block">{{ last_trek.distance_km }} km</span>
+                        </div>
+                        <div class="rounded-3xl border border-gray-100 p-4 bg-gray-50">
+                            <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Duration</span>
+                            <span class="font-serif text-2xl font-bold text-brandGreen mt-2 block">{{ last_trek.duration_seconds // 3600 }}h {{ (last_trek.duration_seconds % 3600) // 60 }}m</span>
+                        </div>
+                        <div class="rounded-3xl border border-gray-100 p-4 bg-gray-50">
+                            <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Completed</span>
+                            <span class="block text-sm text-gray-600 mt-2">{{ last_trek.completed_at }}</span>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-sm text-gray-500 mt-4">No trek details found for this trekker yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <aside class="lg:w-1/3 space-y-6">
+            <div class="bg-white border border-gray-100 rounded-3xl shadow-sm p-6">
+                <h2 class="font-semibold text-brandGreen text-xl">Followers</h2>
+                <div class="mt-4 space-y-3">
+                    {% for follower in followers %}
+                        <div class="flex items-center gap-3 rounded-3xl border border-gray-100 p-3">
+                            <div class="w-11 h-11 rounded-full bg-brandGreen/10 overflow-hidden flex items-center justify-center text-brandGreen font-semibold text-lg">
+                                {% if follower.profile_picture_url %}
+                                    <img src="{{ follower.profile_picture_url }}" alt="{{ follower.full_name }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    {{ follower.full_name[0] | upper }}
+                                {% endif %}
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-brandGreen">
+                                    <a href="{{ url_for('auth.trekker_profile', user_id=follower.id) }}" class="hover:text-emerald-950 transition">{{ follower.full_name }}</a>
+                                </p>
+                                <p class="text-xs text-gray-500">Follower</p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-sm text-gray-500">This trekker has no followers yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-100 rounded-3xl shadow-sm p-6">
+                <h2 class="font-semibold text-brandGreen text-xl">Following</h2>
+                <div class="mt-4 space-y-3">
+                    {% for followee in following %}
+                        <div class="flex items-center gap-3 rounded-3xl border border-gray-100 p-3">
+                            <div class="w-11 h-11 rounded-full bg-brandGreen/10 overflow-hidden flex items-center justify-center text-brandGreen font-semibold text-lg">
+                                {% if followee.profile_picture_url %}
+                                    <img src="{{ followee.profile_picture_url }}" alt="{{ followee.full_name }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    {{ followee.full_name[0] | upper }}
+                                {% endif %}
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-brandGreen">
+                                    <a href="{{ url_for('auth.trekker_profile', user_id=followee.id) }}" class="hover:text-emerald-950 transition">{{ followee.full_name }}</a>
+                                </p>
+                                <p class="text-xs text-gray-500">Following</p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-sm text-gray-500">This trekker is not following anyone yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}

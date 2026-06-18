@@ -115,7 +115,9 @@
                                     {% endif %}
                                 </div>
                                 <div>
-                                    <p class="font-semibold text-sm text-brandGreen">{{ user.full_name }}</p>
+                                    <p class="font-semibold text-sm text-brandGreen">
+                                        <a href="{{ url_for('auth.trekker_profile', user_id=user.id) }}" class="hover:text-emerald-950 transition">{{ user.full_name }}</a>
+                                    </p>
                                     <p class="text-xs text-gray-500">{{ user.email }}</p>
                                 </div>
                             </div>
@@ -150,7 +152,9 @@
                                 {% endif %}
                             </div>
                             <div>
-                                <p class="text-sm font-semibold text-brandGreen">{{ user.full_name }}</p>
+                                <p class="text-sm font-semibold text-brandGreen">
+                                    <a href="{{ url_for('auth.trekker_profile', user_id=user.id) }}" class="hover:text-emerald-950 transition">{{ user.full_name }}</a>
+                                </p>
                                 <p class="text-xs text-gray-500">Following</p>
                             </div>
                         </div>
@@ -173,7 +177,9 @@
                                 {% endif %}
                             </div>
                             <div>
-                                <p class="text-sm font-semibold text-brandGreen">{{ user.full_name }}</p>
+                                <p class="text-sm font-semibold text-brandGreen">
+                                    <a href="{{ url_for('auth.trekker_profile', user_id=user.id) }}" class="hover:text-emerald-950 transition">{{ user.full_name }}</a>
+                                </p>
                                 <p class="text-xs text-gray-500">Follower</p>
                             </div>
                         </div>

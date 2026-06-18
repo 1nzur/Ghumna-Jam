@@ -572,9 +572,39 @@ class AuthController:
         )
 
     @login_required
+    def trekker_profile(self, user_id):
+        current_user_id = session["user_id"]
+        user = BaseModel.get_user_by_id(user_id)
+        if user is None:
+            flash("The requested trekker was not found.", "error")
+            return redirect(url_for("auth.follow_page"))
+
+        followers = BaseModel.get_followers(user_id)
+        following = BaseModel.get_following(user_id)
+        current_following_ids = {
+            follow["id"] for follow in BaseModel.get_following(current_user_id)
+        }
+        is_following = user_id in current_following_ids
+        is_own_profile = user_id == current_user_id
+        last_trek = BaseModel.get_last_trek(user_id)
+
+        return render_template(
+            "trekker_profile.html",
+            user=user,
+            followers=followers,
+            following=following,
+            is_following=is_following,
+            is_own_profile=is_own_profile,
+            last_trek=last_trek,
+        )
+
+    @login_required
     def toggle_follow(self, user_id):
         current_user_id = session["user_id"]
         action = request.form.get("action", "follow")
+        next_url = request.form.get("next")
+        if not next_url or not next_url.startswith("/") or "//" in next_url:
+            next_url = url_for("auth.follow_page")
 
         if action == "follow":
             if user_id != current_user_id:
@@ -584,7 +614,7 @@ class AuthController:
             BaseModel.unfollow_user(current_user_id, user_id)
             flash("You are no longer following that trekker.", "success")
 
-        return redirect(url_for("auth.follow_page"))
+        return redirect(next_url)
 
     @login_required
     def post_activity(self):

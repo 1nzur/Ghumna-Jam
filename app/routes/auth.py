@@ -67,7 +67,9 @@ class AuthRoutes:
         self.bp.route("/follow")(
             self.controller.follow_page
         )
-
+        self.bp.route("/trekker/<int:user_id>")(
+            self.controller.trekker_profile
+        )
         self.bp.route("/trip-history")(
             self.controller.trip_history
         )
