@@ -425,9 +425,23 @@ class AuthController:
 
     @login_required
     def home(self):
+        try:
+            destinations = BaseModel.get_all_destinations()
+        except Exception:
+            flash("Could not load destinations right now.", "error")
+            destinations = []
+
+        favorite_ids = []
+        if "user_id" in session:
+            try:
+                favorite_ids = BaseModel.get_favorite_destination_ids(session["user_id"])
+            except Exception:
+                favorite_ids = []
+
         return render_template(
             "landpage.html",
-            destinations=self._sample_destinations(),
+            destinations=destinations,
+            favorite_ids=favorite_ids,
             user_name=session.get("user_name"),
         )
 
@@ -514,18 +528,19 @@ class AuthController:
         if remove_id:
             selected_ids = [trek_id for trek_id in selected_ids if trek_id != remove_id]
 
-        destinations = self._sample_destinations()
-        selected_treks = [
-            destination
-            for destination in destinations
-            if destination["id"] in selected_ids
-        ]
+        try:
+            destinations = BaseModel.get_all_destinations()
+        except Exception:
+            flash("Could not load destinations right now.", "error")
+            destinations = []
+
+        selected_treks = BaseModel.get_destinations_by_ids(selected_ids) if selected_ids else []
 
         return render_template(
             "compare.html",
             destinations=destinations,
             selected_treks=selected_treks,
-            selected_ids=[trek["id"] for trek in selected_treks],
+            selected_ids=selected_ids,
         )
 
     @login_required
@@ -538,22 +553,37 @@ class AuthController:
         return render_template("bookings.html", bookings=bookings)
 
     def destination_detail(self, dest_id):
-        destination = next(
-            (dest for dest in self._sample_destinations() if dest["id"] == dest_id),
-            self._sample_destination(dest_id),
-        )
+        destination = BaseModel.get_destination_by_id(dest_id)
+        if not destination:
+            flash("Destination not found.", "error")
+            return redirect(url_for("auth.home"))
+
+        destination_reviews = BaseModel.get_reviews_for_destination(dest_id)
+        average_rating_info = BaseModel.get_average_rating_for_destination(dest_id)
+        average_rating = average_rating_info.get("average_rating") or 0
+        review_count = average_rating_info.get("review_count") or 0
+        favorite_ids = []
+
+        if "user_id" in session:
+            favorite_ids = BaseModel.get_favorite_destination_ids(session["user_id"])
+
         return render_template(
             "destination_detail.html",
             destination=destination,
             hotel_options=self._hotel_options(dest_id),
+            reviews=destination_reviews,
+            average_rating=average_rating,
+            review_count=review_count,
+            favorite_ids=favorite_ids,
         )
 
     @login_required
     def book_trip(self, dest_id):
-        destination = next(
-            (dest for dest in self._sample_destinations() if dest["id"] == dest_id),
-            self._sample_destination(dest_id),
-        )
+        destination = BaseModel.get_destination_by_id(dest_id)
+        if not destination:
+            flash("Destination not found.", "error")
+            return redirect(url_for("auth.compare_treks"))
+
         travelers_count = int(request.form.get("travelers_count", 1) or 1)
         departure_date = request.form.get("departure_date", None)
         selected_hotel = request.form.get("selected_hotel", "No hotel selected")
@@ -583,6 +613,72 @@ class AuthController:
 
         flash("Your journey has been added to your bookings.", "success")
         return redirect(url_for("auth.bookings"))
+
+    @login_required
+    def cancel_booking(self, booking_id):
+        try:
+            init_db(current_app)
+            BaseModel.cancel_booking(session["user_id"], booking_id)
+            flash("Booking cancelled successfully.", "success")
+        except Exception:
+            flash("Could not cancel the booking right now.", "error")
+
+        return redirect(url_for("auth.bookings"))
+
+    @login_required
+    def submit_review(self, dest_id):
+        rating = request.form.get("rating", "0")
+        comment = request.form.get("comment", "").strip()
+
+        try:
+            rating_value = int(rating)
+        except ValueError:
+            rating_value = 0
+
+        if rating_value < 1 or rating_value > 5:
+            flash("Please provide a rating between 1 and 5.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+
+        try:
+            init_db(current_app)
+            BaseModel.add_destination_review(session["user_id"], dest_id, rating_value, comment)
+        except Exception:
+            flash("We could not save your review right now.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+
+        flash("Thank you for your review!", "success")
+        return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+
+    @login_required
+    def toggle_favorite(self, dest_id):
+        user_id = session["user_id"]
+        favorite_ids = []
+        try:
+            favorite_ids = BaseModel.get_favorite_destination_ids(user_id)
+        except Exception:
+            favorite_ids = []
+
+        try:
+            init_db(current_app)
+            if dest_id in favorite_ids:
+                BaseModel.remove_favorite_destination(user_id, dest_id)
+                flash("Destination removed from your favorites.", "success")
+            else:
+                BaseModel.add_favorite_destination(user_id, dest_id)
+                flash("Destination added to your favorites.", "success")
+        except Exception:
+            flash("Could not update favorites right now.", "error")
+
+        return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+
+    @login_required
+    def favorites(self):
+        try:
+            favorites = BaseModel.get_user_favorites(session["user_id"])
+        except Exception:
+            flash("Could not load your favorites right now.", "error")
+            favorites = []
+        return render_template("favorites.html", favorites=favorites)
 
     @login_required
     def edit_profile(self):
@@ -656,4 +752,22 @@ class AuthController:
 
     @login_required
     def tracking(self):
-        return render_template("tracking.html")
+        trail_logs = []
+        if request.method == "POST":
+            title = request.form.get("title", "Untitled Trail")
+            description = request.form.get("description", "")
+            log_data = request.form.get("log_data", "")
+
+            try:
+                init_db(current_app)
+                BaseModel.save_trail_log(session["user_id"], title, description, log_data)
+                flash("Trail log saved successfully.", "success")
+            except Exception:
+                flash("Could not save your trail log right now.", "error")
+
+        try:
+            trail_logs = BaseModel.get_user_trails(session["user_id"])
+        except Exception:
+            trail_logs = []
+
+        return render_template("tracking.html", trail_logs=trail_logs)

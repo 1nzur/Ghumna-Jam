@@ -99,6 +99,9 @@
                                 {{ session['user_name'][0] | upper }}
                             {% endif %}
                         </a>
+                        <a href="{{ url_for('auth.favorites') }}" class="text-xs font-semibold text-gray-600 hover:text-brandGreen transition">
+                            Favorites
+                        </a>
                         <a href="{{ url_for('auth.edit_profile') }}" class="text-xs font-semibold text-gray-600 hover:text-brandGreen transition">
                             My Profile
                         </a>
