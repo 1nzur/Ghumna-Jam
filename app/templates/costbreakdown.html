@@ -652,6 +652,10 @@
       </div>
     </section>
 
+    <div style="display:flex; justify-content:flex-end; margin-bottom: 18px;">
+      <button type="button" id="exportCsvBtn" class="secondary">Export to CSV</button>
+    </div>
+
     <div class="filter-row">
       <input id="searchInput" placeholder="Search expenses..." />
 
@@ -726,6 +730,7 @@
     const routeInfo = document.getElementById("routeInfo");
     const gearChecklist = document.getElementById("gearChecklist");
     const templateLockNote = document.getElementById("templateLockNote");
+    const exportCsvBtn = document.getElementById("exportCsvBtn");
 
     const availableRoutes = [
       {
@@ -837,6 +842,7 @@
     saveTemplateBtn.addEventListener("click", saveTemplate);
     createFromTemplateBtn.addEventListener("click", createFromSelectedTemplate);
     clearPlanBtn.addEventListener("click", clearPlan);
+    exportCsvBtn.addEventListener("click", exportCostsToCsv);
     routeSelect.addEventListener("change", updateRoutePreview);
 
     function renderCosts() {
@@ -1214,6 +1220,47 @@
       saveTemplates();
       populateTemplateSelector();
       renderTemplateList();
+    }
+
+    function exportCostsToCsv() {
+      const rows = Array.from(document.querySelectorAll("#costList .cost-item"));
+      if (rows.length === 0) {
+        alert("No visible expenses are available to export.");
+        return;
+      }
+
+      const csvRows = ["Description,Category,Amount,Status,Date"];
+
+      rows.forEach(function (row) {
+        const title = row.querySelector("div > strong")?.textContent.trim() || "";
+        const detailText = row.querySelector("small")?.textContent.trim() || "";
+        const amount = row.querySelector(".cost-item > strong")?.textContent.trim() || "";
+        const status = row.querySelector(".status")?.textContent.trim() || "";
+
+        const [category, date] = detailText.split("|").map(function (value) {
+          return value ? value.trim() : "";
+        });
+
+        csvRows.push(
+          [title, category || "", amount, status, date || ""].map(escapeCsv).join(",")
+        );
+      });
+
+      const csvContent = csvRows.join("\r\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      const now = new Date();
+      downloadLink.download = `ghumna-jam-costs-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}.csv`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeCsv(value) {
+      return `"${String(value).replace(/"/g, '""')}"`;
     }
 
     function setRouteAndGearDisabled(disabled) {
