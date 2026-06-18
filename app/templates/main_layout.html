@@ -42,15 +42,15 @@
     <header class="w-full border-b border-gray-100 bg-white sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-2">
-                <a href="{{ url_for('home') }}" class="font-serif text-xl font-bold tracking-wider text-brandGreen hover:opacity-90 transition">
+                <a href="{{ url_for('main.home') }}" class="font-serif text-xl font-bold tracking-wider text-brandGreen hover:opacity-90 transition">
                     GHUMNA जाम
                 </a>
             </div>
             
             <nav class="hidden md:flex space-x-8 text-sm font-medium text-gray-600">
-                <a href="{{ url_for('home') }}" class="hover:text-brandGreen transition">Home</a>
-                <a href="{{ url_for('home') }}#destinations" class="hover:text-brandGreen transition">Destinations</a>
-                <a href="{{ url_for('home') }}#destinations" class="hover:text-brandGreen transition">Compare</a>
+                <a href="{{ url_for('main.home') }}" class="hover:text-brandGreen transition">Home</a>
+                <a href="{{ url_for('main.home') }}#destinations" class="hover:text-brandGreen transition">Destinations</a>
+                <a href="{{ url_for('main.home') }}#destinations" class="hover:text-brandGreen transition">Compare</a>
                 {% if session.get('user_id') %}
                     <a href="{{ url_for('bookings.my_bookings') }}" class="hover:text-brandGreen transition">My Bookings</a>
                 {% endif %}
@@ -118,7 +118,7 @@
             <div>
                 <h5 class="text-[10px] font-bold uppercase tracking-widest text-brandGreen mb-4">Adventure</h5>
                 <ul class="space-y-2 text-xs">
-                    <li><a href="{{ url_for('home') }}#destinations" class="hover:text-brandGreen">All Destinations</a></li>
+                    <li><a href="{{ url_for('main.home') }}#destinations" class="hover:text-brandGreen">All Destinations</a></li>
                     <li><a href="#" class="hover:text-brandGreen">Base Camps</a></li>
                     <li><a href="#" class="hover:text-brandGreen">Cultural Circuits</a></li>
                     <li><a href="#" class="hover:text-brandGreen">Short Hikes</a></li>
