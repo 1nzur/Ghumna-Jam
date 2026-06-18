@@ -1,6 +1,6 @@
 from flask import Flask, redirect, session, url_for
 
-from app.models.database import Database, close_db
+from app.models.database import Database, close_db, init_db
 from app.routes.auth import AuthRoutes
 
 
@@ -10,6 +10,7 @@ def create_app():
 
     startup_db = Database()
     startup_db.close()
+    init_db(app)
 
     app.teardown_appcontext(close_db)
     auth_routes = AuthRoutes()

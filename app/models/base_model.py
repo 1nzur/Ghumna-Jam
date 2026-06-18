@@ -229,6 +229,49 @@ class BaseModel:
             raise
 
     @staticmethod
+    def create_destination(
+        name,
+        image_url,
+        difficulty,
+        duration_days,
+        season,
+        description,
+        price_per_person,
+        altitude_meters,
+        highlights,
+    ):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO destinations (
+                    name,
+                    image_url,
+                    difficulty,
+                    duration_days,
+                    season,
+                    description,
+                    price_per_person,
+                    altitude_meters,
+                    highlights
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    name,
+                    image_url,
+                    difficulty,
+                    duration_days,
+                    season,
+                    description,
+                    price_per_person,
+                    altitude_meters,
+                    highlights,
+                ),
+            )
+        db.commit()
+
+    @staticmethod
     def create_booking(
         user_id,
         destination_id,
@@ -297,6 +340,210 @@ class BaseModel:
                     total_price,
                     DATE_FORMAT(created_at, '%%Y-%%m-%%d') AS booked_at
                 FROM bookings
+                WHERE user_id = %s
+                ORDER BY created_at DESC
+                """,
+                (user_id,),
+            )
+            return cursor.fetchall()
+
+    @staticmethod
+    def cancel_booking(user_id, booking_id):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE bookings
+                SET booking_status = 'Cancelled'
+                WHERE id = %s AND user_id = %s
+                """,
+                (booking_id, user_id),
+            )
+        db.commit()
+
+    @staticmethod
+    def get_all_destinations(search=None, difficulty=None, season=None):
+        db = get_db()
+        query = [
+            "SELECT d.id, d.name, d.image_url, d.difficulty, d.duration_days, d.season, d.description, d.price_per_person, d.altitude_meters, d.highlights, COALESCE(AVG(r.rating), 0) AS average_rating, COUNT(r.id) AS review_count FROM destinations d LEFT JOIN reviews r ON d.id = r.destination_id"
+        ]
+        params = []
+        conditions = []
+
+        if search:
+            conditions.append("LOWER(d.name) LIKE %s")
+            params.append(f"%{search.lower()}%")
+
+        if difficulty and difficulty.lower() != "all":
+            conditions.append("LOWER(d.difficulty) = %s")
+            params.append(difficulty.lower())
+
+        if season and season.lower() != "all":
+            conditions.append("LOWER(d.season) LIKE %s")
+            params.append(f"%{season.lower()}%")
+
+        if conditions:
+            query.append("WHERE " + " AND ".join(conditions))
+
+        query.append("GROUP BY d.id, d.name, d.image_url, d.difficulty, d.duration_days, d.season, d.description, d.price_per_person, d.altitude_meters, d.highlights")
+        query.append("ORDER BY d.created_at DESC")
+
+        with db.cursor() as cursor:
+            cursor.execute("\n".join(query), tuple(params))
+            return cursor.fetchall()
+
+    @staticmethod
+    def get_destination_by_id(dest_id):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT id, name, image_url, difficulty, duration_days, season, description, price_per_person, altitude_meters, highlights
+                FROM destinations
+                WHERE id = %s
+                """,
+                (dest_id,),
+            )
+            return cursor.fetchone()
+
+    @staticmethod
+    def get_destinations_by_ids(destination_ids):
+        if not destination_ids:
+            return []
+
+        db = get_db()
+        placeholders = ", ".join(["%s"] * len(destination_ids))
+        with db.cursor() as cursor:
+            cursor.execute(
+                f"SELECT id, name, image_url, difficulty, duration_days, season, description, price_per_person, altitude_meters, highlights FROM destinations WHERE id IN ({placeholders})",
+                tuple(destination_ids),
+            )
+            return cursor.fetchall()
+
+    @staticmethod
+    def get_favorite_destination_ids(user_id):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT destination_id
+                FROM favorite_destinations
+                WHERE user_id = %s
+                """,
+                (user_id,),
+            )
+            return [row["destination_id"] for row in cursor.fetchall()]
+
+    @staticmethod
+    def add_favorite_destination(user_id, destination_id):
+        db = get_db()
+        try:
+            with db.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT IGNORE INTO favorite_destinations (user_id, destination_id)
+                    VALUES (%s, %s)
+                    """,
+                    (user_id, destination_id),
+                )
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+
+    @staticmethod
+    def remove_favorite_destination(user_id, destination_id):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM favorite_destinations
+                WHERE user_id = %s AND destination_id = %s
+                """,
+                (user_id, destination_id),
+            )
+        db.commit()
+
+    @staticmethod
+    def get_user_favorites(user_id):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT d.id, d.name, d.image_url, d.difficulty, d.duration_days, d.season, d.price_per_person
+                FROM destinations d
+                INNER JOIN favorite_destinations f ON d.id = f.destination_id
+                WHERE f.user_id = %s
+                ORDER BY f.created_at DESC
+                """,
+                (user_id,),
+            )
+            return cursor.fetchall()
+
+    @staticmethod
+    def add_destination_review(user_id, destination_id, rating, comment):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO reviews (user_id, destination_id, rating, comment)
+                VALUES (%s, %s, %s, %s)
+                """,
+                (user_id, destination_id, rating, comment),
+            )
+        db.commit()
+
+    @staticmethod
+    def get_reviews_for_destination(destination_id):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT r.id, r.rating, r.comment, DATE_FORMAT(r.created_at, '%%Y-%%m-%%d') AS created_at, u.full_name
+                FROM reviews r
+                JOIN users u ON r.user_id = u.id
+                WHERE r.destination_id = %s
+                ORDER BY r.created_at DESC
+                """,
+                (destination_id,),
+            )
+            return cursor.fetchall()
+
+    @staticmethod
+    def get_average_rating_for_destination(destination_id):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT AVG(rating) AS average_rating, COUNT(*) AS review_count
+                FROM reviews
+                WHERE destination_id = %s
+                """,
+                (destination_id,),
+            )
+            return cursor.fetchone()
+
+    @staticmethod
+    def save_trail_log(user_id, title, description, log_data):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO trails (user_id, title, description, log_data)
+                VALUES (%s, %s, %s, %s)
+                """,
+                (user_id, title, description, log_data),
+            )
+        db.commit()
+
+    @staticmethod
+    def get_user_trails(user_id):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT id, title, description, DATE_FORMAT(created_at, '%%Y-%%m-%%d') AS saved_at
+                FROM trails
                 WHERE user_id = %s
                 ORDER BY created_at DESC
                 """,
