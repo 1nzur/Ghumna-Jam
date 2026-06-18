@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghumna Jam - Discover Destinations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandGreen: '#03231C',
+                        brandYellow: '#F5C647',
+                        lightBg: '#F8F9FA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white font-sans text-gray-800 antialiased min-h-screen relative pb-24">
+
+    <header class="w-full border-b border-gray-100 bg-white sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="font-serif text-xl font-bold tracking-wider text-brandGreen">GHUMNA जाम</span>
+            </div>
+            
+            <nav class="hidden md:flex space-x-8 text-sm font-medium text-gray-600">
+                <a href="#" class="hover:text-brandGreen transition">Home</a>
+                <a href="#" class="text-brandGreen border-b-2 border-brandGreen pb-1">Destinations</a>
+                <a href="#" class="hover:text-brandGreen transition">Trails</a>
+                <a href="#" class="hover:text-brandGreen transition">Community</a>
+                <a href="#" class="hover:text-brandGreen transition">About Us</a>
+            </nav>
+            
+            <div class="flex items-center space-x-6">
+                <div class="relative hidden sm:block">
+                    <input type="text" placeholder="Search trails..." class="bg-gray-100 text-xs rounded-full pl-8 pr-4 py-2 w-48 focus:outline-none focus:ring-1 focus:ring-brandGreen">
+                    <span class="absolute left-3 top-2.5 text-gray-400 text-xs">🔍</span>
+                </div>
+                <button class="text-gray-600 text-lg relative">
+                    🔔 <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                <button class="text-gray-600 text-xl">👤</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="relative bg-brandGreen text-white py-24 sm:py-32 overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-50 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-brandGreen/40 z-0"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal max-w-2xl leading-tight">
+                Discover the Spirit of the Himalayas
+            </h1>
+        </div>
+    </section>
+
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20">
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div class="md:col-span-2">
+                <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1.5">Search Destinations</label>
+                <div class="relative">
+                    <span class="absolute left-3 top-3.5 text-gray-400 text-sm">🔍</span>
+                    <input type="text" placeholder="Where do you want to explore?" class="w-full bg-gray-50 border border-gray-100 rounded-lg pl-9 pr-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1.5">Difficulty</label>
+                <select class="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-3 text-sm text-gray-600 focus:outline-none focus:ring-1 focus:ring-brandGreen appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:10px_auto] bg-[right_14px_center] bg-no-repeat">
+                    <option>All Levels</option>
+                    <option>Easy</option>
+                    <option>Moderate</option>
+                    <option>Hard</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1.5">Season</label>
+                <select class="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-3 text-sm text-gray-600 focus:outline-none focus:ring-1 focus:ring-brandGreen appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:10px_auto] bg-[right_14px_center] bg-no-repeat">
+                    <option>Any Season</option>
+                    <option>Spring</option>
+                    <option>Autumn</option>
+                    <option>Winter</option>
+                </select>
+            </div>
+            <div class="md:col-span-4 mt-2 flex justify-end">
+                <button class="w-full md:w-auto bg-brandGreen hover:bg-emerald-950 text-white text-sm font-medium px-8 py-3 rounded-lg transition">
+                    Find Destinations
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-wrap items-center gap-2 text-xs">
+        <span class="text-gray-500 font-medium mr-2">Suggested:</span>
+        <button class="bg-brandGreen text-white px-4 py-1.5 rounded-full font-medium">High Altitude</button>
+        <button class="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-1.5 rounded-full transition">Cultural Treks</button>
+        <button class="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-1.5 rounded-full transition">Beginner Friendly</button>
+        <button class="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-1.5 rounded-full transition">Solo Travel</button>
+        <button class="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-1.5 rounded-full transition">Base Camps</button>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h2 class="font-serif text-2xl sm:text-3xl text-brandGreen">Featured Destinations</h2>
+                <p class="text-xs text-gray-500 mt-1">The most iconic paths across the roof of the world.</p>
+            </div>
+            <a href="#" class="text-xs font-semibold text-brandGreen flex items-center space-x-1 border-b border-transparent hover:border-brandGreen transition">
+                <span>View All Trails</span> <span>→</span>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="h-48 bg-gray-200 relative bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=600&q=80');">
+                        <span class="absolute bottom-3 left-3 bg-brandYellow text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded text-brandGreen">Most Popular</span>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-serif text-xl text-brandGreen mb-4">Everest Base Camp</h3>
+                        <div class="grid grid-cols-3 gap-2 text-center border-t border-b border-gray-50 py-3 mb-4 text-[11px] text-gray-500">
+                            <div>
+                                <span class="block mb-0.5">🏔️</span>
+                                <span class="font-medium text-gray-700">Hard</span>
+                            </div>
+                            <div class="border-l border-r border-gray-100">
+                                <span class="block mb-0.5">⏱️</span>
+                                <span class="font-medium text-gray-700">14 Days</span>
+                            </div>
+                            <div>
+                                <span class="block mb-0.5">📅</span>
+                                <span class="font-medium text-gray-700">Autumn</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-5 pb-5">
+                    <button class="w-full bg-brandGreen hover:bg-emerald-950 text-white text-xs font-semibold py-3 rounded-lg transition">Explore Trail</button>
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="h-48 bg-gray-200 relative bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=600&q=80');">
+                        <span class="absolute bottom-3 left-3 bg-white/80 backdrop-blur-sm text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded text-brandGreen">Diverse Landscape</span>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-serif text-xl text-brandGreen mb-4">Annapurna Circuit</h3>
+                        <div class="grid grid-cols-3 gap-2 text-center border-t border-b border-gray-50 py-3 mb-4 text-[11px] text-gray-500">
+                            <div>
+                                <span class="block mb-0.5">🏔️</span>
+                                <span class="font-medium text-gray-700">Moderate</span>
+                            </div>
+                            <div class="border-l border-r border-gray-100">
+                                <span class="block mb-0.5">⏱️</span>
+                                <span class="font-medium text-gray-700">18 Days</span>
+                            </div>
+                            <div>
+                                <span class="block mb-0.5">📅</span>
+                                <span class="font-medium text-gray-700">Spring</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-5 pb-5">
+                    <button class="w-full bg-brandGreen hover:bg-emerald-950 text-white text-xs font-semibold py-3 rounded-lg transition">Explore Trail</button>
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="h-48 bg-gray-200 relative bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1486915309851-b0cc1f8a0084?auto=format&fit=crop&w=600&q=80');">
+                        <span class="absolute bottom-3 left-3 bg-white/80 backdrop-blur-sm text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded text-brandGreen">Cultural Experience</span>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-serif text-xl text-brandGreen mb-4">Langtang Valley</h3>
+                        <div class="grid grid-cols-3 gap-2 text-center border-t border-b border-gray-50 py-3 mb-4 text-[11px] text-gray-500">
+                            <div>
+                                <span class="block mb-0.5">🏔️</span>
+                                <span class="font-medium text-gray-700">Easy</span>
+                            </div>
+                            <div class="border-l border-r border-gray-100">
+                                <span class="block mb-0.5">⏱️</span>
+                                <span class="font-medium text-gray-700">8 Days</span>
+                            </div>
+                            <div>
+                                <span class="block mb-0.5">📅</span>
+                                <span class="font-medium text-gray-700">Spring</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-5 pb-5">
+                    <button class="w-full bg-brandGreen hover:bg-emerald-950 text-white text-xs font-semibold py-3 rounded-lg transition">Explore Trail</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-100 text-gray-600 pt-16 pb-24 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div class="md:col-span-2">
+                <h4 class="font-serif font-bold text-base text-brandGreen mb-3">Ghumna Jam</h4>
+                <p class="text-xs text-gray-500 max-w-sm leading-relaxed">
+                    The Himalayan guide for those who seek the extraordinary. Curating professional treks with integrity and passion.
+                </p>
+            </div>
+            <div>
+                <h5 class="text-[10px] font-bold uppercase tracking-widest text-brandGreen mb-4">Adventure</h5>
+                <ul class="space-y-2 text-xs">
+                    <li><a href="#" class="hover:text-brandGreen">All Destinations</a></li>
+                    <li><a href="#" class="hover:text-brandGreen">Base Camps</a></li>
+                    <li><a href="#" class="hover:text-brandGreen">Cultural Circuits</a></li>
+                    <li><a href="#" class="hover:text-brandGreen">Short Hikes</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-[10px] font-bold uppercase tracking-widest text-brandGreen mb-4">Company</h5>
+                <ul class="space-y-2 text-xs">
+                    <li><a href="#" class="hover:text-brandGreen">About Us</a></li>
+                    <li><a href="#" class="hover:text-brandGreen">Careers</a></li>
+                    <li><a href="#" class="hover:text-brandGreen">Terms of Service</a></li>
+                    <li><a href="#" class="hover:text-brandGreen">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-[10px] font-bold uppercase tracking-widest text-brandGreen mb-4">Contact</h5>
+                <p class="text-xs text-gray-500 mb-4">contact@ghumnajam.com</p>
+                <div class="flex space-x-3 text-sm text-gray-400">
+                    <a href="#" class="hover:text-brandGreen">🌐</a>
+                    <a href="#" class="hover:text-brandGreen">📷</a>
+                    <a href="#" class="hover:text-brandGreen">✈️</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-xl">
+        <div class="bg-brandGreen text-white rounded-full shadow-2xl px-4 py-2.5 flex items-center justify-between border border-emerald-950/40">
+            <div class="flex items-center space-x-3">
+                <div class="flex -space-x-2">
+                    <div class="w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=100&q=80');"></div>
+                    <div class="w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=100&q=80');"></div>
+                </div>
+                <span class="text-xs font-medium text-gray-200"><span class="font-bold text-white">2</span> Trails Selected</span>
+            </div>
+            <button class="bg-brandYellow hover:bg-yellow-500 text-brandGreen font-bold text-xs px-5 py-2 rounded-full transition shadow-md">
+                Compare Selected
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>
