@@ -119,3 +119,44 @@ def my_reviews():
     }
 
     return render_template("reviews.html", reviews=review_rows, stats=review_stats)
+
+
+@reviews_bp.route("/reviews/<int:review_id>/edit", methods=["POST"])
+def edit_review(review_id):
+    login_redirect = require_login(url_for("reviews.my_reviews"))
+    if login_redirect:
+        return login_redirect
+
+    review = get_review_for_user(review_id)
+    rating, title, body, error = validate_review_form(request.form)
+    if error:
+        flash(error, "error")
+        return redirect(url_for("reviews.my_reviews") + f"#review-{review_id}")
+
+    execute_query(
+        """
+        UPDATE reviews
+        SET rating = ?, title = ?, body = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+        """,
+        (rating, title, body, "Published", review_id, session["user_id"]),
+        commit=True,
+    )
+    flash(f"Your review for {review['dest_name']} was updated.", "success")
+    return redirect(url_for("reviews.my_reviews") + f"#review-{review_id}")
+
+
+@reviews_bp.route("/reviews/<int:review_id>/delete", methods=["POST"])
+def delete_review(review_id):
+    login_redirect = require_login(url_for("reviews.my_reviews"))
+    if login_redirect:
+        return login_redirect
+
+    review = get_review_for_user(review_id)
+    execute_query(
+        "DELETE FROM reviews WHERE id = ? AND user_id = ?",
+        (review_id, session["user_id"]),
+        commit=True,
+    )
+    flash(f"Your review for {review['dest_name']} was deleted.", "success")
+    return redirect(url_for("reviews.my_reviews"))
