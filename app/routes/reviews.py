@@ -88,3 +88,34 @@ def create_review(dest_id):
     )
     flash(f"Thanks for reviewing {destination_rows[0]['name']}.", "success")
     return redirect(url_for("bookings.destination_detail", dest_id=dest_id) + "#reviews")
+
+
+@reviews_bp.route("/my-reviews")
+def my_reviews():
+    login_redirect = require_login(url_for("reviews.my_reviews"))
+    if login_redirect:
+        return login_redirect
+
+    review_rows = execute_query(
+        """
+        SELECT r.*, d.name AS dest_name, d.image_url AS dest_image, d.difficulty
+        FROM reviews r
+        JOIN destinations d ON r.destination_id = d.id
+        WHERE r.user_id = ?
+        ORDER BY r.updated_at DESC, r.created_at DESC
+        """,
+        (session["user_id"],),
+    )
+    published_reviews = [review for review in review_rows if review["status"] == "Published"]
+    review_stats = {
+        "total": len(review_rows),
+        "published": len(published_reviews),
+        "hidden": len(review_rows) - len(published_reviews),
+        "average_rating": (
+            sum(review["rating"] for review in published_reviews) / len(published_reviews)
+            if published_reviews
+            else 0
+        ),
+    }
+
+    return render_template("reviews.html", reviews=review_rows, stats=review_stats)
