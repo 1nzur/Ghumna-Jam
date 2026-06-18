@@ -21,10 +21,6 @@ class AuthRoutes:
             self.controller.signup
         )
 
-        self.bp.route("/terms")(
-            self.controller.terms
-        )
-
         self.bp.route("/home")(
             self.controller.home
         )
@@ -45,33 +41,12 @@ class AuthRoutes:
             self.controller.forgot_password
         )
 
-        self.bp.route("/reset-password/<token>", methods=["GET", "POST"])(
-            self.controller.reset_password
-        )
-
         self.bp.route("/bookings")(
             self.controller.bookings
         )
 
-        self.bp.route("/bookings/cancel/<int:booking_id>", methods=["POST"])(
-            self.controller.cancel_booking
-        )
-
-        self.bp.route("/favorites")(
-            self.controller.favorites
-        )
-
         self.bp.route("/destination/<int:dest_id>")(
             self.controller.destination_detail
-        )
-        self.bp.route("/destination/<int:dest_id>/favorite", methods=["POST"])(
-            self.controller.toggle_favorite
-        )
-        self.bp.route("/destination/<int:dest_id>/review", methods=["POST"])(
-            self.controller.submit_review
-        )
-        self.bp.route("/compare")(
-            self.controller.compare_treks
         )
 
         self.bp.route("/book/<int:dest_id>", methods=["POST"])(
@@ -86,12 +61,12 @@ class AuthRoutes:
             self.controller.edit_profile
         )
 
-        self.bp.route("/tracking", methods=["GET", "POST"])(
-            self.controller.tracking
+        self.bp.route("/badges")(
+            self.controller.badges
         )
 
-        self.bp.route("/socials")(
-            self.controller.socials
+        self.bp.route("/notifications")(
+            self.controller.notifications
         )
 
         return self.bp

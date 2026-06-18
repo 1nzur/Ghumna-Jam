@@ -67,6 +67,49 @@ def init_db(app):
                 """
             )
 
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS badges (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    slug VARCHAR(80) NOT NULL UNIQUE,
+                    name VARCHAR(120) NOT NULL,
+                    description TEXT NOT NULL,
+                    icon VARCHAR(20) NOT NULL,
+                    color VARCHAR(40) NOT NULL,
+                    requirement_text VARCHAR(120) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+                """
+            )
+
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_badges (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    badge_id INT NOT NULL,
+                    earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE KEY uq_user_badge (user_id, badge_id),
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (badge_id) REFERENCES badges(id) ON DELETE CASCADE
+                )
+                """
+            )
+
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_notifications (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    message VARCHAR(255) NOT NULL,
+                    type VARCHAR(40) DEFAULT 'info',
+                    is_read TINYINT(1) DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+                """
+            )
+
             cursor.execute("SHOW COLUMNS FROM users")
             existing_columns = {column["Field"] for column in cursor.fetchall()}
             profile_columns = {
@@ -81,21 +124,11 @@ def init_db(app):
 
             cursor.execute(
                 """
-                CREATE TABLE IF NOT EXISTS bookings (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    user_id INT NOT NULL,
-                    dest_name VARCHAR(255) NOT NULL,
-                    dest_image VARCHAR(500),
-                    status VARCHAR(50) DEFAULT 'Confirmed',
-                    departure_date VARCHAR(50),
-                    travelers_count INT DEFAULT 1,
-                    duration_days INT,
-                    difficulty VARCHAR(50),
-                    selected_hotel VARCHAR(255),
-                    total_price DECIMAL(12,2),
-                    booked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-                )
+                INSERT IGNORE INTO badges (slug, name, description, icon, color, requirement_text)
+                VALUES
+                    ('first-trek', 'First Trek', 'Complete your first trek booking.', '🥾', 'from-amber-500 to-yellow-400', 'Complete 1 trek'),
+                    ('summit-scout', 'Summit Scout', 'Finish three memorable treks and earn your explorer stripes.', '🏔️', 'from-sky-500 to-cyan-400', 'Complete 3 treks'),
+                    ('trail-master', 'Trail Master', 'Reach the top with five completed adventures.', '👑', 'from-orange-500 to-amber-400', 'Complete 5 treks')
                 """
             )
         db.commit()

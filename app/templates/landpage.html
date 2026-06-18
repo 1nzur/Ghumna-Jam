@@ -31,7 +31,7 @@
                     <option value="all">All Levels</option>
                     <option value="easy">Easy</option>
                     <option value="moderate">Moderate</option>
-                    <option value="challenging">Challenging</option>
+                    <option value="hard">Hard</option>
                 </select>
             </div>
             <div>
@@ -76,23 +76,6 @@
                  data-season="{{ dest.season | lower }}">
                 <div>
                     <div class="h-48 bg-gray-200 relative bg-cover bg-center" style="background-image: url('{{ dest.image_url }}');">
-                        <!-- Compare Checkbox -->
-                        <div class="absolute top-3 right-3 z-10">
-                            <label class="relative flex items-center justify-center w-6 h-6 rounded-full bg-white/80 hover:bg-white backdrop-blur-sm shadow cursor-pointer transition select-none group border border-gray-100/50">
-                                <input type="checkbox"
-                                       class="compare-checkbox sr-only"
-                                       data-id="{{ dest.id }}"
-                                       data-name="{{ dest.name }}"
-                                       data-image="{{ dest.image_url }}"
-                                       onchange="updateComparisonSelection()">
-                                <span class="compare-icon text-[10px] text-gray-400 group-hover:text-brandGreen font-bold transition">＋</span>
-                            </label>
-                        </div>
-                        {% if favorite_ids and dest.id in favorite_ids %}
-                            <span class="absolute top-3 left-3 bg-brandYellow text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded text-brandGreen">
-                                Saved
-                            </span>
-                        {% endif %}
                         {% if dest.name == "Everest Base Camp" %}
                             <span class="absolute bottom-3 left-3 bg-brandYellow text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded text-brandGreen">Most Popular</span>
                         {% elif dest.difficulty == "Easy" %}
@@ -120,16 +103,6 @@
                         </div>
 
                         <p class="text-xs text-gray-500 line-clamp-3 mb-4 leading-relaxed">{{ dest.description }}</p>
-
-                        <div class="flex items-center justify-between text-[11px] text-gray-500 mb-3">
-                            <span class="flex items-center gap-2">
-                                <span class="text-brandYellow">★</span>
-                                <span>{{ "{:.1f}".format(dest.average_rating or 0) }} rating</span>
-                            </span>
-                            <span>{{ dest.review_count or 0 }} reviews</span>
-                        </div>
-
-                        {% include "partials/weather-forecast-card.html" %}
                         
                         <div class="flex justify-between items-center pt-2">
                             <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400">Price</span>
@@ -147,20 +120,19 @@
         </div>
     </main>
 
-    <!-- Compare Floating Bar -->
-    <div id="compare-bar" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-xl transform translate-y-32 opacity-0 pointer-events-none transition-all duration-300">
+    <!-- Compare Floating Bar (Mockup) -->
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-xl">
         <div class="bg-brandGreen text-white rounded-full shadow-2xl px-4 py-2.5 flex items-center justify-between border border-emerald-950/40">
             <div class="flex items-center space-x-3">
-                <div class="flex -space-x-2" id="compare-thumbnails">
-                    <!-- Dynamic Thumbnails here -->
+                <div class="flex -space-x-2">
+                    <div class="w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=100&q=80');"></div>
+                    <div class="w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=100&q=80');"></div>
                 </div>
-                <span class="text-xs font-medium text-gray-200">
-                    <span class="font-bold text-white" id="compare-count">0</span> Trails Selected
-                </span>
+                <span class="text-xs font-medium text-gray-200"><span class="font-bold text-white">2</span> Trails Selected</span>
             </div>
-            <a href="#" id="compare-button" class="bg-brandYellow hover:bg-yellow-500 text-brandGreen font-bold text-xs px-5 py-2 rounded-full transition shadow-md">
+            <button class="bg-brandYellow hover:bg-yellow-500 text-brandGreen font-bold text-xs px-5 py-2 rounded-full transition shadow-md">
                 Compare Selected
-            </a>
+            </button>
         </div>
     </div>
 
@@ -200,7 +172,7 @@
                 searchInput.value = '';
                 seasonSelect.value = 'all';
             } else if (tag === 'high-altitude') {
-                difficultySelect.value = 'challenging';
+                difficultySelect.value = 'hard';
                 searchInput.value = '';
                 seasonSelect.value = 'all';
             } else if (tag === 'easy') {
@@ -210,72 +182,5 @@
             }
             filterTrails();
         }
-
-        let selectedTreks = [];
-
-        function updateComparisonSelection() {
-            const checkboxes = document.querySelectorAll('.compare-checkbox');
-            selectedTreks = [];
-
-            checkboxes.forEach(cb => {
-                const label = cb.closest('label');
-                const icon = label.querySelector('.compare-icon');
-                
-                if (cb.checked) {
-                    selectedTreks.push({
-                        id: cb.getAttribute('data-id'),
-                        name: cb.getAttribute('data-name'),
-                        image: cb.getAttribute('data-image')
-                    });
-                    
-                    // Selected styling
-                    label.classList.remove('bg-white/80', 'text-gray-400');
-                    label.classList.add('bg-brandYellow', 'border-brandYellow');
-                    icon.textContent = '✓';
-                    icon.classList.remove('text-gray-400');
-                    icon.classList.add('text-brandGreen');
-                } else {
-                    // Default styling
-                    label.classList.add('bg-white/80', 'text-gray-400');
-                    label.classList.remove('bg-brandYellow', 'border-brandYellow');
-                    icon.textContent = '＋';
-                    icon.classList.add('text-gray-400');
-                    icon.classList.remove('text-brandGreen');
-                }
-            });
-
-            const compareBar = document.getElementById('compare-bar');
-            const compareCount = document.getElementById('compare-count');
-            const compareThumbnails = document.getElementById('compare-thumbnails');
-            const compareButton = document.getElementById('compare-button');
-
-            if (selectedTreks.length > 0) {
-                // Show floating bar
-                compareBar.classList.remove('translate-y-32', 'opacity-0', 'pointer-events-none');
-                compareBar.classList.add('translate-y-0', 'opacity-100');
-                
-                // Update count
-                compareCount.textContent = selectedTreks.length;
-
-                // Update thumbnails
-                compareThumbnails.innerHTML = '';
-                selectedTreks.forEach(trek => {
-                    const thumb = document.createElement('div');
-                    thumb.className = 'w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center';
-                    thumb.style.backgroundImage = `url('${trek.image}')`;
-                    compareThumbnails.appendChild(thumb);
-                });
-
-                // Update comparison URL
-                const params = selectedTreks.map(t => `treks=${t.id}`).join('&');
-                compareButton.href = `{{ url_for('auth.compare_treks') }}?${params}`;
-            } else {
-                // Hide floating bar
-                compareBar.classList.remove('translate-y-0', 'opacity-100');
-                compareBar.classList.add('translate-y-32', 'opacity-0', 'pointer-events-none');
-            }
-        }
     </script>
-
-    <script src="{{ url_for('static', filename='js/weather-forecast.js') }}?v=1"></script>
 {% endblock %}
