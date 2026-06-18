@@ -170,6 +170,23 @@ def init_db():
     );
     """
 
+    reviews_table_sqlite = """
+    CREATE TABLE IF NOT EXISTS reviews (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        destination_id INTEGER NOT NULL,
+        rating INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        body TEXT NOT NULL,
+        status TEXT DEFAULT 'Published',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        FOREIGN KEY (destination_id) REFERENCES destinations (id),
+        UNIQUE (user_id, destination_id)
+    );
+    """
+
     conn, cursor = get_db_connection()
     try:
         if Config.DB_TYPE == 'mysql' and isinstance(conn, pymysql.connections.Connection):
@@ -209,11 +226,28 @@ def init_db():
                 FOREIGN KEY (destination_id) REFERENCES destinations(id)
             );
             """)
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS reviews (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                destination_id INT NOT NULL,
+                rating INT NOT NULL,
+                title VARCHAR(160) NOT NULL,
+                body TEXT NOT NULL,
+                status VARCHAR(50) DEFAULT 'Published',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (destination_id) REFERENCES destinations(id),
+                UNIQUE KEY user_destination_review (user_id, destination_id)
+            );
+            """)
         else:
             # SQLite
             cursor.execute(users_table_sqlite)
             cursor.execute(destinations_table_sqlite)
             cursor.execute(bookings_table_sqlite)
+            cursor.execute(reviews_table_sqlite)
         conn.commit()
     except Exception as e:
         print(f"Table creation error: {e}")
