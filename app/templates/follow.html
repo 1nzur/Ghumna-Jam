@@ -102,7 +102,7 @@
 
             <div class="bg-white border border-gray-100 rounded-3xl shadow-sm p-6">
                 <h2 class="font-semibold text-brandGreen text-xl">Discover Trekkers</h2>
-                <p class="text-sm text-gray-500 mt-1">Follow more explorers to get notified when they share new reports.</p>
+                <p class="text-sm text-gray-500 mt-1">Follow more explorers to get notified when they share new reports. Results ordered by activity level.</p>
                 <div class="mt-6 space-y-4">
                     {% for user in users %}
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border border-gray-100 rounded-3xl p-4">
@@ -115,9 +115,14 @@
                                     {% endif %}
                                 </div>
                                 <div>
-                                    <p class="font-semibold text-sm text-brandGreen">
-                                        <a href="{{ url_for('auth.trekker_profile', user_id=user.id) }}" class="hover:text-emerald-950 transition">{{ user.full_name }}</a>
-                                    </p>
+                                    <div class="flex items-center gap-2">
+                                        <p class="font-semibold text-sm text-brandGreen">
+                                            <a href="{{ url_for('auth.trekker_profile', user_id=user.id) }}" class="hover:text-emerald-950 transition">{{ user.full_name }}</a>
+                                        </p>
+                                        {% if user.trek_count > 0 %}
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brandGreen/10 text-brandGreen">🏔 {{ user.trek_count }}</span>
+                                        {% endif %}
+                                    </div>
                                     <p class="text-xs text-gray-500">{{ user.email }}</p>
                                 </div>
                             </div>
