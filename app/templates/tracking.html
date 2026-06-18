@@ -52,6 +52,9 @@
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                         <span>Start Tracking</span>
                     </button>
+                    <button id="btn-pause-trek" disabled class="border border-gray-200 bg-white text-gray-600 font-semibold text-xs px-5 py-3 rounded-xl transition opacity-50" type="button">
+                        Pause Trek
+                    </button>
                     <button id="btn-clear-log" class="border border-gray-200 hover:bg-red-50 hover:text-red-700 text-gray-600 font-semibold text-xs px-5 py-3 rounded-xl transition">
                         Clear Path
                     </button>
@@ -160,6 +163,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         let isTracking = false;
+        let isPaused = false;
         let watchId = null;
         let trailPoints = []; // Stores Array of {lat, lng, alt, speed, acc, timestamp}
         let map = null;
@@ -173,6 +177,7 @@
         const connectionStatus = document.getElementById('connection-status');
         const gpsStatus = document.getElementById('gps-status');
         const btnToggleTracking = document.getElementById('btn-toggle-tracking');
+        const btnPauseTrek = document.getElementById('btn-pause-trek');
         const btnClearLog = document.getElementById('btn-clear-log');
         const btnExportData = document.getElementById('btn-export-data');
 
@@ -419,6 +424,10 @@
             coordSpeed.textContent = speed && speed > 0 ? (speed * 3.6).toFixed(1) + ' km/h' : '0.0 km/h';
             coordAccuracy.textContent = '± ' + acc.toFixed(0) + ' m';
 
+            if (isPaused) {
+                return;
+            }
+
             if (isTracking) {
                 // Start timing on first valid sample
                 if (!trackStartTime && trailPoints.length === 0) {
@@ -484,8 +493,11 @@
             }
 
             isTracking = true;
+            isPaused = false;
             btnToggleTracking.className = "bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2";
             btnToggleTracking.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-white animate-pulse"></span><span>Pause Tracking</span>';
+            btnPauseTrek.disabled = false;
+            btnPauseTrek.classList.remove('opacity-50');
 
             const options = {
                 enableHighAccuracy: true,
@@ -501,8 +513,11 @@
 
         function pauseTracking() {
             isTracking = false;
+            isPaused = true;
             btnToggleTracking.className = "bg-brandGreen hover:bg-emerald-950 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2";
             btnToggleTracking.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span><span>Start Tracking</span>';
+            btnPauseTrek.disabled = true;
+            btnPauseTrek.classList.add('opacity-50');
 
             if (watchId !== null) {
                 navigator.geolocation.clearWatch(watchId);
@@ -522,6 +537,12 @@
                 pauseTracking();
             } else {
                 startTracking();
+            }
+        });
+
+        btnPauseTrek.addEventListener('click', () => {
+            if (isTracking) {
+                pauseTracking();
             }
         });
 
