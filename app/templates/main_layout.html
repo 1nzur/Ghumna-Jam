@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -43,7 +43,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-2">
                 <a href="{{ url_for('main.home') }}" class="font-serif text-xl font-bold tracking-wider text-brandGreen hover:opacity-90 transition">
-                    GHUMNA जाम
+                    GHUMNA JAM
                 </a>
             </div>
             
@@ -91,10 +91,10 @@
                    bg-emerald-50 border-emerald-100 text-emerald-800
                  {% endif %}">
               <div class="flex items-center space-x-2">
-                <span>{% if category == 'error' %}⚠️{% else %}✨{% endif %}</span>
+                <span>{% if category == 'error' %}!{% else %}OK{% endif %}</span>
                 <span>{{ message }}</span>
               </div>
-              <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600 font-bold ml-4">✕</button>
+              <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600 font-bold ml-4" aria-label="Dismiss message">&times;</button>
             </div>
           {% endfor %}
         </div>
@@ -137,9 +137,9 @@
                 <h5 class="text-[10px] font-bold uppercase tracking-widest text-brandGreen mb-4">Contact</h5>
                 <p class="text-xs text-gray-500 mb-4">contact@ghumnajam.com</p>
                 <div class="flex space-x-3 text-sm text-gray-400">
-                    <a href="#" class="hover:text-brandGreen">🌐</a>
-                    <a href="#" class="hover:text-brandGreen">📷</a>
-                    <a href="#" class="hover:text-brandGreen">✈️</a>
+                    <a href="#" class="hover:text-brandGreen" aria-label="Website">Web</a>
+                    <a href="#" class="hover:text-brandGreen" aria-label="Instagram">IG</a>
+                    <a href="#" class="hover:text-brandGreen" aria-label="Travel desk">Air</a>
                 </div>
             </div>
         </div>
@@ -147,3 +147,4 @@
 
 </body>
 </html>
+

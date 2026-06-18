@@ -1,4 +1,4 @@
-{% extends "main_layout.html" %}
+﻿{% extends "main_layout.html" %}
 
 {% block title %}Ghumna Jam - {{ destination.name }}{% endblock %}
 
@@ -33,17 +33,17 @@
             <!-- Highlights Grid -->
             <div class="grid grid-cols-3 gap-4 bg-white border border-gray-100 p-6 rounded-2xl shadow-sm text-center">
                 <div>
-                    <span class="block text-2xl mb-1">🏔️</span>
+                    <span class="block text-2xl mb-1">ðŸ”ï¸</span>
                     <span class="block text-[10px] uppercase font-bold tracking-wider text-gray-400">Difficulty</span>
                     <span class="font-semibold text-brandGreen text-sm sm:text-base">{{ destination.difficulty }}</span>
                 </div>
                 <div class="border-l border-r border-gray-100">
-                    <span class="block text-2xl mb-1">⏱️</span>
+                    <span class="block text-2xl mb-1">â±ï¸</span>
                     <span class="block text-[10px] uppercase font-bold tracking-wider text-gray-400">Duration</span>
                     <span class="font-semibold text-brandGreen text-sm sm:text-base">{{ destination.duration_days }} Days</span>
                 </div>
                 <div>
-                    <span class="block text-2xl mb-1">📅</span>
+                    <span class="block text-2xl mb-1">ðŸ“…</span>
                     <span class="block text-[10px] uppercase font-bold tracking-wider text-gray-400">Best Season</span>
                     <span class="font-semibold text-brandGreen text-sm sm:text-base">{{ destination.season }}</span>
                 </div>
@@ -65,27 +65,27 @@
                 <h3 class="font-serif text-lg text-brandGreen font-semibold">What's Included</h3>
                 <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm text-gray-600">
                     <li class="flex items-center space-x-2">
-                        <span class="text-emerald-600 font-bold">✓</span>
+                        <span class="text-emerald-600 font-bold">âœ“</span>
                         <span>Professional certified alpine guides</span>
                     </li>
                     <li class="flex items-center space-x-2">
-                        <span class="text-emerald-600 font-bold">✓</span>
+                        <span class="text-emerald-600 font-bold">âœ“</span>
                         <span>All permits and national park fees</span>
                     </li>
                     <li class="flex items-center space-x-2">
-                        <span class="text-emerald-600 font-bold">✓</span>
+                        <span class="text-emerald-600 font-bold">âœ“</span>
                         <span>Accommodation in tea houses & lodges</span>
                     </li>
                     <li class="flex items-center space-x-2">
-                        <span class="text-emerald-600 font-bold">✓</span>
+                        <span class="text-emerald-600 font-bold">âœ“</span>
                         <span>All meals during the expedition</span>
                     </li>
                     <li class="flex items-center space-x-2">
-                        <span class="text-emerald-600 font-bold">✓</span>
+                        <span class="text-emerald-600 font-bold">âœ“</span>
                         <span>Emergency medical kits & oxygen cylinders</span>
                     </li>
                     <li class="flex items-center space-x-2">
-                        <span class="text-emerald-600 font-bold">✓</span>
+                        <span class="text-emerald-600 font-bold">âœ“</span>
                         <span>Luggage porter services</span>
                     </li>
                 </ul>
@@ -137,7 +137,7 @@
                 <div class="bg-gray-50 p-4 rounded-xl space-y-2">
                     <div class="flex justify-between text-xs text-gray-500">
                         <span>Subtotal</span>
-                        <span>${{ "{:,.2f}".format(destination.price_per_person) }} × <span id="summary_count">1</span></span>
+                        <span>${{ "{:,.2f}".format(destination.price_per_person) }} Ã— <span id="summary_count">1</span></span>
                     </div>
                     <div class="flex justify-between text-sm font-bold text-brandGreen border-t border-gray-200/50 pt-2">
                         <span>Total Cost</span>
@@ -195,3 +195,4 @@
     });
 </script>
 {% endblock %}
+
