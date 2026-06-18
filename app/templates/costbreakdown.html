@@ -547,7 +547,15 @@
         <p>Build expense plans, save templates, and duplicate them with fixed route and gear details.</p>
       </div>
 
-      <div class="total-box" id="costTotal">NPR 0</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <label for="currencySelector" style="font-size:13px;color:#fff;display:none">Currency</label>
+        <select id="currencySelector" style="padding:8px;border-radius:8px;border:1px solid #dfe8e4;background:#f9fbfa;font-weight:700">
+          <option value="NPR">NPR</option>
+          <option value="USD">USD</option>
+          <option value="INR">INR</option>
+        </select>
+        <div class="total-box" id="costTotal">NPR 0</div>
+      </div>
     </div>
 
     <section class="plan-panel">
@@ -687,6 +695,11 @@
     let templates = JSON.parse(localStorage.getItem("ghumnaJamCostTemplates") || "[]");
     let editingCostId = null;
     let planLockedByTemplate = false;
+
+    // Currency conversion settings (mock rates)
+    let currentCurrency = 'NPR';
+    const currencyRates = { NPR: 1, USD: 0.0076, INR: 0.62 };
+    const currencySymbols = { NPR: 'NPR ', USD: 'US$ ', INR: '₹' };
 
     const trekkerCount = 1;
     const form = document.getElementById("costForm");
@@ -979,8 +992,17 @@
       localStorage.setItem("ghumnaJamCostTemplates", JSON.stringify(templates));
     }
 
+    function getConverted(amount) {
+      const rate = currencyRates[currentCurrency] || 1;
+      return amount * rate;
+    }
+
     function money(amount) {
-      return "NPR " + Math.round(amount).toLocaleString();
+      const converted = getConverted(amount);
+      if (currentCurrency === 'NPR') {
+        return currencySymbols[currentCurrency] + Math.round(converted).toLocaleString();
+      }
+      return currencySymbols[currentCurrency] + Number(converted).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     function formatCategory(category) {
@@ -1213,6 +1235,16 @@
       costs = [];
       saveCosts();
       renderCosts();
+    }
+
+    // Initialize currency selector behavior
+    const currencySelectorEl = document.getElementById('currencySelector');
+    if (currencySelectorEl) {
+      currencySelectorEl.value = currentCurrency;
+      currencySelectorEl.addEventListener('change', function () {
+        currentCurrency = this.value;
+        renderCosts();
+      });
     }
 
     initializePlanBuilder();
