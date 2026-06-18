@@ -80,6 +80,18 @@
                         <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-distance">0.00 km</span>
                     </div>
                     <div class="bg-gray-50 p-4 rounded-xl">
+                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Duration</span>
+                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-duration">00:00:00</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Avg Speed</span>
+                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-average-speed">0.0 km/h</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Elevation Gain</span>
+                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-elevation-gain">0 m</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl col-span-2 md:col-span-1">
                         <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Recorded Logs</span>
                         <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-logs-count">0 pts</span>
                     </div>
@@ -106,6 +118,17 @@
                     <div class="flex justify-between text-xs py-2.5">
                         <span class="text-gray-400">GPS Accuracy</span>
                         <span class="font-semibold text-gray-700" id="coord-accuracy">--</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-4 border-t border-gray-100">
+                    <div class="flex justify-between text-xs py-2.5">
+                        <span class="text-gray-400">Start time</span>
+                        <span class="font-semibold text-gray-700" id="stat-start-time">--</span>
+                    </div>
+                    <div class="flex justify-between text-xs py-2.5">
+                        <span class="text-gray-400">Last update</span>
+                        <span class="font-semibold text-gray-700" id="stat-last-update">--</span>
                     </div>
                 </div>
             </div>
@@ -138,10 +161,13 @@
     document.addEventListener("DOMContentLoaded", () => {
         let isTracking = false;
         let watchId = null;
-        let trailPoints = []; // Stores Array of [lat, lng, alt, speed, timestamp]
+        let trailPoints = []; // Stores Array of {lat, lng, alt, speed, acc, timestamp}
         let map = null;
         let pathLine = null;
         let currentMarker = null;
+        let trackStartTime = null;
+        let lastUpdateTime = null;
+        let timerInterval = null;
 
         // DOM elements
         const connectionStatus = document.getElementById('connection-status');
@@ -158,6 +184,11 @@
         const coordAltitude = document.getElementById('coord-altitude');
         const coordSpeed = document.getElementById('coord-speed');
         const coordAccuracy = document.getElementById('coord-accuracy');
+        const statDuration = document.getElementById('stat-duration');
+        const statAvgSpeed = document.getElementById('stat-average-speed');
+        const statElevationGain = document.getElementById('stat-elevation-gain');
+        const statStartTime = document.getElementById('stat-start-time');
+        const statLastUpdate = document.getElementById('stat-last-update');
 
         const mapContainer = document.getElementById('map');
         const mapFallback = document.getElementById('map-fallback');
@@ -270,6 +301,59 @@
             coordAltitude.textContent = lastPoint.alt ? lastPoint.alt.toFixed(0) + ' m' : 'N/A';
             coordSpeed.textContent = lastPoint.speed ? (lastPoint.speed * 3.6).toFixed(1) + ' km/h' : '0.0 km/h';
             coordAccuracy.textContent = lastPoint.acc ? '± ' + lastPoint.acc.toFixed(0) + ' m' : 'N/A';
+
+            lastUpdateTime = lastPoint.timestamp;
+            if (!trackStartTime) {
+                trackStartTime = trailPoints[0].timestamp;
+            }
+            updateStats();
+        }
+
+        function formatDuration(totalSeconds) {
+            const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+
+        function getAverageSpeed(distanceKm, seconds) {
+            if (!seconds || distanceKm === 0) {
+                return '0.0';
+            }
+            return (distanceKm / (seconds / 3600)).toFixed(1);
+        }
+
+        function calculateElevationGain() {
+            let gain = 0;
+            let highest = null;
+            let lowest = null;
+
+            for (let i = 0; i < trailPoints.length; i++) {
+                const alt = trailPoints[i].alt;
+                if (alt === null || alt === undefined) continue;
+                if (highest === null || alt > highest) highest = alt;
+                if (lowest === null || alt < lowest) lowest = alt;
+                if (i > 0) {
+                    const prevAlt = trailPoints[i - 1].alt;
+                    if (prevAlt !== null && prevAlt !== undefined && alt > prevAlt) {
+                        gain += alt - prevAlt;
+                    }
+                }
+            }
+            return Math.round(gain);
+        }
+
+        function updateTimingDisplay() {
+            const now = Date.now();
+            const start = trackStartTime ? Number(trackStartTime) : null;
+            const last = lastUpdateTime ? Number(lastUpdateTime) : null;
+
+            statStartTime.textContent = start ? new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--';
+            statLastUpdate.textContent = last ? new Date(last).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--';
+
+            const elapsed = start ? Math.max(0, Math.floor((last || now) / 1000 - Math.floor(start / 1000))) : 0;
+            statDuration.textContent = formatDuration(elapsed);
+            statAverageSpeed.textContent = `${getAverageSpeed(calculateCumulativeDistance(), elapsed)} km/h`;
         }
 
         // 5. Harvesine formula for cumulative distance
@@ -301,7 +385,13 @@
         function updateStats() {
             statLogsCount.textContent = trailPoints.length + ' pts';
             const dist = calculateCumulativeDistance();
+            const elapsed = trackStartTime ? Math.max(0, Math.floor((lastUpdateTime || Date.now()) / 1000 - Math.floor(Number(trackStartTime) / 1000))) : 0;
+
             statDistance.textContent = dist.toFixed(2) + ' km';
+            statDuration.textContent = formatDuration(elapsed);
+            statAverageSpeed.textContent = `${getAverageSpeed(dist, elapsed)} km/h`;
+            statElevationGain.textContent = `${calculateElevationGain()} m`;
+            updateTimingDisplay();
         }
 
         // 7. Geolocation Callbacks
@@ -325,6 +415,11 @@
             coordAccuracy.textContent = '± ' + acc.toFixed(0) + ' m';
 
             if (isTracking) {
+                // Start timing on first valid sample
+                if (!trackStartTime && trailPoints.length === 0) {
+                    trackStartTime = timestamp;
+                }
+
                 // Throttle identical coords to reduce noise
                 if (trailPoints.length > 0) {
                     const last = trailPoints[trailPoints.length - 1];
@@ -335,6 +430,7 @@
                 const point = { lat, lng, alt, speed, acc, timestamp };
                 trailPoints.push(point);
                 localStorage.setItem('ghumna_jam_trail_log', JSON.stringify(trailPoints));
+                lastUpdateTime = timestamp;
 
                 // Update Stats
                 updateStats();
@@ -393,6 +489,9 @@
             };
             
             watchId = navigator.geolocation.watchPosition(onLocationSuccess, onLocationError, options);
+            if (!timerInterval) {
+                timerInterval = setInterval(updateTimingDisplay, 1000);
+            }
         }
 
         function pauseTracking() {
@@ -403,6 +502,10 @@
             if (watchId !== null) {
                 navigator.geolocation.clearWatch(watchId);
                 watchId = null;
+            }
+            if (timerInterval !== null) {
+                clearInterval(timerInterval);
+                timerInterval = null;
             }
             
             gpsStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-200";
