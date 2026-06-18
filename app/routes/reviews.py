@@ -160,3 +160,20 @@ def delete_review(review_id):
     )
     flash(f"Your review for {review['dest_name']} was deleted.", "success")
     return redirect(url_for("reviews.my_reviews"))
+
+
+@reviews_bp.route("/reviews/<int:review_id>/toggle", methods=["POST"])
+def toggle_review_status(review_id):
+    login_redirect = require_login(url_for("reviews.my_reviews"))
+    if login_redirect:
+        return login_redirect
+
+    review = get_review_for_user(review_id)
+    next_status = "Hidden" if review["status"] == "Published" else "Published"
+    execute_query(
+        "UPDATE reviews SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?",
+        (next_status, review_id, session["user_id"]),
+        commit=True,
+    )
+    flash(f"Your review for {review['dest_name']} is now {next_status.lower()}.", "success")
+    return redirect(url_for("reviews.my_reviews") + f"#review-{review_id}")
