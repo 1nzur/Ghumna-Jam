@@ -33,6 +33,10 @@ class AuthRoutes:
             self.controller.landpage
         )
 
+        self.bp.route("/about-us")(
+            self.controller.about_us
+        )
+
         self.bp.route("/logout")(
             self.controller.logout
         )
