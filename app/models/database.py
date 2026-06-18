@@ -73,6 +73,8 @@ def init_db(app):
                 "phone_number": "ALTER TABLE users ADD COLUMN phone_number VARCHAR(30)",
                 "date_of_birth": "ALTER TABLE users ADD COLUMN date_of_birth DATE",
                 "profile_picture_url": "ALTER TABLE users ADD COLUMN profile_picture_url VARCHAR(500)",
+                "emergency_contact_name": "ALTER TABLE users ADD COLUMN emergency_contact_name VARCHAR(255)",
+                "emergency_contact_phone": "ALTER TABLE users ADD COLUMN emergency_contact_phone VARCHAR(30)",
             }
 
             for column_name, statement in profile_columns.items():
