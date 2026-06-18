@@ -142,7 +142,6 @@ class AuthController:
     def signup(self):
         return self.register()
 
-    @login_required
     def home(self):
         return render_template(
             "landpage.html",
@@ -150,9 +149,14 @@ class AuthController:
             user_name=session.get("user_name"),
         )
 
-    @login_required
     def landpage(self):
         return self.home()
+
+    def about_us(self):
+        return render_template(
+            "about-us.html",
+            destinations=self._sample_destinations(),
+        )
 
     def forgot_password(self):
         email = ""
