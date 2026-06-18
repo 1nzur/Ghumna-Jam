@@ -14,6 +14,15 @@
         </div>
     </div>
 
+    {% set next_badge = badge_progress | selectattr('earned', 'equalto', false) | first %}
+    {% if next_badge %}
+    <div class="mb-6 bg-gradient-to-r from-brandGreen to-emerald-900 text-white rounded-2xl p-5 shadow-sm">
+        <p class="text-[10px] uppercase tracking-wider font-semibold text-emerald-100">Next milestone</p>
+        <h2 class="font-serif text-2xl mt-1">{{ next_badge.name }}</h2>
+        <p class="text-sm text-emerald-50 mt-1">You are {{ next_badge.progress_value }} of {{ next_badge.progress_total }} steps toward your next badge.</p>
+    </div>
+    {% endif %}
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {% for badge in badge_progress %}
         <div class="badge-card bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
