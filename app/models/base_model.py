@@ -11,7 +11,15 @@ class BaseModel:
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT id, full_name, email, password_hash, phone_number, date_of_birth, profile_picture_url
+                SELECT id,
+                    full_name,
+                    email,
+                    password_hash,
+                    phone_number,
+                    date_of_birth,
+                    profile_picture_url,
+                    emergency_contact_name,
+                    emergency_contact_phone
                 FROM users
                 WHERE email = %s
                 """,
@@ -36,7 +44,15 @@ class BaseModel:
         with db.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT id, full_name, email, password_hash, phone_number, date_of_birth, profile_picture_url
+                SELECT id,
+                    full_name,
+                    email,
+                    password_hash,
+                    phone_number,
+                    date_of_birth,
+                    profile_picture_url,
+                    emergency_contact_name,
+                    emergency_contact_phone
                 FROM users
                 WHERE id = %s
                 """,
@@ -52,6 +68,8 @@ class BaseModel:
         phone_number=None,
         date_of_birth=None,
         profile_picture_url=None,
+        emergency_contact_name=None,
+        emergency_contact_phone=None,
         password=None,
     ):
         db = get_db()
@@ -67,6 +85,8 @@ class BaseModel:
                             phone_number = %s,
                             date_of_birth = %s,
                             profile_picture_url = %s,
+                            emergency_contact_name = %s,
+                            emergency_contact_phone = %s,
                             password_hash = %s
                         WHERE id = %s
                         """,
@@ -76,6 +96,8 @@ class BaseModel:
                             phone_number,
                             date_of_birth or None,
                             profile_picture_url,
+                            emergency_contact_name,
+                            emergency_contact_phone,
                             generate_password_hash(password),
                             user_id,
                         ),
@@ -88,7 +110,9 @@ class BaseModel:
                             email = %s,
                             phone_number = %s,
                             date_of_birth = %s,
-                            profile_picture_url = %s
+                            profile_picture_url = %s,
+                            emergency_contact_name = %s,
+                            emergency_contact_phone = %s
                         WHERE id = %s
                         """,
                         (
@@ -97,6 +121,8 @@ class BaseModel:
                             phone_number,
                             date_of_birth or None,
                             profile_picture_url,
+                            emergency_contact_name,
+                            emergency_contact_phone,
                             user_id,
                         ),
                     )
@@ -106,6 +132,20 @@ class BaseModel:
             if exc.args and exc.args[0] == 1062:
                 raise ValueError("That email is already used by another account.") from exc
             raise
+
+    @staticmethod
+    def update_password(user_id, password):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE users
+                SET password_hash = %s
+                WHERE id = %s
+                """,
+                (generate_password_hash(password), user_id),
+            )
+        db.commit()
 
     @staticmethod
     def create_user(full_name, email, password):
