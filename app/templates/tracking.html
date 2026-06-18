@@ -11,7 +11,7 @@
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <h1 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold">Offline Trail Tracker</h1>
+            <h1 id="tracking-mode-title" class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold">Offline Tracking Mode</h1>
             <p class="text-xs sm:text-sm text-gray-500 mt-1">
                 Record your real-time route, elevation gain, descent, distance, and calories burned.
             </p>
@@ -22,6 +22,9 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span>
                 <span>Online</span>
             </span>
+            <button id="btn-toggle-mode" class="border border-gray-200 bg-white hover:bg-gray-50 text-brandGreen font-bold text-xs px-4 py-2 rounded-full transition">
+                Switch to Offline Mode
+            </button>
             <!-- GPS Status Badge -->
             <span id="gps-status" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-200">
                 GPS Offline
@@ -218,10 +221,13 @@
         let pathLine = null;
         let currentMarker = null;
         let trackingStartedAt = null;
+        let trackingMode = navigator.onLine ? 'online' : 'offline';
 
         // DOM elements
+        const trackingModeTitle = document.getElementById('tracking-mode-title');
         const connectionStatus = document.getElementById('connection-status');
         const gpsStatus = document.getElementById('gps-status');
+        const btnToggleMode = document.getElementById('btn-toggle-mode');
         const btnToggleTracking = document.getElementById('btn-toggle-tracking');
         const btnClearLog = document.getElementById('btn-clear-log');
         const btnExportData = document.getElementById('btn-export-data');
@@ -251,26 +257,49 @@
         // Check Leaflet load status and connectivity
         const hasLeaflet = (typeof L !== 'undefined');
 
-        // 1. Connection Status Updater
+        // 1. Tracking Mode and Connection Status Updater
         function updateConnectionState() {
-            if (navigator.onLine) {
+            const isOnlineMode = trackingMode === 'online';
+
+            if (trackingModeTitle) {
+                trackingModeTitle.textContent = isOnlineMode ? 'Online Tracking Mode' : 'Offline Tracking Mode';
+            }
+            document.title = isOnlineMode ? 'Ghumna Jam - Online Tracking Mode' : 'Ghumna Jam - Offline Tracking Mode';
+
+            if (btnToggleMode) {
+                btnToggleMode.textContent = isOnlineMode ? 'Switch to Offline Mode' : 'Switch to Online Mode';
+            }
+
+            if (isOnlineMode) {
                 connectionStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-100 flex items-center gap-1.5";
-                connectionStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span><span>Online</span>';
+                connectionStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span><span>Online Mode</span>';
                 if (mapFallback) mapFallback.classList.add('hidden');
                 if (mapContainer) mapContainer.classList.remove('hidden');
             } else {
                 connectionStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-100 flex items-center gap-1.5";
-                connectionStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span><span>Offline</span>';
-                // If offline and tiles won't render, show fallback guide but keep leaflet map active for local path rendering if loaded
+                connectionStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span><span>Offline Mode</span>';
+                // Offline mode keeps GPS logging active. The fallback appears only when map assets cannot render.
                 if (!hasLeaflet) {
                     if (mapContainer) mapContainer.classList.add('hidden');
-                    if (mapFallback) mapFallback.classList.remove('flex');
+                    if (mapFallback) mapFallback.classList.remove('hidden');
                     if (mapFallback) mapFallback.classList.add('flex');
                 }
             }
         }
-        window.addEventListener('online', updateConnectionState);
-        window.addEventListener('offline', updateConnectionState);
+        window.addEventListener('online', () => {
+            trackingMode = 'online';
+            updateConnectionState();
+        });
+        window.addEventListener('offline', () => {
+            trackingMode = 'offline';
+            updateConnectionState();
+        });
+        if (btnToggleMode) {
+            btnToggleMode.addEventListener('click', () => {
+                trackingMode = trackingMode === 'online' ? 'offline' : 'online';
+                updateConnectionState();
+            });
+        }
         updateConnectionState();
 
         // 2. Initialize Leaflet Map
