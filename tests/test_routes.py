@@ -84,3 +84,51 @@ def test_booking_create_and_cancel(client):
     assert b"cancelled" in cancel_response.data.lower()
     cancelled = execute_query("SELECT status FROM bookings WHERE id = ?", (bookings[0]["id"],))
     assert cancelled[0]["status"] == "Cancelled"
+
+
+def test_review_create_edit_toggle_and_delete(client):
+    signup(client)
+    login(client)
+
+    create_response = client.post(
+        "/destination/1/reviews",
+        data={
+            "rating": "5",
+            "title": "Excellent guide pacing",
+            "body": "The route was clear, the guide paced us well, and the views were unforgettable.",
+        },
+        follow_redirects=True,
+    )
+
+    assert create_response.status_code == 200
+    assert b"Thanks for reviewing" in create_response.data
+    reviews = execute_query("SELECT id, rating, title, status FROM reviews")
+    assert reviews[0]["rating"] == 5
+    assert reviews[0]["status"] == "Published"
+
+    edit_response = client.post(
+        f"/reviews/{reviews[0]['id']}/edit",
+        data={
+            "rating": "4",
+            "title": "Great trek support",
+            "body": "The guide team was organized, responsive, and thoughtful throughout the trek.",
+        },
+        follow_redirects=True,
+    )
+
+    assert edit_response.status_code == 200
+    edited = execute_query("SELECT rating, title FROM reviews WHERE id = ?", (reviews[0]["id"],))
+    assert edited[0]["rating"] == 4
+    assert edited[0]["title"] == "Great trek support"
+
+    toggle_response = client.post(f"/reviews/{reviews[0]['id']}/toggle", follow_redirects=True)
+
+    assert toggle_response.status_code == 200
+    hidden = execute_query("SELECT status FROM reviews WHERE id = ?", (reviews[0]["id"],))
+    assert hidden[0]["status"] == "Hidden"
+
+    delete_response = client.post(f"/reviews/{reviews[0]['id']}/delete", follow_redirects=True)
+
+    assert delete_response.status_code == 200
+    remaining = execute_query("SELECT id FROM reviews")
+    assert remaining == []
