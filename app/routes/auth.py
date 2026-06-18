@@ -1,17 +1,28 @@
-from flask import Blueprint, render_template, redirect, url_for, request, session, flash
+from datetime import timedelta
+from urllib.parse import urlsplit
+
+from flask import Blueprint, current_app, render_template, redirect, url_for, request, session, flash
 from app.controllers.ControllerAuth import register_user, authenticate_user
 
 auth_bp = Blueprint('auth', __name__)
+
+
+def is_safe_next_url(target):
+    if not target:
+        return False
+    target_ref = urlsplit(target)
+    return not target_ref.netloc and target_ref.scheme in ("", "http", "https")
+
 
 @auth_bp.route("/signup", methods=["GET", "POST"])
 def signup():
     # If user is already logged in, redirect to home
     if 'user_id' in session:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
         
     if request.method == "POST":
-        name = request.form.get("name")
-        email = request.form.get("email")
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip().lower()
         password = request.form.get("password")
         agree_terms = request.form.get("agree_terms")
         
@@ -37,10 +48,10 @@ def signup():
 def login():
     # If user is already logged in, redirect to home
     if 'user_id' in session:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
         
     if request.method == "POST":
-        email = request.form.get("email")
+        email = request.form.get("email", "").strip().lower()
         password = request.form.get("password")
         
         if not email or not password:
@@ -53,10 +64,14 @@ def login():
             session['user_id'] = user_or_err['id']
             session['user_name'] = user_or_err['name']
             session['user_email'] = user_or_err['email']
+            session.permanent = bool(request.form.get("remember_me"))
+            if session.permanent:
+                current_app.permanent_session_lifetime = timedelta(days=14)
             flash(f"Welcome back, {user_or_err['name']}!", "success")
             
-            # Check if there is a redirect path saved
-            next_url = request.args.get('next') or url_for('home')
+            next_url = request.args.get('next')
+            if not is_safe_next_url(next_url):
+                next_url = url_for('main.home')
             return redirect(next_url)
         else:
             flash(user_or_err, "error")
@@ -68,10 +83,10 @@ def login():
 def forgot_password():
     # If user is already logged in, redirect to home
     if 'user_id' in session:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
 
     if request.method == "POST":
-        email = request.form.get("email")
+        email = request.form.get("email", "").strip().lower()
 
         if not email:
             flash("Email address is required.", "error")
@@ -86,4 +101,4 @@ def forgot_password():
 def logout():
     session.clear()
     flash("You have been logged out.", "success")
-    return redirect(url_for('home'))
+    return redirect(url_for('main.home'))
