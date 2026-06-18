@@ -53,6 +53,7 @@
                 <a href="{{ url_for('main.home') }}#destinations" class="hover:text-brandGreen transition">Compare</a>
                 {% if session.get('user_id') %}
                     <a href="{{ url_for('bookings.my_bookings') }}" class="hover:text-brandGreen transition">My Bookings</a>
+                    <a href="{{ url_for('main.profile') }}" class="hover:text-brandGreen transition">Profile</a>
                 {% endif %}
             </nav>
             

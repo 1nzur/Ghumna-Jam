@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ghumna जाम | Edit Profile</title>
+  <title>Ghumna Jam | Edit Profile</title>
   <style>
     :root {
       --green-950: #072f22;
@@ -19,8 +19,8 @@
       --muted: #607267;
       --line: rgba(19, 35, 27, 0.13);
       --shadow: 0 24px 70px rgba(7, 47, 34, 0.18);
-      --cover: url("assets/ghumna-jam-intro.png");
-      --logo: url("assets/ghumna-jam-logo-crop.png");
+      --cover: url("{{ url_for('static', filename='mountainbg.jpg') }}");
+      --logo: url("{{ url_for('static', filename='logobg.png') }}");
     }
 
     * {
@@ -665,14 +665,14 @@
   </div>
 
   <header class="topbar">
-    <a class="brand" href="#" aria-label="Ghumna Jam home">
+    <a class="brand" href="{{ url_for('main.home') }}" aria-label="Ghumna Jam home">
       <span class="brand-mark" aria-hidden="true"></span>
       <span><strong>Ghumna <span lang="ne">जाम</span></strong><small>Trek smarter, travel safer</small></span>
     </a>
     <nav class="topnav" aria-label="Primary navigation">
-      <a href="#">Explore</a>
-      <a href="#">Saved Trips</a>
-      <a href="#">Tracking</a>
+      <a href="{{ url_for('main.home') }}#destinations">Explore</a>
+      <a href="{{ url_for('bookings.my_bookings') }}">Bookings</a>
+      <a href="{{ url_for('bookings.my_bookings') }}">Tracking</a>
       <a class="active" href="#">Profile</a>
     </nav>
     <button class="icon-button" type="button" aria-label="Open notifications">!</button>
@@ -710,7 +710,7 @@
       <section class="form-section intro-panel" aria-labelledby="intro-title">
         <div>
           <p class="eyebrow">Logged in as</p>
-          <h2 id="intro-title">Aarohi Tamang</h2>
+          <h2 id="intro-title">{{ session.get('user_name', 'Explorer') }}</h2>
           <p>Update your public trekker card, booking details, tracking preferences, and emergency information.</p>
         </div>
         <div class="completion" aria-label="Profile completion">
@@ -728,12 +728,12 @@
           <span class="status-pill">Public profile</span>
         </div>
         <div class="field-grid">
-          <label>Full name<input name="fullName" type="text" value="Aarohi Tamang" autocomplete="name"></label>
+          <label>Full name<input name="fullName" type="text" value="{{ session.get('user_name', '') }}" autocomplete="name"></label>
           <label>Username
             <input id="usernameInput" name="username" type="text" value="@aarohi_treks" autocomplete="username">
             <span class="field-note"><span id="usernameStatus">Username available</span></span>
           </label>
-          <label>Email address<input name="email" type="email" value="aarohi@example.com" autocomplete="email"></label>
+          <label>Email address<input name="email" type="email" value="{{ session.get('user_email', '') }}" autocomplete="email"></label>
           <label>Phone number<input name="phone" type="tel" value="+977 9841000000" autocomplete="tel"></label>
           <label>Date of birth<input name="dob" type="date" value="1999-04-18"></label>
           <label>Gender
