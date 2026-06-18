@@ -1,7 +1,10 @@
+import os
+import secrets
 import re
 from functools import wraps
 
 from flask import current_app, flash, redirect, render_template, request, session, url_for
+from werkzeug.utils import secure_filename
 
 from app.models.base_model import BaseModel
 from app.models.database import init_db
@@ -220,6 +223,26 @@ class AuthController:
                 "highlights": "Kongma La, Cho La, Renjo La, Gokyo lakes, Everest Base Camp",
             },
         ]
+
+    @staticmethod
+    def _ensure_upload_directory():
+        upload_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "static", "uploads")
+        )
+        os.makedirs(upload_dir, exist_ok=True)
+        return upload_dir
+
+    @staticmethod
+    def _save_profile_picture(file_storage, user_id):
+        if not file_storage or file_storage.filename == "":
+            return None
+
+        upload_dir = AuthController._ensure_upload_directory()
+        filename = secure_filename(file_storage.filename)
+        filename = f"user_{user_id}_{secrets.token_hex(8)}_{filename}"
+        filepath = os.path.join(upload_dir, filename)
+        file_storage.save(filepath)
+        return url_for("static", filename=f"uploads/{filename}")
 
     def _hotel_options(self, dest_id):
         hotels_by_destination = {
@@ -468,7 +491,6 @@ class AuthController:
         )
 
     @login_required
-    @login_required
     def book_trip(self, dest_id):
         destination = next(
             (dest for dest in self._sample_destinations() if dest["id"] == dest_id),
@@ -512,8 +534,11 @@ class AuthController:
             email = request.form.get("email", "").strip().lower()
             phone_number = request.form.get("phone_number", "").strip()
             date_of_birth = request.form.get("date_of_birth", "").strip() or None
-            profile_picture_url = request.form.get("profile_picture_url", "").strip()
+            emergency_contact_name = request.form.get("emergency_contact_name", "").strip() or None
+            emergency_contact_phone = request.form.get("emergency_contact_phone", "").strip() or None
             password = request.form.get("password", "")
+            profile_picture = request.files.get("profile_picture")
+            profile_picture_url = None
 
             if not full_name or not email:
                 flash("Name and email are required.", "error")
@@ -530,6 +555,15 @@ class AuthController:
                 )
                 return render_template("edit-profile.html", user=user), 400
 
+            if profile_picture and profile_picture.filename:
+                try:
+                    profile_picture_url = self._save_profile_picture(profile_picture, session["user_id"])
+                except Exception:
+                    flash("Could not upload profile picture. Please try again.", "error")
+                    return render_template("edit-profile.html", user=user), 500
+            else:
+                profile_picture_url = user.get("profile_picture_url")
+
             try:
                 init_db(current_app)
                 BaseModel.update_user(
@@ -538,7 +572,9 @@ class AuthController:
                     email,
                     phone_number=phone_number or None,
                     date_of_birth=date_of_birth,
-                    profile_picture_url=profile_picture_url or None,
+                    profile_picture_url=profile_picture_url,
+                    emergency_contact_name=emergency_contact_name,
+                    emergency_contact_phone=emergency_contact_phone,
                     password=password or None,
                 )
             except ValueError as exc:

@@ -90,6 +90,8 @@
             </label>
             <input type="text"
                    id="emergency-contact-name"
+                   name="emergency_contact_name"
+                   value="{{ user.emergency_contact_name if user and user.emergency_contact_name else '' }}"
                    placeholder="e.g. Himalayan Rescue Association"
                    class="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
         </div>
@@ -100,6 +102,8 @@
             </label>
             <input type="text"
                    id="emergency-contact-phone"
+                   name="emergency_contact_phone"
+                   value="{{ user.emergency_contact_phone if user and user.emergency_contact_phone else '' }}"
                    placeholder="e.g. +977-1-4440293"
                    class="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
         </div>
