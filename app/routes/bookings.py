@@ -55,7 +55,36 @@ def destination_detail(dest_id):
         abort(404)
     
     destination = results[0]
-    return render_template("destination_detail.html", destination=destination)
+    reviews = execute_query(
+        """
+        SELECT r.*, u.name AS user_name
+        FROM reviews r
+        JOIN users u ON r.user_id = u.id
+        WHERE r.destination_id = ? AND r.status = 'Published'
+        ORDER BY r.updated_at DESC, r.created_at DESC
+        """,
+        (dest_id,),
+    )
+    user_review = None
+    if "user_id" in session:
+        user_review_rows = execute_query(
+            "SELECT id FROM reviews WHERE destination_id = ? AND user_id = ?",
+            (dest_id, session["user_id"]),
+        )
+        user_review = user_review_rows[0] if user_review_rows else None
+
+    average_rating = (
+        sum(review["rating"] for review in reviews) / len(reviews)
+        if reviews
+        else 0
+    )
+    return render_template(
+        "destination_detail.html",
+        destination=destination,
+        reviews=reviews,
+        average_rating=average_rating,
+        user_review=user_review,
+    )
 
 @bookings_bp.route("/book/<int:dest_id>", methods=["POST"])
 def book_trip(dest_id):
