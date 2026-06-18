@@ -1,4 +1,6 @@
 import pymysql
+import secrets
+from datetime import datetime, timedelta
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.models.database import get_db
@@ -52,13 +54,65 @@ class BaseModel:
                     date_of_birth,
                     profile_picture_url,
                     emergency_contact_name,
-                    emergency_contact_phone
+                    emergency_contact_phone,
+                    reset_token,
+                    reset_token_expires
                 FROM users
                 WHERE id = %s
                 """,
                 (user_id,),
             )
             return cursor.fetchone()
+
+    @staticmethod
+    def generate_password_reset_token(email):
+        db = get_db()
+        token = None
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT id FROM users WHERE email = %s
+                """,
+                (email,),
+            )
+            user = cursor.fetchone()
+            if user:
+                token = secrets.token_urlsafe(32)
+                expires = datetime.utcnow() + timedelta(hours=1)
+                cursor.execute(
+                    """
+                    UPDATE users
+                    SET reset_token = %s,
+                        reset_token_expires = %s
+                    WHERE id = %s
+                    """,
+                    (token, expires.strftime("%Y-%m-%d %H:%M:%S"), user["id"]),
+                )
+                db.commit()
+        return token
+
+    @staticmethod
+    def get_user_by_reset_token(token):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT id,
+                    full_name,
+                    email,
+                    reset_token_expires
+                FROM users
+                WHERE reset_token = %s
+                """,
+                (token,),
+            )
+            user = cursor.fetchone()
+            if not user:
+                return None
+            expires = user.get("reset_token_expires")
+            if expires is None or expires < datetime.utcnow():
+                return None
+            return user
 
     @staticmethod
     def update_user(
@@ -87,7 +141,9 @@ class BaseModel:
                             profile_picture_url = %s,
                             emergency_contact_name = %s,
                             emergency_contact_phone = %s,
-                            password_hash = %s
+                            password_hash = %s,
+                            reset_token = NULL,
+                            reset_token_expires = NULL
                         WHERE id = %s
                         """,
                         (
@@ -112,7 +168,9 @@ class BaseModel:
                             date_of_birth = %s,
                             profile_picture_url = %s,
                             emergency_contact_name = %s,
-                            emergency_contact_phone = %s
+                            emergency_contact_phone = %s,
+                            reset_token = NULL,
+                            reset_token_expires = NULL
                         WHERE id = %s
                         """,
                         (
@@ -140,7 +198,9 @@ class BaseModel:
             cursor.execute(
                 """
                 UPDATE users
-                SET password_hash = %s
+                SET password_hash = %s,
+                    reset_token = NULL,
+                    reset_token_expires = NULL
                 WHERE id = %s
                 """,
                 (generate_password_hash(password), user_id),
