@@ -62,8 +62,6 @@ def init_db(app):
                     phone_number VARCHAR(30),
                     date_of_birth DATE,
                     profile_picture_url VARCHAR(500),
-                    otp_code VARCHAR(6),
-                    otp_expiry DATETIME,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
                 """
@@ -75,8 +73,6 @@ def init_db(app):
                 "phone_number": "ALTER TABLE users ADD COLUMN phone_number VARCHAR(30)",
                 "date_of_birth": "ALTER TABLE users ADD COLUMN date_of_birth DATE",
                 "profile_picture_url": "ALTER TABLE users ADD COLUMN profile_picture_url VARCHAR(500)",
-                "otp_code": "ALTER TABLE users ADD COLUMN otp_code VARCHAR(6)",
-                "otp_expiry": "ALTER TABLE users ADD COLUMN otp_expiry DATETIME",
             }
 
             for column_name, statement in profile_columns.items():

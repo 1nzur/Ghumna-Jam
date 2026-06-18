@@ -1,5 +1,4 @@
 from flask import Flask, redirect, session, url_for
-from flask_mail import Mail
 from app.models.database import Database, close_db
 from app.routes.auth import AuthRoutes
 
@@ -7,9 +6,6 @@ from app.routes.auth import AuthRoutes
 def create_app():
     app = Flask(__name__)
     app.config.from_pyfile("../config.py")
-    
-    from app.controllers.ControllerAuth import mail
-    mail.init_app(app)
 
     startup_db = Database()
     startup_db.close()

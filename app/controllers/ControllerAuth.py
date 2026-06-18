@@ -1,14 +1,9 @@
 from functools import wraps
-import random
-from datetime import datetime, timedelta
 
 from flask import current_app, flash, redirect, render_template, request, session, url_for
-from flask_mail import Mail, Message
 
 from app.models.base_model import BaseModel
 from app.models.database import init_db
-
-mail = Mail()
 
 
 def login_required(view):
@@ -427,95 +422,20 @@ class AuthController:
         return self.home()
 
     def forgot_password(self):
+        email = ""
+        submitted_email = ""
         if request.method == "POST":
             email = request.form.get("email", "").strip().lower()
             if not email:
                 flash("Please enter your email address.", "error")
-                return render_template("forgot_password.html"), 400
-            
-            init_db(current_app)
-            user = BaseModel.get_user_by_email(email)
-            if user:
-                # Generate 6-digit OTP
-                otp_code = f"{random.randint(100000, 999999)}"
-                expiry_time = datetime.now() + timedelta(minutes=current_app.config.get("OTP_EXPIRY_MINUTES", 10))
-                
-                BaseModel.save_otp(email, otp_code, expiry_time)
-                
-                # Send Email or print to console
-                try:
-                    msg = Message(
-                        "Your Password Reset OTP",
-                        recipients=[email]
-                    )
-                    msg.body = f"Your OTP for password reset is: {otp_code}\n\nIt will expire in 10 minutes."
-                    mail.send(msg)
-                    print(f"OTP sent to {email}: {otp_code}") # Fallback print for development
-                except Exception as e:
-                    print(f"Failed to send email. OTP for {email} is {otp_code}. Error: {e}")
-            
-            session["reset_email"] = email
+                return render_template("forgot_password.html", email=email), 400
+            submitted_email = email
             flash("If that email exists, reset instructions will be sent.", "success")
-            return redirect(url_for("auth.verify_otp"))
-            
-        return render_template("forgot_password.html")
-
-    def verify_otp(self):
-        email = session.get("reset_email")
-        if not email:
-            flash("Session expired. Please request a new password reset.", "error")
-            return redirect(url_for("auth.forgot_password"))
-
-        if request.method == "POST":
-            otp_code = request.form.get("otp_code", "").strip()
-            
-            if not otp_code:
-                flash("Please enter the OTP.", "error")
-                return render_template("verify_otp.html", email=email), 400
-                
-            user = BaseModel.get_valid_otp_user(email, otp_code)
-            
-            if user:
-                session["otp_verified"] = True
-                flash("OTP verified successfully. Please enter your new password.", "success")
-                return redirect(url_for("auth.reset_password"))
-            else:
-                flash("Invalid or expired OTP.", "error")
-                return render_template("verify_otp.html", email=email), 400
-
-        return render_template("verify_otp.html", email=email)
-
-    def reset_password(self):
-        email = session.get("reset_email")
-        if not email or not session.get("otp_verified"):
-            flash("Unauthorized access. Please verify your OTP first.", "error")
-            return redirect(url_for("auth.forgot_password"))
-
-        if request.method == "POST":
-            password = request.form.get("password", "")
-            confirm_password = request.form.get("confirm_password", "")
-            
-            if not password or not confirm_password:
-                flash("Please fill in all fields.", "error")
-                return render_template("reset_password.html"), 400
-                
-            if password != confirm_password:
-                flash("Passwords do not match.", "error")
-                return render_template("reset_password.html"), 400
-                
-            try:
-                BaseModel.update_password_by_email(email, password)
-                # Clear session variables
-                session.pop("reset_email", None)
-                session.pop("otp_verified", None)
-                flash("Your password has been reset successfully. You can now log in.", "success")
-                return redirect(url_for("auth.login"))
-            except Exception as e:
-                flash("We could not reset your password right now.", "error")
-                print(f"Error resetting password: {e}")
-                return render_template("reset_password.html"), 500
-                
-        return render_template("reset_password.html")
+        return render_template(
+            "forgot_password.html",
+            email=email,
+            submitted_email=submitted_email,
+        )
     
     def compare_treks(self):
         selected_ids = []

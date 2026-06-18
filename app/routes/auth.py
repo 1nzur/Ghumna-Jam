@@ -41,14 +41,6 @@ class AuthRoutes:
             self.controller.forgot_password
         )
 
-        self.bp.route("/verify-otp", methods=["GET", "POST"])(
-            self.controller.verify_otp
-        )
-
-        self.bp.route("/reset-password", methods=["GET", "POST"])(
-            self.controller.reset_password
-        )
-
         self.bp.route("/bookings")(
             self.controller.bookings
         )
