@@ -90,6 +90,25 @@
                     </li>
                 </ul>
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <h3 class="font-serif text-lg text-brandGreen font-semibold mb-4">Trail Rhythm</h3>
+                    <ol class="space-y-3 text-sm text-gray-600">
+                        <li><strong class="text-brandGreen">Start:</strong> Guide briefing, permit check, and transport coordination.</li>
+                        <li><strong class="text-brandGreen">Middle:</strong> Steady acclimatization days with flexible pace and tea house stops.</li>
+                        <li><strong class="text-brandGreen">Finish:</strong> Descent planning, recovery buffer, and return transfer support.</li>
+                    </ol>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <h3 class="font-serif text-lg text-brandGreen font-semibold mb-4">Pack Notes</h3>
+                    <ul class="space-y-3 text-sm text-gray-600">
+                        <li>Layered clothing for cold mornings and warm climbs.</li>
+                        <li>Personal medication, reusable water bottle, and sun protection.</li>
+                        <li>Broken-in boots and a light daypack for daily essentials.</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Right: Booking Form Card (takes 1 col) -->
@@ -114,7 +133,9 @@
                                id="departure_date" 
                                name="departure_date" 
                                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen"
-                               required>
+                               required
+                               aria-describedby="departure_help">
+                        <p id="departure_help" class="text-[10px] text-gray-400 mt-1">Choose a future date so the guide team can confirm permits.</p>
                     </div>
                 </div>
 
