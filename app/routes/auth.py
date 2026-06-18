@@ -72,4 +72,8 @@ class AuthRoutes:
             self.controller.tracking
         )
 
+        self.bp.route("/socials")(
+            self.controller.socials
+        )
+
         return self.bp

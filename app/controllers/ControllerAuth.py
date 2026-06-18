@@ -517,3 +517,7 @@ class AuthController:
     @login_required
     def tracking(self):
         return render_template("tracking.html")
+
+    @login_required
+    def socials(self):
+        return render_template("socials.html")
