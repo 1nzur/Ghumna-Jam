@@ -327,8 +327,13 @@ class AuthController:
             session["user_id"] = user["id"]
             session["user_name"] = user["full_name"]
             session["profile_picture_url"] = user.get("profile_picture_url")
+            # Honor the 'remember' checkbox
+            remember = request.form.get('remember')
+            session.permanent = True if remember else False
+
             flash("Logged in successfully.", "success")
-            next_url = request.args.get("next")
+            # Prefer next from POST form, then fallback to query param
+            next_url = request.form.get("next") or request.args.get("next")
             return redirect(next_url or url_for("auth.home"))
 
         return render_template("login.html")
