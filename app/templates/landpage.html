@@ -21,7 +21,7 @@
             <div class="md:col-span-2">
                 <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1.5">Search Destinations</label>
                 <div class="relative">
-                    <span class="absolute left-3 top-3.5 text-gray-400 text-sm">🔍</span>
+                    <span class="absolute left-3 top-3.5 text-gray-400 text-sm" aria-hidden="true">🔍</span>
                     <input type="text" id="search-input" placeholder="Where do you want to explore?" class="w-full bg-gray-50 border border-gray-100 rounded-lg pl-9 pr-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
                 </div>
             </div>
@@ -64,7 +64,7 @@
         <div class="flex justify-between items-end mb-8">
             <div>
                 <h2 class="font-serif text-2xl sm:text-3xl text-brandGreen font-semibold">Featured Destinations</h2>
-                <p class="text-xs text-gray-500 mt-1">The most iconic paths across the roof of the world.</p>
+                <p class="text-xs text-gray-500 mt-1"><span id="visible-count">{{ destinations|length }}</span> trails matched across the roof of the world.</p>
             </div>
         </div>
 
@@ -90,15 +90,15 @@
                         
                         <div class="grid grid-cols-3 gap-2 text-center border-t border-b border-gray-50 py-3 mb-4 text-[11px] text-gray-500">
                             <div>
-                                <span class="block mb-0.5">🏔️</span>
+                                <span class="block mb-0.5" aria-hidden="true">🏔️</span>
                                 <span class="font-medium text-gray-700">{{ dest.difficulty }}</span>
                             </div>
                             <div class="border-l border-r border-gray-100">
-                                <span class="block mb-0.5">⏱️</span>
+                                <span class="block mb-0.5" aria-hidden="true">⏱️</span>
                                 <span class="font-medium text-gray-700">{{ dest.duration_days }} Days</span>
                             </div>
                             <div>
-                                <span class="block mb-0.5">📅</span>
+                                <span class="block mb-0.5" aria-hidden="true">📅</span>
                                 <span class="font-medium text-gray-700">{{ dest.season }}</span>
                             </div>
                         </div>
@@ -126,6 +126,13 @@
                 </div>
             </div>
             {% endfor %}
+        </div>
+        <div id="no-results" class="hidden text-center py-16 bg-white border border-dashed border-gray-200 rounded-xl">
+            <h3 class="font-serif text-xl text-brandGreen font-semibold">No trails match those filters</h3>
+            <p class="text-sm text-gray-500 mt-2">Try clearing the search or choosing a broader season and difficulty.</p>
+            <button type="button" onclick="setSuggestionFilter('all')" class="mt-5 bg-brandGreen hover:bg-emerald-950 text-white text-xs font-semibold px-5 py-3 rounded-lg transition">
+                Reset Filters
+            </button>
         </div>
     </main>
 
@@ -160,13 +167,18 @@
                 const matchesSearch = !searchVal || name.includes(searchVal);
                 const matchesDifficulty = difficultyVal === 'all' || difficulty === difficultyVal;
                 const matchesSeason = seasonVal === 'all' || season === seasonVal;
+                const isVisible = matchesSearch && matchesDifficulty && matchesSeason;
 
-                if (matchesSearch && matchesDifficulty && matchesSeason) {
+                if (isVisible) {
                     card.style.display = 'flex';
                 } else {
                     card.style.display = 'none';
                 }
             });
+
+            const visibleCards = Array.from(cards).filter((card) => card.style.display !== 'none');
+            document.getElementById('visible-count').textContent = visibleCards.length;
+            document.getElementById('no-results').classList.toggle('hidden', visibleCards.length !== 0);
         }
 
         function setSuggestionFilter(tag) {
@@ -219,6 +231,7 @@
 
                 checkboxes.forEach((checkbox) => {
                     checkbox.disabled = !checkbox.checked && selected.length >= maxSelections;
+                    checkbox.closest("label").classList.toggle("opacity-50", checkbox.disabled);
                 });
             }
 
