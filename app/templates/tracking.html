@@ -114,6 +114,27 @@
                 </div>
             </div>
 
+            <!-- Save Trail Log Card -->
+            <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
+                <div>
+                    <h3 class="font-serif text-lg text-brandGreen font-semibold">Save Trail Log</h3>
+                    <p class="text-xs text-gray-500 mt-0.5">Store your recorded path and notes to your account.</p>
+                </div>
+
+                <form id="trail-save-form" method="POST" class="space-y-4">
+                    <div>
+                        <label for="trail_title" class="block text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-2">Trail Title</label>
+                        <input id="trail_title" name="title" type="text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen" placeholder="Example: Annapurna Ridge Run" required>
+                    </div>
+                    <div>
+                        <label for="trail_description" class="block text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-2">Description</label>
+                        <textarea id="trail_description" name="description" rows="3" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen" placeholder="Write a few notes about your trail."></textarea>
+                    </div>
+                    <input id="trail_log_data" type="hidden" name="log_data" value="">
+                    <button type="submit" class="w-full bg-brandGreen hover:bg-emerald-950 text-white font-bold py-3 rounded-xl transition">Save Trail Log</button>
+                </form>
+            </div>
+
             <!-- Offline Guide Instructions Card -->
             <div class="bg-brandGreen text-white rounded-2xl shadow-sm p-6 sm:p-8 space-y-4">
                 <h4 class="font-serif text-base font-semibold text-brandYellow">Offline Operations Guide</h4>
@@ -459,7 +480,23 @@
             }
         });
 
-        // 10. Export Trail data (JSON)
+        // 10. Trail save form integration
+        const trailSaveForm = document.getElementById('trail-save-form');
+        const trailLogDataInput = document.getElementById('trail_log_data');
+
+        if (trailSaveForm) {
+            trailSaveForm.addEventListener('submit', (event) => {
+                if (trailPoints.length === 0) {
+                    event.preventDefault();
+                    alert('No trail points have been recorded. Start tracking before saving.');
+                    return;
+                }
+
+                trailLogDataInput.value = JSON.stringify(trailPoints);
+            });
+        }
+
+        // 11. Export Trail data (JSON)
         btnExportData.addEventListener('click', () => {
             if (trailPoints.length === 0) {
                 alert("No recorded logs available to export.");
@@ -475,7 +512,7 @@
             downloadAnchor.remove();
         });
 
-        // 11. SOS Modal Event Listeners
+        // 12. SOS Modal Event Listeners
         const btnSos = document.getElementById('btn-sos');
         const sosModal = document.getElementById('sos-modal');
         const sosModalContent = document.getElementById('sos-modal-content');
