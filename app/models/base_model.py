@@ -177,6 +177,21 @@ class BaseModel:
             return result["total_distance"] if result and result["total_distance"] else 0.0
 
     @staticmethod
+    def get_trek_count(user_id):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT COUNT(*) as trek_count
+                FROM trek_records
+                WHERE user_id = %s
+                """,
+                (user_id,),
+            )
+            result = cursor.fetchone()
+            return result["trek_count"] if result else 0
+
+    @staticmethod
     def get_all_users(exclude_user_id=None):
         db = get_db()
         with db.cursor() as cursor:

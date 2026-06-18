@@ -570,6 +570,11 @@ class AuthController:
                 or normalized_query in user["email"].lower()
             ]
 
+        # Sort users by trek activity (highest count first)
+        for user in all_users:
+            user["trek_count"] = BaseModel.get_trek_count(user["id"])
+        all_users.sort(key=lambda u: u["trek_count"], reverse=True)
+
         followers = BaseModel.get_followers(current_user_id)
         following = BaseModel.get_following(current_user_id)
         notifications = BaseModel.get_notifications(current_user_id)
