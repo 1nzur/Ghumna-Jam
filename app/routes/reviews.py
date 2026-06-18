@@ -53,3 +53,38 @@ def get_review_for_user(review_id):
     if not rows:
         abort(404)
     return rows[0]
+
+
+@reviews_bp.route("/destination/<int:dest_id>/reviews", methods=["POST"])
+def create_review(dest_id):
+    login_redirect = require_login(url_for("bookings.destination_detail", dest_id=dest_id))
+    if login_redirect:
+        return login_redirect
+
+    destination_rows = execute_query("SELECT id, name FROM destinations WHERE id = ?", (dest_id,))
+    if not destination_rows:
+        abort(404)
+
+    rating, title, body, error = validate_review_form(request.form)
+    if error:
+        flash(error, "error")
+        return redirect(url_for("bookings.destination_detail", dest_id=dest_id) + "#reviews")
+
+    existing_review = execute_query(
+        "SELECT id FROM reviews WHERE user_id = ? AND destination_id = ?",
+        (session["user_id"], dest_id),
+    )
+    if existing_review:
+        flash("You have already reviewed this destination. Edit your existing review instead.", "error")
+        return redirect(url_for("reviews.my_reviews"))
+
+    execute_query(
+        """
+        INSERT INTO reviews (user_id, destination_id, rating, title, body, status)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (session["user_id"], dest_id, rating, title, body, "Published"),
+        commit=True,
+    )
+    flash(f"Thanks for reviewing {destination_rows[0]['name']}.", "success")
+    return redirect(url_for("bookings.destination_detail", dest_id=dest_id) + "#reviews")
