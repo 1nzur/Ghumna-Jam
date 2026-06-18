@@ -162,6 +162,21 @@ class BaseModel:
             return cursor.fetchone()
 
     @staticmethod
+    def get_total_distance(user_id):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT SUM(distance_km) as total_distance
+                FROM trek_records
+                WHERE user_id = %s
+                """,
+                (user_id,),
+            )
+            result = cursor.fetchone()
+            return result["total_distance"] if result and result["total_distance"] else 0.0
+
+    @staticmethod
     def get_all_users(exclude_user_id=None):
         db = get_db()
         with db.cursor() as cursor:

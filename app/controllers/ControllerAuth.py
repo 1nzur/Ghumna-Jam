@@ -612,6 +612,7 @@ class AuthController:
         is_following = user_id in current_following_ids
         is_own_profile = user_id == current_user_id
         last_trek = BaseModel.get_last_trek(user_id)
+        total_distance = BaseModel.get_total_distance(user_id)
 
         return render_template(
             "trekker_profile.html",
@@ -621,6 +622,7 @@ class AuthController:
             is_following=is_following,
             is_own_profile=is_own_profile,
             last_trek=last_trek,
+            total_distance=total_distance,
         )
 
     @login_required
