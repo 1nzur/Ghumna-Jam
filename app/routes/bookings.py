@@ -39,10 +39,12 @@ def compare_destinations():
         return redirect(url_for('main.home') + "#destinations")
 
     best_price = min(destination["price_per_person"] for destination in ordered_destinations)
+    shortest_duration = min(destination["duration_days"] for destination in ordered_destinations)
     return render_template(
         "compare.html",
         destinations=ordered_destinations,
-        best_price=best_price
+        best_price=best_price,
+        shortest_duration=shortest_duration,
     )
 
 @bookings_bp.route("/destination/<int:dest_id>")
