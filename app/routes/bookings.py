@@ -128,8 +128,14 @@ def my_bookings():
     ORDER BY b.booked_at DESC
     """
     my_bookings_list = execute_query(query, (user_id,))
+    booking_stats = {
+        "total": len(my_bookings_list),
+        "active": sum(1 for booking in my_bookings_list if booking["status"] != "Cancelled"),
+        "travelers": sum(booking["travelers_count"] for booking in my_bookings_list if booking["status"] != "Cancelled"),
+        "spent": sum(float(booking["total_price"]) for booking in my_bookings_list if booking["status"] != "Cancelled"),
+    }
     
-    return render_template("bookings.html", bookings=my_bookings_list)
+    return render_template("bookings.html", bookings=my_bookings_list, stats=booking_stats)
 
 
 @bookings_bp.route("/bookings/<int:booking_id>/cancel", methods=["POST"])
