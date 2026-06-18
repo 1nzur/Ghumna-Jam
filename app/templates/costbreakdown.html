@@ -124,6 +124,12 @@
       grid-template-columns: 1.3fr 1fr 1fr 1fr auto;
       gap: 12px;
       margin-bottom: 18px;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .fade-reset {
+      opacity: 0.3;
+      transform: translateY(6px);
     }
 
     input,
@@ -567,7 +573,7 @@
         <div class="template-actions">
           <button type="button" id="saveTemplateBtn">Save as Template</button>
           <button type="button" id="createFromTemplateBtn" class="secondary">New Plan from Template</button>
-          <button type="button" id="clearPlanBtn" class="muted">Clear Plan</button>
+          <button type="button" id="clearPlanBtn" class="muted">Reset Plan</button>
         </div>
       </div>
 
@@ -1218,23 +1224,39 @@
     }
 
     function clearPlan() {
-      form.reset();
-      editingCostId = null;
-      submitCostBtn.textContent = "Add Cost";
-      cancelEditBtn.style.display = "none";
-      templateSelector.value = "";
-      planNameInput.value = "";
-      startDateInput.value = "";
-      endDateInput.value = "";
-      routeSelect.value = "";
-      updateRoutePreview();
-      setSelectedGear([], false);
-      setRouteAndGearDisabled(false);
-      planLockedByTemplate = false;
-      templateLockNote.style.display = "none";
-      costs = [];
-      saveCosts();
-      renderCosts();
+      const resetTargets = [document.querySelector('.plan-panel'), form, routeInfo];
+      resetTargets.forEach(function (el) {
+        if (el) {
+          el.classList.add('fade-reset');
+        }
+      });
+
+      window.setTimeout(function () {
+        form.reset();
+        groupSizeInput.value = 1;
+        editingCostId = null;
+        submitCostBtn.textContent = "Add Cost";
+        cancelEditBtn.style.display = "none";
+        templateSelector.value = "";
+        planNameInput.value = "";
+        startDateInput.value = "";
+        endDateInput.value = "";
+        routeSelect.value = "";
+        updateRoutePreview();
+        setSelectedGear([], false);
+        setRouteAndGearDisabled(false);
+        planLockedByTemplate = false;
+        templateLockNote.style.display = "none";
+        costs = [];
+        saveCosts();
+        renderCosts();
+
+        resetTargets.forEach(function (el) {
+          if (el) {
+            el.classList.remove('fade-reset');
+          }
+        });
+      }, 120);
     }
 
     // Initialize currency selector behavior
