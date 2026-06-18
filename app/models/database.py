@@ -78,4 +78,25 @@ def init_db(app):
             for column_name, statement in profile_columns.items():
                 if column_name not in existing_columns:
                     cursor.execute(statement)
+
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS bookings (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    destination_id INT NOT NULL,
+                    destination_name VARCHAR(255) NOT NULL,
+                    destination_image_url VARCHAR(500),
+                    departure_date DATE,
+                    travelers_count INT NOT NULL DEFAULT 1,
+                    duration_days INT,
+                    difficulty VARCHAR(100),
+                    selected_hotel VARCHAR(255),
+                    booking_status VARCHAR(50) NOT NULL DEFAULT 'Confirmed',
+                    total_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+                """
+            )
         db.commit()
