@@ -1,6 +1,7 @@
 import os
 import secrets
 import re
+from datetime import datetime, timedelta
 from functools import wraps
 
 from flask import current_app, flash, redirect, render_template, request, session, url_for
@@ -244,6 +245,15 @@ class AuthController:
         file_storage.save(filepath)
         return url_for("static", filename=f"uploads/{filename}")
 
+    @staticmethod
+    def _generate_password_reset_token(email):
+        return BaseModel.generate_password_reset_token(email)
+
+    @staticmethod
+    def _is_token_valid(token):
+        user = BaseModel.get_user_by_reset_token(token)
+        return user
+
     def _hotel_options(self, dest_id):
         hotels_by_destination = {
             1: [
@@ -433,13 +443,61 @@ class AuthController:
             if not email:
                 flash("Please enter your email address.", "error")
                 return render_template("forgot_password.html", email=email), 400
+
+            try:
+                init_db(current_app)
+                token = self._generate_password_reset_token(email)
+            except Exception:
+                flash("We could not process that request right now.", "error")
+                return render_template("forgot_password.html", email=email), 500
+
             submitted_email = email
+            reset_link = None
+            if token:
+                reset_link = url_for("auth.reset_password", token=token, _external=False)
             flash("If that email exists, reset instructions will be sent.", "success")
         return render_template(
             "forgot_password.html",
             email=email,
             submitted_email=submitted_email,
         )
+
+    def reset_password(self, token):
+        user = self._is_token_valid(token)
+        if not user:
+            flash("This password reset link is invalid or expired.", "error")
+            return redirect(url_for("auth.forgot_password"))
+
+        if request.method == "POST":
+            password = request.form.get("password", "")
+            confirm_password = request.form.get("confirm_password", "")
+
+            if not password or not confirm_password:
+                flash("Please enter and confirm your new password.", "error")
+                return render_template("reset_password.html", token=token), 400
+
+            if password != confirm_password:
+                flash("Passwords do not match.", "error")
+                return render_template("reset_password.html", token=token), 400
+
+            if not self._is_strong_password(password):
+                flash(
+                    "Password must be at least 8 characters and include 1 uppercase letter, 1 number, and 1 special character.",
+                    "error",
+                )
+                return render_template("reset_password.html", token=token), 400
+
+            try:
+                init_db(current_app)
+                BaseModel.update_password(user["id"], password)
+            except Exception:
+                flash("We could not reset your password right now.", "error")
+                return render_template("reset_password.html", token=token), 500
+
+            flash("Your password has been reset successfully. Please log in.", "success")
+            return redirect(url_for("auth.login"))
+
+        return render_template("reset_password.html", token=token)
     
     def compare_treks(self):
         selected_ids = []
