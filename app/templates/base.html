@@ -26,6 +26,26 @@
             }
         }
     }
+
+    // Utility function to calculate trip duration in days
+    function calculateTripDuration(startDateStr, endDateStr) {
+        if (!startDateStr || !endDateStr) return 0;
+        try {
+            const startDate = new Date(startDateStr);
+            const endDate = new Date(endDateStr);
+            if (isNaN(startDate) || isNaN(endDate)) return 0;
+            const timeDiff = Math.abs(endDate - startDate);
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+            return daysDiff;
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    // Format duration string
+    function formatDurationLabel(days) {
+        return "Duration: " + days + " " + (days === 1 ? "Day" : "Days");
+    }
 </script>
 </head>
 

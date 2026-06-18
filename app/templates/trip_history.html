@@ -2,6 +2,17 @@
 
 {% block title %}Ghumna Jam - Trip History{% endblock %}
 
+{% macro calculate_duration(start_date, end_date) %}
+  {%- if start_date and end_date %}
+    {%- set start = strptime(start_date, "%Y-%m-%d") if start_date is string else start_date %}
+    {%- set end = strptime(end_date, "%Y-%m-%d") if end_date is string else end_date %}
+    {%- set delta = end - start %}
+    {{ delta.days + 1 }}
+  {%- else %}
+    0
+  {%- endif %}
+{%- endmacro %}
+
 {% block content %}
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -45,7 +56,7 @@
                             <div class="grid grid-cols-3 gap-4 text-xs text-gray-500">
                                 <div class="rounded-3xl bg-gray-50 p-4">
                                     <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Duration</span>
-                                    <span class="mt-1 block font-semibold text-brandGreen">{{ trip.duration_days }} Days</span>
+                                    <span class="mt-1 block font-semibold text-brandGreen">Duration: {{ trip.duration_days if trip.duration_days else calculate_duration(trip.start_date, trip.end_date) }} Days</span>
                                 </div>
                                 <div class="rounded-3xl bg-gray-50 p-4">
                                     <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Difficulty</span>
