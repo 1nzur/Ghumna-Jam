@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Ghumna Jam - Verify OTP{% endblock %}
+
+{% block auth_content %}
+<div class="tabs" aria-label="Authentication tabs">
+    <a class="active" href="#">Verify OTP</a>
+    <a href="{{ url_for('auth.login') }}">Back to Login</a>
+</div>
+
+<h1>Verify OTP</h1>
+
+<p class="subtitle">
+    We have sent a 6-digit one-time password to your email: <strong>{{ email }}</strong>. 
+    It will expire in 10 minutes.
+</p>
+
+<form method="post" action="{{ url_for('auth.verify_otp') }}" style="display:contents;">
+    <label class="field">
+        Enter OTP
+        <div class="input">
+            <span aria-hidden="true">&#128274;</span>
+            <input type="text"
+                   name="otp_code"
+                   placeholder="123456"
+                   pattern="\d{6}"
+                   title="Please enter exactly 6 digits"
+                   autocomplete="off"
+                   required>
+        </div>
+    </label>
+
+    <button class="btn" type="submit">Verify OTP</button>
+</form>
+
+<div style="margin-top: 1rem; text-align: center;">
+    <a href="{{ url_for('auth.forgot_password') }}" style="font-size: 0.875rem; color: #6b7280; text-decoration: none;">Didn't receive it? Try again</a>
+</div>
+{% endblock %}
