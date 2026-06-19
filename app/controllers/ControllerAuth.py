@@ -81,7 +81,7 @@ class AuthController:
                 "duration_days": 10,
                 "season": "May-Oct",
                 "description": "Explore the ancient, dry kingdom of Lo Manthang, characterized by red cliffs, cave dwellings, and Tibetan culture.",
-                "price_per_person": 1799.00 * self.EXCHANGE_RATE,
+                "price_per_person": 1899.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 3840,
                 "highlights": "Lo Manthang walled city, sky caves, Tibetan-style palace",
             },
