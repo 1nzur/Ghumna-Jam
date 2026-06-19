@@ -153,7 +153,7 @@ class AuthController:
                 "duration_days": 9,
                 "season": "Mar-May, Sep-Nov",
                 "description": "Trek through the untouched forests of western Nepal to the largest and deepest freshwater lake in the country.",
-                "price_per_person": 1099.00 * self.EXCHANGE_RATE,
+                "price_per_person": 1499.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 2990,
                 "highlights": "Pristine pine forests, bird watching, boating on Rara Lake",
             },
