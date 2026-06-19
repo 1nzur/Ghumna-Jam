@@ -29,7 +29,7 @@ class AuthController:
             "duration_days": 14,
             "season": "Mar-May, Sep-Nov",
             "description": "A classic Himalayan trek through Sherpa villages, alpine valleys, and dramatic views of the world's highest peaks.",
-            "price_per_person": 1499.00 * self.EXCHANGE_RATE,
+            "price_per_person": 1299.00 * self.EXCHANGE_RATE,
             "altitude_meters": 5364,
             "highlights": "Sherpa culture, Kala Patthar viewpoint, historic base camp",
         }
