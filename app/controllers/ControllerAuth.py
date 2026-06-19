@@ -93,7 +93,7 @@ class AuthController:
                 "duration_days": 12,
                 "season": "Mar-May, Sep-Nov",
                 "description": "Trek to the turquoise glacial lakes of the Gokyo Valley and climb Gokyo Ri for premium views of Everest and Lhotse.",
-                "price_per_person": 1299.00 * self.EXCHANGE_RATE,
+                "price_per_person": 1249.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 5357,
                 "highlights": "Turquoise lakes, Ngozumpa Glacier, views of four 8,000m peaks",
             },
