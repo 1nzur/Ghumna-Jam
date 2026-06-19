@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 from functools import wraps
 
@@ -21,6 +22,19 @@ def login_required(view):
 
 class AuthController:
     EXCHANGE_RATE = 134.0
+
+    @staticmethod
+    def _is_strong_password(password):
+        return (
+            len(password) >= 8
+            and re.search(r"[A-Z]", password)
+            and re.search(r"\d", password)
+            and re.search(r"[!@#$%^&*(),.?\":{}|<>~`_\-\\\[\];'\/+=]", password)
+        )
+
+    @staticmethod
+    def _is_token_valid(token):
+        return BaseModel.get_user_by_reset_token(token)
 
     def _sample_destination(self, dest_id=1):
         return {
@@ -398,7 +412,44 @@ class AuthController:
             email=email,
             submitted_email=submitted_email,
         )
-    
+
+    def reset_password(self, token):
+        user = self._is_token_valid(token)
+        if not user:
+            flash("This password reset link is invalid or expired.", "error")
+            return redirect(url_for("auth.forgot_password"))
+
+        if request.method == "POST":
+            password = request.form.get("password", "")
+            confirm_password = request.form.get("confirm_password", "")
+
+            if not password or not confirm_password:
+                flash("Please enter and confirm your new password.", "error")
+                return render_template("reset_password.html", token=token), 400
+
+            if password != confirm_password:
+                flash("Passwords do not match.", "error")
+                return render_template("reset_password.html", token=token), 400
+
+            if not self._is_strong_password(password):
+                flash(
+                    "Password must be at least 8 characters and include 1 uppercase letter, 1 number, and 1 special character.",
+                    "error",
+                )
+                return render_template("reset_password.html", token=token), 400
+
+            try:
+                init_db(current_app)
+                BaseModel.update_password(user["id"], password)
+            except Exception:
+                flash("We could not reset your password right now.", "error")
+                return render_template("reset_password.html", token=token), 500
+
+            flash("Your password has been reset successfully. Please log in.", "success")
+            return redirect(url_for("auth.login"))
+
+        return render_template("reset_password.html", token=token)
+
     @login_required
     def compare_treks(self):
         selected_ids = []
@@ -437,6 +488,16 @@ class AuthController:
         except Exception:
             bookings = []
         return render_template("bookings.html", bookings=bookings)
+
+    @login_required
+    def cancel_booking(self, booking_id):
+        try:
+            init_db(current_app)
+            BaseModel.cancel_booking(session["user_id"], booking_id)
+            flash("Booking cancelled successfully.", "success")
+        except Exception:
+            flash("Could not cancel the booking right now.", "error")
+        return redirect(url_for("auth.bookings"))
 
     def destination_detail(self, dest_id):
         destination = next(
@@ -551,3 +612,51 @@ class AuthController:
     @login_required
     def socials(self):
         return render_template("socials.html")
+
+    @login_required
+    def submit_review(self, dest_id):
+        rating = request.form.get("rating", "0")
+        comment = request.form.get("comment", "").strip()
+        try:
+            rating_value = int(rating)
+        except ValueError:
+            rating_value = 0
+        if rating_value < 1 or rating_value > 5:
+            flash("Please provide a rating between 1 and 5.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+        try:
+            init_db(current_app)
+            BaseModel.add_destination_review(session["user_id"], dest_id, rating_value, comment)
+        except Exception:
+            flash("We could not save your review right now.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+        flash("Thank you for your review!", "success")
+        return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+
+    @login_required
+    def toggle_favorite(self, dest_id):
+        user_id = session["user_id"]
+        try:
+            favorite_ids = BaseModel.get_favorite_destination_ids(user_id)
+        except Exception:
+            favorite_ids = []
+        try:
+            init_db(current_app)
+            if dest_id in favorite_ids:
+                BaseModel.remove_favorite_destination(user_id, dest_id)
+                flash("Destination removed from your favorites.", "success")
+            else:
+                BaseModel.add_favorite_destination(user_id, dest_id)
+                flash("Destination added to your favorites.", "success")
+        except Exception:
+            flash("Could not update favorites right now.", "error")
+        return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+
+    @login_required
+    def favorites(self):
+        try:
+            favorites = BaseModel.get_user_favorites(session["user_id"])
+        except Exception:
+            flash("Could not load your favorites right now.", "error")
+            favorites = []
+        return render_template("favorites.html", favorites=favorites)
