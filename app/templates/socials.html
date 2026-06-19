@@ -111,6 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const storageKey = 'ghumna_jam_social_posts';
     const followKey = 'ghumna_jam_followed_trekkers';
+    const followersKey = 'ghumna_jam_trekker_followers';
+    const viewedKey = 'ghumna_jam_viewed_posts';
     const feed = document.getElementById('feed');
     const form = document.getElementById('post-form');
     const captionInput = document.getElementById('post-caption');
@@ -138,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             likes: 128,
             liked: false,
             recommendations: 34,
+            recommendedBy: [],
             comments: [
                 { author: 'Arjun Rai', text: 'How cold was it at dawn?', replies: [{ author: 'Maya Sherpa', text: 'Around -8 C, but the wind made it feel colder.' }] }
             ]
@@ -155,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
             likes: 94,
             liked: false,
             recommendations: 27,
+            recommendedBy: [],
             comments: [
                 { author: 'Pemba Lama', text: 'This route is on my list.', replies: [] }
             ]
@@ -172,12 +176,14 @@ document.addEventListener('DOMContentLoaded', () => {
             likes: 76,
             liked: false,
             recommendations: 19,
+            recommendedBy: [],
             comments: []
         }
     ];
 
     let posts = loadPosts();
     let followedTrekkers = JSON.parse(localStorage.getItem(followKey) || '[]');
+    let followerCounts = JSON.parse(localStorage.getItem(followersKey) || '{}');
 
     function loadPosts() {
         const stored = localStorage.getItem(storageKey);
@@ -189,7 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             return JSON.parse(stored).map(post => ({
                 ...post,
-                recommendations: Number(post.recommendations || 0)
+                recommendations: Number(post.recommendations || 0),
+                views: Number(post.views || 0),
+                likes: Number(post.likes || 0),
+                recommendedBy: Array.isArray(post.recommendedBy) ? post.recommendedBy : []
             }));
         } catch (error) {
             localStorage.setItem(storageKey, JSON.stringify(starterPosts));
@@ -203,6 +212,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveFollows() {
         localStorage.setItem(followKey, JSON.stringify(followedTrekkers));
+    }
+
+    function saveFollowerCounts() {
+        localStorage.setItem(followersKey, JSON.stringify(followerCounts));
     }
 
     function timeAgo(timestamp) {
@@ -228,6 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderFeed() {
         const visiblePosts = posts.filter(postMatchesFilter);
+        recordPostViews(visiblePosts);
         feed.innerHTML = visiblePosts.map(renderPost).join('') || `
             <div class="bg-white border border-gray-100 rounded-2xl p-8 text-center text-gray-500">
                 <p class="font-semibold text-brandGreen">No posts in this trail circle yet.</p>
@@ -236,6 +250,26 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         renderRecommendations();
         bindPostActions();
+    }
+
+    function recordPostViews(visiblePosts) {
+        const viewedPosts = JSON.parse(sessionStorage.getItem(viewedKey) || '[]');
+        let changed = false;
+
+        visiblePosts.forEach(post => {
+            if (viewedPosts.includes(post.id)) {
+                return;
+            }
+
+            post.views = Number(post.views || 0) + 1;
+            viewedPosts.push(post.id);
+            changed = true;
+        });
+
+        if (changed) {
+            sessionStorage.setItem(viewedKey, JSON.stringify(viewedPosts));
+            savePosts();
+        }
     }
 
     function renderPost(post) {
@@ -256,12 +290,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <div class="p-5 space-y-4">
                     <div class="flex items-center gap-4">
-                        <button class="like-post text-sm font-bold ${post.liked ? 'text-red-600' : 'text-brandGreen'}" type="button">${post.liked ? 'Liked' : 'Like'}</button>
+                        <button class="like-post text-sm font-bold ${post.liked ? 'text-red-500' : 'text-brandGreen'}" type="button">${post.liked ? '♥ Liked' : '♡ Like'}</button>
                         <button class="focus-comment text-sm font-bold text-brandGreen" type="button">Comment</button>
-                        <button class="recommend-post text-sm font-bold text-brandGreen" type="button">Recommend</button>
+                        ${(post.recommendedBy || []).includes(currentUser.name)
+                            ? `<button class="recommend-post text-sm font-bold text-gray-400 cursor-not-allowed" type="button" disabled title="You already recommended this">⭐ Recommended</button>`
+                            : `<button class="recommend-post text-sm font-bold text-brandGreen" type="button">☆ Recommend</button>`
+                        }
                     </div>
 
                     <p class="text-sm font-bold text-brandGreen">${post.likes} likes</p>
+                    <p class="text-sm font-bold text-brandGreen">${post.views || 0} views</p>
                     <p class="text-sm font-bold text-brandGreen">${post.recommendations || 0} people recommended this</p>
                     <p class="text-sm text-gray-700 leading-relaxed"><strong class="text-brandGreen">${escapeHtml(post.author)}</strong> ${escapeHtml(post.caption)}</p>
 
@@ -352,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             container.querySelector('.like-post')?.addEventListener('click', () => {
                 post.liked = !post.liked;
-                post.likes += post.liked ? 1 : -1;
+                post.likes = Math.max(0, Number(post.likes || 0) + (post.liked ? 1 : -1));
                 savePosts();
                 renderFeed();
             });
@@ -362,6 +400,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             container.querySelector('.recommend-post')?.addEventListener('click', () => {
+                post.recommendedBy = post.recommendedBy || [];
+                if (post.recommendedBy.includes(currentUser.name)) return;
+                post.recommendedBy.push(currentUser.name);
                 post.recommendations = Number(post.recommendations || 0) + 1;
                 savePosts();
                 renderFeed();
@@ -409,10 +450,21 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.follow-trekker').forEach(button => {
             button.addEventListener('click', () => {
                 const author = button.dataset.author;
-                followedTrekkers = followedTrekkers.includes(author)
+                const isFollowing = followedTrekkers.includes(author);
+                followedTrekkers = isFollowing
                     ? followedTrekkers.filter(item => item !== author)
                     : [...followedTrekkers, author];
+                followerCounts[author] = Math.max(0, Number(followerCounts[author] || 0) + (isFollowing ? -1 : 1));
+                if (!isFollowing) {
+                    try {
+                        const evKey = 'ghumna_jam_follower_events';
+                        const evs = JSON.parse(localStorage.getItem(evKey) || '[]');
+                        evs.push({ target: author, ts: Date.now() });
+                        localStorage.setItem(evKey, JSON.stringify(evs));
+                    } catch {}
+                }
                 saveFollows();
+                saveFollowerCounts();
                 renderRecommendations();
             });
         });
@@ -450,6 +502,8 @@ document.addEventListener('DOMContentLoaded', () => {
             likes: 0,
             liked: false,
             recommendations: 0,
+            recommendedBy: [],
+            views: 0,
             comments: []
         });
 
