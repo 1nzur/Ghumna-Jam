@@ -69,7 +69,7 @@ class AuthController:
                 "duration_days": 14,
                 "season": "Oct-Nov",
                 "description": "A remote, spectacular loop around the world's eighth-highest mountain, featuring the challenging Larkya La Pass.",
-                "price_per_person": 1399.00 * self.EXCHANGE_RATE,
+                "price_per_person": 1099.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 5106,
                 "highlights": "Larkya La Pass, Buddhist monasteries, border region cultures",
             },
