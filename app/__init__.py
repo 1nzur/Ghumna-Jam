@@ -1,43 +1,25 @@
-<<<<<<< HEAD
 from flask import Flask, redirect, session, url_for
-from app.models.database import Database, close_db
+
+from app.models.database import Database, close_db, init_db
 from app.routes.auth import AuthRoutes
-<<<<<<< HEAD
-=======
-from flask import Flask
-
-from app.config import Config
-from app.db import init_db
-from app.routes.auth import auth_bp
-from app.routes.bookings import bookings_bp
-from app.routes.reviews import reviews_bp
->>>>>>> 28f10469f5bcc5a4b8bb22c4fcbaf984bdfb08e7
-=======
->>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
 
 
-def create_app(config_object=Config):
-    app = Flask(
-        __name__,
-        template_folder="templates",
-        static_folder="static",
-    )
-    app.config.from_object(config_object)
+def create_app():
+    app = Flask(__name__)
+    app.config.from_pyfile("../config.py")
 
-    with app.app_context():
-        init_db()
+    startup_db = Database()
+    startup_db.close()
+    init_db(app)
 
-<<<<<<< HEAD
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(bookings_bp)
-    app.register_blueprint(reviews_bp)
-=======
     app.teardown_appcontext(close_db)
     auth_routes = AuthRoutes()
     app.register_blueprint(auth_routes.register())
->>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
 
-    from app.routes.main import main_bp
-    app.register_blueprint(main_bp)
+    @app.route("/")
+    def index():
+        if "user_id" in session:
+            return redirect(url_for("auth.home"))
+        return redirect(url_for("auth.login"))
 
     return app

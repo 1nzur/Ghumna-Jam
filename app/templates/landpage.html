@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-{% extends "main_layout.html" %}
-=======
 {% extends "base.html" %}
->>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
 
 {% block title %}Ghumna Jam - Discover Himalayan Trails{% endblock %}
 
@@ -25,11 +21,7 @@
             <div class="md:col-span-2">
                 <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1.5">Search Destinations</label>
                 <div class="relative">
-<<<<<<< HEAD
-                    <span class="absolute left-3 top-3.5 text-gray-400 text-sm" aria-hidden="true">🔍</span>
-=======
                     <span class="absolute left-3 top-3.5 text-gray-400 text-sm">🔍</span>
->>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
                     <input type="text" id="search-input" placeholder="Where do you want to explore?" class="w-full bg-gray-50 border border-gray-100 rounded-lg pl-9 pr-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
                 </div>
             </div>
@@ -67,50 +59,12 @@
         <button onclick="setSuggestionFilter('easy')" class="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-1.5 rounded-full transition">Beginner Friendly</button>
     </section>
 
-<<<<<<< HEAD
-=======
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                    <p class="text-[10px] uppercase tracking-wider font-semibold text-gray-400">Achievement Spotlight</p>
-                    <h2 class="font-serif text-2xl text-brandGreen mt-1">Earn badges as you complete each trek</h2>
-                </div>
-                <a href="{{ url_for('auth.badges') }}" class="inline-flex items-center justify-center bg-brandGreen hover:bg-emerald-950 text-white text-sm font-semibold px-5 py-3 rounded-xl transition">
-                    View Badge Tracker
-                </a>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-                <div class="bg-amber-50 rounded-xl p-4">
-                    <span class="text-2xl">🥾</span>
-                    <h3 class="font-semibold text-brandGreen mt-2">First Trek</h3>
-                    <p class="text-xs text-gray-500">Complete your first adventure</p>
-                </div>
-                <div class="bg-sky-50 rounded-xl p-4">
-                    <span class="text-2xl">🏔️</span>
-                    <h3 class="font-semibold text-brandGreen mt-2">Summit Scout</h3>
-                    <p class="text-xs text-gray-500">Reach 3 completed treks</p>
-                </div>
-                <div class="bg-orange-50 rounded-xl p-4">
-                    <span class="text-2xl">👑</span>
-                    <h3 class="font-semibold text-brandGreen mt-2">Trail Master</h3>
-                    <p class="text-xs text-gray-500">Unlock all 5 milestone rewards</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
->>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
     <!-- Dynamic featured destinations grid -->
     <main id="destinations" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 scroll-mt-24">
         <div class="flex justify-between items-end mb-8">
             <div>
                 <h2 class="font-serif text-2xl sm:text-3xl text-brandGreen font-semibold">Featured Destinations</h2>
-<<<<<<< HEAD
-                <p class="text-xs text-gray-500 mt-1"><span id="visible-count">{{ destinations|length }}</span> trails matched across the roof of the world.</p>
-=======
                 <p class="text-xs text-gray-500 mt-1">The most iconic paths across the roof of the world.</p>
->>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
             </div>
         </div>
 
@@ -119,14 +73,26 @@
             <div class="destination-card bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between hover:shadow-md transition duration-200"
                  data-name="{{ dest.name | lower }}"
                  data-difficulty="{{ dest.difficulty | lower }}"
-<<<<<<< HEAD
-                 data-season="{{ dest.season | lower }}"
-                 data-id="{{ dest.id }}">
-=======
                  data-season="{{ dest.season | lower }}">
->>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
                 <div>
                     <div class="h-48 bg-gray-200 relative bg-cover bg-center" style="background-image: url('{{ dest.image_url }}');">
+                        <!-- Compare Checkbox -->
+                        <div class="absolute top-3 right-3 z-10">
+                            <label class="relative flex items-center justify-center w-6 h-6 rounded-full bg-white/80 hover:bg-white backdrop-blur-sm shadow cursor-pointer transition select-none group border border-gray-100/50">
+                                <input type="checkbox"
+                                       class="compare-checkbox sr-only"
+                                       data-id="{{ dest.id }}"
+                                       data-name="{{ dest.name }}"
+                                       data-image="{{ dest.image_url }}"
+                                       onchange="updateComparisonSelection()">
+                                <span class="compare-icon text-[10px] text-gray-400 group-hover:text-brandGreen font-bold transition">＋</span>
+                            </label>
+                        </div>
+                        {% if favorite_ids and dest.id in favorite_ids %}
+                            <span class="absolute top-3 left-3 bg-brandYellow text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded text-brandGreen">
+                                Saved
+                            </span>
+                        {% endif %}
                         {% if dest.name == "Everest Base Camp" %}
                             <span class="absolute bottom-3 left-3 bg-brandYellow text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded text-brandGreen">Most Popular</span>
                         {% elif dest.difficulty == "Easy" %}
@@ -137,30 +103,6 @@
                     </div>
                     <div class="p-5">
                         <h3 class="font-serif text-xl text-brandGreen mb-3 font-semibold">{{ dest.name }}</h3>
-<<<<<<< HEAD
-                        {% set summary = review_summary.get(dest.id) %}
-                        <div class="flex items-center justify-between text-[11px] text-gray-500 mb-3">
-                            {% if summary %}
-                                <span class="font-bold text-brandGreen">{{ "%.1f"|format(summary.average) }}/5 rating</span>
-                                <span>{{ summary.count }} review{% if summary.count != 1 %}s{% endif %}</span>
-                            {% else %}
-                                <span class="font-bold text-brandGreen">New to reviews</span>
-                                <span>No reviews yet</span>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="grid grid-cols-3 gap-2 text-center border-t border-b border-gray-50 py-3 mb-4 text-[11px] text-gray-500">
-                            <div>
-                                <span class="block mb-0.5" aria-hidden="true">🏔️</span>
-                                <span class="font-medium text-gray-700">{{ dest.difficulty }}</span>
-                            </div>
-                            <div class="border-l border-r border-gray-100">
-                                <span class="block mb-0.5" aria-hidden="true">⏱️</span>
-                                <span class="font-medium text-gray-700">{{ dest.duration_days }} Days</span>
-                            </div>
-                            <div>
-                                <span class="block mb-0.5" aria-hidden="true">📅</span>
-=======
                         
                         <div class="grid grid-cols-3 gap-2 text-center border-t border-b border-gray-50 py-3 mb-4 text-[11px] text-gray-500">
                             <div>
@@ -173,80 +115,52 @@
                             </div>
                             <div>
                                 <span class="block mb-0.5">📅</span>
->>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
                                 <span class="font-medium text-gray-700">{{ dest.season }}</span>
                             </div>
                         </div>
 
                         <p class="text-xs text-gray-500 line-clamp-3 mb-4 leading-relaxed">{{ dest.description }}</p>
+
+                        <div class="flex items-center justify-between text-[11px] text-gray-500 mb-3">
+                            <span class="flex items-center gap-2">
+                                <span class="text-brandYellow">★</span>
+                                <span>{{ "{:.1f}".format(dest.average_rating or 0) }} rating</span>
+                            </span>
+                            <span>{{ dest.review_count or 0 }} reviews</span>
+                        </div>
+
+                        {% include "partials/weather-forecast-card.html" %}
                         
                         <div class="flex justify-between items-center pt-2">
                             <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400">Price</span>
-<<<<<<< HEAD
-                            <span class="text-base font-bold text-brandGreen">${{ "{:,.2f}".format(dest.price_per_person) }} <span class="text-[10px] text-gray-500 font-medium">/ explorer</span></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="px-5 pb-5 space-y-3">
-                    <label class="flex items-center justify-center gap-2 w-full border border-gray-200 hover:bg-gray-50 text-brandGreen text-xs font-semibold py-2.5 rounded-lg transition cursor-pointer">
-                        <input type="checkbox"
-                               class="compare-checkbox accent-[#03231C]"
-                               value="{{ dest.id }}"
-                               data-name="{{ dest.name }}"
-                               data-image="{{ dest.image_url }}">
-                        <span>Compare Price</span>
-                    </label>
-                    <a href="{{ url_for('bookings.destination_detail', dest_id=dest.id) }}" class="block text-center w-full bg-brandGreen hover:bg-emerald-950 text-white text-xs font-semibold py-3 rounded-lg transition shadow-sm hover:shadow">
-=======
                             <span class="text-base font-bold text-brandGreen">Rs. {{ "{:,.2f}".format(dest.price_per_person) }} <span class="text-[10px] text-gray-500 font-medium">/ explorer</span></span>
                         </div>
                     </div>
                 </div>
                 <div class="px-5 pb-5">
                     <a href="{{ url_for('auth.destination_detail', dest_id=dest.id) }}" class="block text-center w-full bg-brandGreen hover:bg-emerald-950 text-white text-xs font-semibold py-3 rounded-lg transition shadow-sm hover:shadow">
->>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
                         Explore & Book
                     </a>
                 </div>
             </div>
             {% endfor %}
         </div>
-<<<<<<< HEAD
-        <div id="no-results" class="hidden text-center py-16 bg-white border border-dashed border-gray-200 rounded-xl">
-            <h3 class="font-serif text-xl text-brandGreen font-semibold">No trails match those filters</h3>
-            <p class="text-sm text-gray-500 mt-2">Try clearing the search or choosing a broader season and difficulty.</p>
-            <button type="button" onclick="setSuggestionFilter('all')" class="mt-5 bg-brandGreen hover:bg-emerald-950 text-white text-xs font-semibold px-5 py-3 rounded-lg transition">
-                Reset Filters
-            </button>
-        </div>
     </main>
 
     <!-- Compare Floating Bar -->
-    <div id="compare-bar" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-xl">
+    <div id="compare-bar" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-xl transform translate-y-32 opacity-0 pointer-events-none transition-all duration-300">
         <div class="bg-brandGreen text-white rounded-full shadow-2xl px-4 py-2.5 flex items-center justify-between border border-emerald-950/40">
             <div class="flex items-center space-x-3">
-                <div id="compare-thumbs" class="flex -space-x-2">
+                <div class="flex -space-x-2" id="compare-thumbnails">
+                    <!-- Dynamic Thumbnails here -->
                 </div>
-                <span class="text-xs font-medium text-gray-200"><span id="compare-count" class="font-bold text-white">0</span> Trails Selected</span>
+                <span class="text-xs font-medium text-gray-200">
+                    <span class="font-bold text-white" id="compare-count">0</span> Trails Selected
+                </span>
             </div>
-            <button id="compare-button" type="button" class="bg-brandYellow hover:bg-yellow-500 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed text-brandGreen font-bold text-xs px-5 py-2 rounded-full transition shadow-md">
-=======
-    </main>
-
-    <!-- Compare Floating Bar (Mockup) -->
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-xl">
-        <div class="bg-brandGreen text-white rounded-full shadow-2xl px-4 py-2.5 flex items-center justify-between border border-emerald-950/40">
-            <div class="flex items-center space-x-3">
-                <div class="flex -space-x-2">
-                    <div class="w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=100&q=80');"></div>
-                    <div class="w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=100&q=80');"></div>
-                </div>
-                <span class="text-xs font-medium text-gray-200"><span class="font-bold text-white">2</span> Trails Selected</span>
-            </div>
-            <button class="bg-brandYellow hover:bg-yellow-500 text-brandGreen font-bold text-xs px-5 py-2 rounded-full transition shadow-md">
->>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
+            <a href="#" id="compare-button" class="bg-brandYellow hover:bg-yellow-500 text-brandGreen font-bold text-xs px-5 py-2 rounded-full transition shadow-md">
                 Compare Selected
-            </button>
+            </a>
         </div>
     </div>
 
@@ -267,26 +181,13 @@
                 const matchesSearch = !searchVal || name.includes(searchVal);
                 const matchesDifficulty = difficultyVal === 'all' || difficulty === difficultyVal;
                 const matchesSeason = seasonVal === 'all' || season === seasonVal;
-<<<<<<< HEAD
-                const isVisible = matchesSearch && matchesDifficulty && matchesSeason;
-
-                if (isVisible) {
-=======
 
                 if (matchesSearch && matchesDifficulty && matchesSeason) {
->>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
                     card.style.display = 'flex';
                 } else {
                     card.style.display = 'none';
                 }
             });
-<<<<<<< HEAD
-
-            const visibleCards = Array.from(cards).filter((card) => card.style.display !== 'none');
-            document.getElementById('visible-count').textContent = visibleCards.length;
-            document.getElementById('no-results').classList.toggle('hidden', visibleCards.length !== 0);
-=======
->>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
         }
 
         function setSuggestionFilter(tag) {
@@ -309,54 +210,72 @@
             }
             filterTrails();
         }
-<<<<<<< HEAD
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const compareBar = document.getElementById("compare-bar");
-            const compareCount = document.getElementById("compare-count");
-            const compareThumbs = document.getElementById("compare-thumbs");
-            const compareButton = document.getElementById("compare-button");
-            const checkboxes = document.querySelectorAll(".compare-checkbox");
-            const maxSelections = 4;
+        let selectedTreks = [];
 
-            function selectedDestinations() {
-                return Array.from(checkboxes)
-                    .filter((checkbox) => checkbox.checked)
-                    .map((checkbox) => ({
-                        id: checkbox.value,
-                        name: checkbox.dataset.name,
-                        image: checkbox.dataset.image
-                    }));
-            }
+        function updateComparisonSelection() {
+            const checkboxes = document.querySelectorAll('.compare-checkbox');
+            selectedTreks = [];
 
-            function renderCompareState() {
-                const selected = selectedDestinations();
-                compareCount.textContent = selected.length;
-                compareBar.classList.toggle("hidden", selected.length === 0);
-                compareButton.disabled = selected.length < 2;
-                compareThumbs.innerHTML = selected.slice(0, maxSelections).map((destination) => (
-                    `<div class="w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center bg-gray-200" title="${destination.name}" style="background-image: url('${destination.image}');"></div>`
-                )).join("");
+            checkboxes.forEach(cb => {
+                const label = cb.closest('label');
+                const icon = label.querySelector('.compare-icon');
+                
+                if (cb.checked) {
+                    selectedTreks.push({
+                        id: cb.getAttribute('data-id'),
+                        name: cb.getAttribute('data-name'),
+                        image: cb.getAttribute('data-image')
+                    });
+                    
+                    // Selected styling
+                    label.classList.remove('bg-white/80', 'text-gray-400');
+                    label.classList.add('bg-brandYellow', 'border-brandYellow');
+                    icon.textContent = '✓';
+                    icon.classList.remove('text-gray-400');
+                    icon.classList.add('text-brandGreen');
+                } else {
+                    // Default styling
+                    label.classList.add('bg-white/80', 'text-gray-400');
+                    label.classList.remove('bg-brandYellow', 'border-brandYellow');
+                    icon.textContent = '＋';
+                    icon.classList.add('text-gray-400');
+                    icon.classList.remove('text-brandGreen');
+                }
+            });
 
-                checkboxes.forEach((checkbox) => {
-                    checkbox.disabled = !checkbox.checked && selected.length >= maxSelections;
-                    checkbox.closest("label").classList.toggle("opacity-50", checkbox.disabled);
+            const compareBar = document.getElementById('compare-bar');
+            const compareCount = document.getElementById('compare-count');
+            const compareThumbnails = document.getElementById('compare-thumbnails');
+            const compareButton = document.getElementById('compare-button');
+
+            if (selectedTreks.length > 0) {
+                // Show floating bar
+                compareBar.classList.remove('translate-y-32', 'opacity-0', 'pointer-events-none');
+                compareBar.classList.add('translate-y-0', 'opacity-100');
+                
+                // Update count
+                compareCount.textContent = selectedTreks.length;
+
+                // Update thumbnails
+                compareThumbnails.innerHTML = '';
+                selectedTreks.forEach(trek => {
+                    const thumb = document.createElement('div');
+                    thumb.className = 'w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center';
+                    thumb.style.backgroundImage = `url('${trek.image}')`;
+                    compareThumbnails.appendChild(thumb);
                 });
+
+                // Update comparison URL
+                const params = selectedTreks.map(t => `treks=${t.id}`).join('&');
+                compareButton.href = `{{ url_for('auth.compare_treks') }}?${params}`;
+            } else {
+                // Hide floating bar
+                compareBar.classList.remove('translate-y-0', 'opacity-100');
+                compareBar.classList.add('translate-y-32', 'opacity-0', 'pointer-events-none');
             }
-
-            checkboxes.forEach((checkbox) => {
-                checkbox.addEventListener("change", renderCompareState);
-            });
-
-            compareButton.addEventListener("click", () => {
-                const selectedIds = selectedDestinations().map((destination) => destination.id);
-                if (selectedIds.length < 2) return;
-                window.location.href = "{{ url_for('bookings.compare_destinations') }}?ids=" + selectedIds.join(",");
-            });
-
-            renderCompareState();
-        });
-=======
->>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
+        }
     </script>
+
+    <script src="{{ url_for('static', filename='js/weather-forecast.js') }}?v=1"></script>
 {% endblock %}

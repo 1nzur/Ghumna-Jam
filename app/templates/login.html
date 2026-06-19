@@ -15,22 +15,7 @@
     adventure registry.
 </p>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="flash-messages" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px; width: 100%;">
-      {% for category, message in messages %}
-        <div class="flash-{{ category }}" style="padding: 12px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; 
-             background: {{ '#fbebeb' if category == 'error' else '#ebfbf0' }}; 
-             color: {{ '#9b1c1c' if category == 'error' else '#1e5e2e' }}; 
-             border: 1px solid {{ '#f5c2c2' if category == 'error' else '#c2f5d2' }};">
-          {{ message }}
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
-
-<form method="POST" action="{{ url_for('auth.login') }}{% if request.args.get('next') %}?next={{ request.args.get('next') | urlencode }}{% endif %}" style="display:flex; flex-direction:column; gap:22px; width:100%;">
+<form method="post" action="{{ url_for('auth.login') }}" style="display:contents;">
     <label class="field">
         Email Address
 
@@ -39,9 +24,7 @@
             <input type="email"
                    name="email"
                    placeholder="explorer@alpine.com"
-                   value="{{ email or '' }}"
                    autocomplete="email"
-                   inputmode="email"
                    required>
         </div>
     </label>
@@ -55,14 +38,13 @@
                    name="password"
                    placeholder="........"
                    autocomplete="current-password"
-                   minlength="8"
                    required>
         </div>
     </label>
 
     <div class="row">
         <label style="display:flex; align-items:center; gap:8px;">
-            <input type="checkbox" name="remember_me">
+            <input type="checkbox" name="remember">
             Remember me
         </label>
 
