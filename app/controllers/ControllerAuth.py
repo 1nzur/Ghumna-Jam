@@ -57,7 +57,7 @@ class AuthController:
                 "duration_days": 8,
                 "season": "Mar-May",
                 "description": "A beautiful alpine route with glacier views, yak pastures, and rich Tamang culture.",
-                "price_per_person": 799.00 * self.EXCHANGE_RATE,
+                "price_per_person": 649.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 3870,
                 "highlights": "Kyanjin Gompa, Yak pastures, panoramic glaciers",
             },
