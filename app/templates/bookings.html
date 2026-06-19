@@ -68,7 +68,7 @@
                         <!-- Footer actions and prices -->
                         <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
                             <span class="text-xs text-gray-400">
-                                Booked on {{ booking.booked_at }}
+                                Booked on {{ booking.booked_at.strftime('%b %d, %Y') if booking.booked_at else 'Unknown' }}
                             </span>
                             <div class="flex items-center space-x-4">
                                 <div class="text-right">
