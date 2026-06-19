@@ -1,3 +1,5 @@
+import os
+from datetime import datetime
 from functools import wraps
 
 from flask import current_app, flash, redirect, render_template, request, session, url_for
@@ -29,7 +31,7 @@ class AuthController:
             "duration_days": 14,
             "season": "Mar-May, Sep-Nov",
             "description": "A classic Himalayan trek through Sherpa villages, alpine valleys, and dramatic views of the world's highest peaks.",
-            "price_per_person": 1499.00 * self.EXCHANGE_RATE,
+            "price_per_person": 1299.00 * self.EXCHANGE_RATE,
             "altitude_meters": 5364,
             "highlights": "Sherpa culture, Kala Patthar viewpoint, historic base camp",
         }
@@ -45,7 +47,7 @@ class AuthController:
                 "duration_days": 12,
                 "season": "Oct-Nov",
                 "description": "A sweeping circuit through river valleys, high passes, and traditional mountain settlements.",
-                "price_per_person": 1199.00 * self.EXCHANGE_RATE,
+                "price_per_person": 999.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 5416,
                 "highlights": "Thorong La Pass, Kali Gandaki Gorge, diverse landscapes",
             },
@@ -57,7 +59,7 @@ class AuthController:
                 "duration_days": 8,
                 "season": "Mar-May",
                 "description": "A beautiful alpine route with glacier views, yak pastures, and rich Tamang culture.",
-                "price_per_person": 799.00 * self.EXCHANGE_RATE,
+                "price_per_person": 649.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 3870,
                 "highlights": "Kyanjin Gompa, Yak pastures, panoramic glaciers",
             },
@@ -69,7 +71,7 @@ class AuthController:
                 "duration_days": 14,
                 "season": "Oct-Nov",
                 "description": "A remote, spectacular loop around the world's eighth-highest mountain, featuring the challenging Larkya La Pass.",
-                "price_per_person": 1399.00 * self.EXCHANGE_RATE,
+                "price_per_person": 1099.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 5106,
                 "highlights": "Larkya La Pass, Buddhist monasteries, border region cultures",
             },
@@ -81,7 +83,7 @@ class AuthController:
                 "duration_days": 10,
                 "season": "May-Oct",
                 "description": "Explore the ancient, dry kingdom of Lo Manthang, characterized by red cliffs, cave dwellings, and Tibetan culture.",
-                "price_per_person": 1799.00 * self.EXCHANGE_RATE,
+                "price_per_person": 1899.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 3840,
                 "highlights": "Lo Manthang walled city, sky caves, Tibetan-style palace",
             },
@@ -93,7 +95,7 @@ class AuthController:
                 "duration_days": 12,
                 "season": "Mar-May, Sep-Nov",
                 "description": "Trek to the turquoise glacial lakes of the Gokyo Valley and climb Gokyo Ri for premium views of Everest and Lhotse.",
-                "price_per_person": 1299.00 * self.EXCHANGE_RATE,
+                "price_per_person": 1249.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 5357,
                 "highlights": "Turquoise lakes, Ngozumpa Glacier, views of four 8,000m peaks",
             },
@@ -117,7 +119,7 @@ class AuthController:
                 "duration_days": 6,
                 "season": "Mar-May, Sep-Nov",
                 "description": "A short, beautiful trek offering up-close views of Mount Machapuchare (Fishtail) and the Annapurna range.",
-                "price_per_person": 599.00 * self.EXCHANGE_RATE,
+                "price_per_person": 449.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 4500,
                 "highlights": "Machapuchare views, forest trails, quiet teahouses",
             },
@@ -129,7 +131,7 @@ class AuthController:
                 "duration_days": 5,
                 "season": "Sep-May",
                 "description": "A classic short trek in the Annapurna foothills, famous for its panoramic sunrise views over Dhaulagiri and Annapurna.",
-                "price_per_person": 499.00 * self.EXCHANGE_RATE,
+                "price_per_person": 299.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 3210,
                 "highlights": "Sunrise over Annapurna, rhododendron forests, Gurung heritage",
             },
@@ -141,7 +143,7 @@ class AuthController:
                 "duration_days": 7,
                 "season": "May-Oct",
                 "description": "A holy alpine lake trek in the Langtang region, sacred to both Hindus and Buddhists.",
-                "price_per_person": 699.00 * self.EXCHANGE_RATE,
+                "price_per_person": 499.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 4380,
                 "highlights": "Sacred alpine lakes, Laurebina Pass, views of Ganesh Himal",
             },
@@ -153,7 +155,7 @@ class AuthController:
                 "duration_days": 9,
                 "season": "Mar-May, Sep-Nov",
                 "description": "Trek through the untouched forests of western Nepal to the largest and deepest freshwater lake in the country.",
-                "price_per_person": 1099.00 * self.EXCHANGE_RATE,
+                "price_per_person": 1499.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 2990,
                 "highlights": "Pristine pine forests, bird watching, boating on Rara Lake",
             },
@@ -165,7 +167,7 @@ class AuthController:
                 "duration_days": 18,
                 "season": "Sep-Nov, Mar-May",
                 "description": "A challenging journey through the Makalu Barun National Park to the base of the world's fifth-highest peak.",
-                "price_per_person": 1899.00 * self.EXCHANGE_RATE,
+                "price_per_person": 2099.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 4870,
                 "highlights": "Barun river valley, hanging glaciers, granite cliffs",
             },
@@ -177,7 +179,7 @@ class AuthController:
                 "duration_days": 21,
                 "season": "Jun-Sep",
                 "description": "A high-altitude, trans-Himalayan trek in the isolated Shey Phoksundo National Park, featuring Bon Buddhist heritage.",
-                "price_per_person": 2499.00 * self.EXCHANGE_RATE,
+                "price_per_person": 3499.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 5130,
                 "highlights": "Phoksundo Lake, Shey Gompa, snow leopard habitats",
             },
@@ -189,7 +191,7 @@ class AuthController:
                 "duration_days": 11,
                 "season": "Sep-Nov, Mar-May",
                 "description": "Explore the hidden Tibetan valleys of Nar and Phu, with ancient stone villages and high pass crossings.",
-                "price_per_person": 1499.00 * self.EXCHANGE_RATE,
+                "price_per_person": 749.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 5320,
                 "highlights": "Kang La Pass, ancient fortified villages, unique monasteries",
             },
@@ -397,6 +399,7 @@ class AuthController:
             submitted_email=submitted_email,
         )
     
+    @login_required
     def compare_treks(self):
         selected_ids = []
         for raw_id in request.args.getlist("treks"):
@@ -428,7 +431,12 @@ class AuthController:
 
     @login_required
     def bookings(self):
-        return render_template("bookings.html", bookings=session.get("bookings", []))
+        try:
+            init_db(current_app)
+            bookings = BaseModel.get_bookings_by_user(session["user_id"])
+        except Exception:
+            bookings = []
+        return render_template("bookings.html", bookings=bookings)
 
     def destination_detail(self, dest_id):
         destination = next(
@@ -447,43 +455,62 @@ class AuthController:
             (dest for dest in self._sample_destinations() if dest["id"] == dest_id),
             self._sample_destination(dest_id),
         )
-        travelers_count = int(request.form.get("travelers_count", 1) or 1)
+        travelers_count = max(1, min(12, int(request.form.get("travelers_count", 1) or 1)))
         departure_date = request.form.get("departure_date", "Not selected")
         selected_hotel = request.form.get("selected_hotel", "No hotel selected")
-        bookings = session.get("bookings", [])
-        bookings.append(
-            {
-                "dest_name": destination["name"],
-                "dest_image": destination["image_url"],
-                "status": "Confirmed",
-                "departure_date": departure_date,
-                "travelers_count": travelers_count,
-                "duration_days": destination["duration_days"],
-                "difficulty": destination["difficulty"],
-                "selected_hotel": selected_hotel,
-                "booked_at": "Today",
-                "total_price": destination["price_per_person"] * travelers_count,
-            }
-        )
-        session["bookings"] = bookings
-        session.modified = True
+
+        try:
+            init_db(current_app)
+            BaseModel.create_booking(
+                user_id=session["user_id"],
+                dest_name=destination["name"],
+                dest_image=destination["image_url"],
+                status="Confirmed",
+                departure_date=departure_date,
+                travelers_count=travelers_count,
+                duration_days=destination["duration_days"],
+                difficulty=destination["difficulty"],
+                selected_hotel=selected_hotel,
+                total_price=destination["price_per_person"] * travelers_count,
+            )
+        except Exception:
+            flash("We could not confirm your booking right now. Please try again.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+
         flash("Your journey has been added to your bookings.", "success")
         return redirect(url_for("auth.bookings"))
 
     @login_required
     def edit_profile(self):
         user = BaseModel.get_user_by_id(session["user_id"])
+        # Pop the name-change flag set on a previous POST so the template can migrate localStorage
+        name_changed_from = session.pop("_name_changed_from", None)
+
         if request.method == "POST":
             full_name = request.form.get("full_name", "").strip()
             email = request.form.get("email", "").strip().lower()
             phone_number = request.form.get("phone_number", "").strip()
             date_of_birth = request.form.get("date_of_birth", "").strip() or None
-            profile_picture_url = request.form.get("profile_picture_url", "").strip()
             password = request.form.get("password", "")
 
             if not full_name or not email:
                 flash("Name and email are required.", "error")
-                return render_template("edit-profile.html", user=user), 400
+                return render_template("edit-profile.html", user=user, name_changed_from=None), 400
+
+            # Keep existing picture unless a new file is uploaded (C1 + C2 fix)
+            profile_picture_url = user.get("profile_picture_url") if user else None
+            uploaded_file = request.files.get("profile_picture")
+            if uploaded_file and uploaded_file.filename:
+                ext = os.path.splitext(uploaded_file.filename)[1].lower()
+                if ext in {".jpg", ".jpeg", ".png", ".gif", ".webp"}:
+                    upload_dir = os.path.join(current_app.root_path, "static", "uploads")
+                    os.makedirs(upload_dir, exist_ok=True)
+                    filename = f"pfp_{session['user_id']}_{int(datetime.utcnow().timestamp())}{ext}"
+                    uploaded_file.save(os.path.join(upload_dir, filename))
+                    profile_picture_url = url_for("static", filename=f"uploads/{filename}")
+
+            # Track name change so the template can migrate localStorage posts (C3 fix)
+            old_name = user["full_name"] if user else None
 
             try:
                 BaseModel.update_user(
@@ -492,22 +519,25 @@ class AuthController:
                     email,
                     phone_number=phone_number or None,
                     date_of_birth=date_of_birth,
-                    profile_picture_url=profile_picture_url or None,
+                    profile_picture_url=profile_picture_url,
                     password=password or None,
                 )
             except ValueError as exc:
                 flash(str(exc), "error")
-                return render_template("edit-profile.html", user=user), 400
+                return render_template("edit-profile.html", user=user, name_changed_from=None), 400
             except Exception:
                 flash("We could not update your profile right now.", "error")
-                return render_template("edit-profile.html", user=user), 500
+                return render_template("edit-profile.html", user=user, name_changed_from=None), 500
+
+            if old_name and old_name != full_name:
+                session["_name_changed_from"] = old_name
 
             session["user_name"] = full_name
-            session["profile_picture_url"] = profile_picture_url or None
+            session["profile_picture_url"] = profile_picture_url
             flash("Profile updated successfully.", "success")
             return redirect(url_for("auth.edit_profile"))
 
-        return render_template("edit-profile.html", user=user)
+        return render_template("edit-profile.html", user=user, name_changed_from=name_changed_from)
 
     def logout(self):
         session.clear()
