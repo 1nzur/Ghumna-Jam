@@ -1,0 +1,540 @@
+{% extends "base.html" %}
+
+{% block title %}Ghumna Jam - Trekker Socials{% endblock %}
+
+{% block content %}
+<section class="bg-[#FBFDFB] py-8 sm:py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.25em] text-brandYellow mb-2">Trekker Community</p>
+                <h1 class="font-serif text-3xl sm:text-5xl font-bold text-brandGreen">Socials</h1>
+                <p class="text-sm text-gray-500 mt-2 max-w-2xl">
+                    Share trek photos, discover routes from other trekkers, and keep the mountain conversation alive.
+                </p>
+            </div>
+            <div class="flex items-center gap-3 rounded-2xl bg-white border border-gray-100 px-4 py-3 shadow-sm">
+                <div class="w-10 h-10 rounded-full bg-brandGreen text-white flex items-center justify-center font-bold">
+                    {{ session.get('user_name', 'T')[0] | upper }}
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400">Posting as</p>
+                    <p class="text-sm font-bold text-brandGreen">{{ session.get('user_name', 'Trekker') }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)_320px] gap-6 items-start">
+            <aside class="hidden lg:block space-y-4 sticky top-28">
+                <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                    <h2 class="font-serif text-lg font-bold text-brandGreen mb-4">Trail Circles</h2>
+                    <div class="space-y-3">
+                        <button class="social-filter w-full text-left rounded-xl bg-brandGreen text-white px-4 py-3 text-sm font-semibold" data-filter="all">All Treks</button>
+                        <button class="social-filter w-full text-left rounded-xl bg-gray-50 hover:bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-600" data-filter="Everest">Everest</button>
+                        <button class="social-filter w-full text-left rounded-xl bg-gray-50 hover:bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-600" data-filter="Annapurna">Annapurna</button>
+                        <button class="social-filter w-full text-left rounded-xl bg-gray-50 hover:bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-600" data-filter="Langtang">Langtang</button>
+                    </div>
+                </div>
+
+                <div class="bg-brandGreen rounded-2xl p-5 text-white shadow-sm">
+                    <h3 class="font-serif text-lg font-bold text-brandYellow mb-2">Posting Tips</h3>
+                    <p class="text-xs text-gray-300 leading-relaxed">
+                        Add the trail name in your caption so recommendations can connect your photo with trekkers planning similar routes.
+                    </p>
+                </div>
+            </aside>
+
+            <main class="space-y-6">
+                <form id="post-form" class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+                    <div class="p-5 sm:p-6 flex items-start gap-4">
+                        <div class="w-11 h-11 rounded-full bg-brandGreen text-white flex items-center justify-center font-bold flex-none">
+                            {{ session.get('user_name', 'T')[0] | upper }}
+                        </div>
+                        <div class="flex-1 space-y-4">
+                            <textarea id="post-caption"
+                                      class="w-full min-h-24 resize-none rounded-xl border border-gray-100 bg-gray-50 p-4 text-sm outline-none focus:border-brandYellow"
+                                      placeholder="Share a trail moment, route update, or trekking tip..."
+                                      required></textarea>
+
+                            <div id="image-preview-wrap" class="hidden rounded-2xl overflow-hidden border border-gray-100 bg-gray-50">
+                                <img id="image-preview" src="" alt="Selected trek preview" class="w-full max-h-[420px] object-cover">
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <label class="cursor-pointer inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-xs font-bold text-brandGreen hover:bg-gray-50">
+                                        <span>Photo</span>
+                                        <input id="post-image" type="file" accept="image/*" class="hidden">
+                                    </label>
+                                    <select id="post-tag" class="rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-bold text-brandGreen outline-none">
+                                        <option>Everest</option>
+                                        <option>Annapurna</option>
+                                        <option>Langtang</option>
+                                        <option>Mustang</option>
+                                        <option>Manaslu</option>
+                                    </select>
+                                </div>
+                                <button class="bg-brandGreen hover:bg-emerald-950 text-white rounded-xl px-6 py-3 text-xs font-bold transition" type="submit">
+                                    Share Post
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="feed" class="space-y-6"></div>
+            </main>
+
+            <aside class="space-y-4 lg:sticky lg:top-28">
+                <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-serif text-lg font-bold text-brandGreen">Recommended Posts</h2>
+                        <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">For You</span>
+                    </div>
+                    <div id="recommended-posts" class="space-y-4"></div>
+                </div>
+
+                <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                    <h2 class="font-serif text-lg font-bold text-brandGreen mb-4">Trekkers To Follow</h2>
+                    <div id="trekkers-to-follow" class="space-y-4"></div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const currentUser = {
+        name: {{ session.get('user_name', 'Trekker') | tojson }},
+        initials: {{ session.get('user_name', 'Trekker')[0] | upper | tojson }}
+    };
+    const storageKey = 'ghumna_jam_social_posts';
+    const followKey = 'ghumna_jam_followed_trekkers';
+    const followersKey = 'ghumna_jam_trekker_followers';
+    const viewedKey = 'ghumna_jam_viewed_posts';
+    const feed = document.getElementById('feed');
+    const form = document.getElementById('post-form');
+    const captionInput = document.getElementById('post-caption');
+    const imageInput = document.getElementById('post-image');
+    const tagInput = document.getElementById('post-tag');
+    const previewWrap = document.getElementById('image-preview-wrap');
+    const preview = document.getElementById('image-preview');
+    const recommendedPosts = document.getElementById('recommended-posts');
+    const trekkersToFollow = document.getElementById('trekkers-to-follow');
+    const filterButtons = document.querySelectorAll('.social-filter');
+    let activeFilter = 'all';
+    let selectedImage = '';
+
+    const starterPosts = [
+        {
+            id: 'seed-everest',
+            author: 'Maya Sherpa',
+            initials: 'MS',
+            avatarColor: 'bg-emerald-900',
+            location: 'Everest Base Camp',
+            tag: 'Everest',
+            caption: 'Sunrise above the Khumbu icefall. Start early, carry warm layers, and give yourself time to acclimatize.',
+            image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=80',
+            createdAt: Date.now() - 7200000,
+            likes: 128,
+            liked: false,
+            recommendations: 34,
+            recommendedBy: [],
+            comments: [
+                { author: 'Arjun Rai', text: 'How cold was it at dawn?', replies: [{ author: 'Maya Sherpa', text: 'Around -8 C, but the wind made it feel colder.' }] }
+            ]
+        },
+        {
+            id: 'seed-annapurna',
+            author: 'Nima Gurung',
+            initials: 'NG',
+            avatarColor: 'bg-yellow-700',
+            location: 'Thorong La Pass',
+            tag: 'Annapurna',
+            caption: 'Crossed Thorong La before the clouds rolled in. The climb is tough, but the prayer flags at the top make it unforgettable.',
+            image: 'https://images.unsplash.com/photo-1517021897933-0e0319cfbc28?auto=format&fit=crop&w=1200&q=80',
+            createdAt: Date.now() - 14400000,
+            likes: 94,
+            liked: false,
+            recommendations: 27,
+            recommendedBy: [],
+            comments: [
+                { author: 'Pemba Lama', text: 'This route is on my list.', replies: [] }
+            ]
+        },
+        {
+            id: 'seed-langtang',
+            author: 'Sita Tamang',
+            initials: 'ST',
+            avatarColor: 'bg-slate-700',
+            location: 'Kyanjin Gompa',
+            tag: 'Langtang',
+            caption: 'Quiet morning in Langtang Valley. The bakery near Kyanjin is perfect after the glacier viewpoint hike.',
+            image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
+            createdAt: Date.now() - 19800000,
+            likes: 76,
+            liked: false,
+            recommendations: 19,
+            recommendedBy: [],
+            comments: []
+        }
+    ];
+
+    let posts = loadPosts();
+    let followedTrekkers = JSON.parse(localStorage.getItem(followKey) || '[]');
+    let followerCounts = JSON.parse(localStorage.getItem(followersKey) || '{}');
+
+    function loadPosts() {
+        const stored = localStorage.getItem(storageKey);
+        if (!stored) {
+            localStorage.setItem(storageKey, JSON.stringify(starterPosts));
+            return starterPosts;
+        }
+
+        try {
+            return JSON.parse(stored).map(post => ({
+                ...post,
+                recommendations: Number(post.recommendations || 0),
+                views: Number(post.views || 0),
+                likes: Number(post.likes || 0),
+                recommendedBy: Array.isArray(post.recommendedBy) ? post.recommendedBy : []
+            }));
+        } catch (error) {
+            localStorage.setItem(storageKey, JSON.stringify(starterPosts));
+            return starterPosts;
+        }
+    }
+
+    function savePosts() {
+        localStorage.setItem(storageKey, JSON.stringify(posts));
+    }
+
+    function saveFollows() {
+        localStorage.setItem(followKey, JSON.stringify(followedTrekkers));
+    }
+
+    function saveFollowerCounts() {
+        localStorage.setItem(followersKey, JSON.stringify(followerCounts));
+    }
+
+    function timeAgo(timestamp) {
+        const minutes = Math.max(1, Math.round((Date.now() - timestamp) / 60000));
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.round(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        return `${Math.round(hours / 24)}d ago`;
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    function postMatchesFilter(post) {
+        return activeFilter === 'all' || post.tag === activeFilter;
+    }
+
+    function renderFeed() {
+        const visiblePosts = posts.filter(postMatchesFilter);
+        recordPostViews(visiblePosts);
+        feed.innerHTML = visiblePosts.map(renderPost).join('') || `
+            <div class="bg-white border border-gray-100 rounded-2xl p-8 text-center text-gray-500">
+                <p class="font-semibold text-brandGreen">No posts in this trail circle yet.</p>
+                <p class="text-sm mt-1">Share the first photo from this route.</p>
+            </div>
+        `;
+        renderRecommendations();
+        bindPostActions();
+    }
+
+    function recordPostViews(visiblePosts) {
+        const viewedPosts = JSON.parse(sessionStorage.getItem(viewedKey) || '[]');
+        let changed = false;
+
+        visiblePosts.forEach(post => {
+            if (viewedPosts.includes(post.id)) {
+                return;
+            }
+
+            post.views = Number(post.views || 0) + 1;
+            viewedPosts.push(post.id);
+            changed = true;
+        });
+
+        if (changed) {
+            sessionStorage.setItem(viewedKey, JSON.stringify(viewedPosts));
+            savePosts();
+        }
+    }
+
+    function renderPost(post) {
+        return `
+            <article class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden" data-post-id="${post.id}">
+                <header class="p-5 flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-11 h-11 rounded-full ${post.avatarColor || 'bg-brandGreen'} text-white flex items-center justify-center font-bold flex-none">${escapeHtml(post.initials)}</div>
+                        <div class="min-w-0">
+                            <h2 class="text-sm font-bold text-brandGreen truncate">${escapeHtml(post.author)}</h2>
+                            <p class="text-xs text-gray-400 truncate">${escapeHtml(post.location || post.tag)} · ${timeAgo(post.createdAt)}</p>
+                        </div>
+                    </div>
+                    <span class="rounded-full bg-brandYellow/20 text-brandGreen px-3 py-1 text-[10px] font-bold uppercase tracking-wider">${escapeHtml(post.tag)}</span>
+                </header>
+
+                ${post.image ? `<img src="${post.image}" alt="${escapeHtml(post.caption)}" class="w-full max-h-[640px] object-cover bg-gray-100">` : ''}
+
+                <div class="p-5 space-y-4">
+                    <div class="flex items-center gap-4">
+                        <button class="like-post text-sm font-bold ${post.liked ? 'text-red-500' : 'text-brandGreen'}" type="button">${post.liked ? '♥ Liked' : '♡ Like'}</button>
+                        <button class="focus-comment text-sm font-bold text-brandGreen" type="button">Comment</button>
+                        ${(post.recommendedBy || []).includes(currentUser.name)
+                            ? `<button class="recommend-post text-sm font-bold text-gray-400 cursor-not-allowed" type="button" disabled title="You already recommended this">⭐ Recommended</button>`
+                            : `<button class="recommend-post text-sm font-bold text-brandGreen" type="button">☆ Recommend</button>`
+                        }
+                    </div>
+
+                    <p class="text-sm font-bold text-brandGreen">${post.likes} likes</p>
+                    <p class="text-sm font-bold text-brandGreen">${post.views || 0} views</p>
+                    <p class="text-sm font-bold text-brandGreen">${post.recommendations || 0} people recommended this</p>
+                    <p class="text-sm text-gray-700 leading-relaxed"><strong class="text-brandGreen">${escapeHtml(post.author)}</strong> ${escapeHtml(post.caption)}</p>
+
+                    <div class="space-y-3">
+                        ${post.comments.map((comment, index) => renderComment(comment, index)).join('')}
+                    </div>
+
+                    <form class="comment-form flex items-center gap-3 border-t border-gray-100 pt-4">
+                        <input class="comment-input flex-1 rounded-xl bg-gray-50 border border-gray-100 px-4 py-3 text-sm outline-none focus:border-brandYellow"
+                               placeholder="Add a comment..."
+                               required>
+                        <button class="text-xs font-bold text-brandGreen" type="submit">Post</button>
+                    </form>
+                </div>
+            </article>
+        `;
+    }
+
+    function renderComment(comment, index) {
+        return `
+            <div class="text-sm" data-comment-index="${index}">
+                <p class="text-gray-700"><strong class="text-brandGreen">${escapeHtml(comment.author)}</strong> ${escapeHtml(comment.text)}</p>
+                <button class="reply-toggle ml-0 mt-1 text-[11px] font-bold text-gray-400" type="button">Reply</button>
+                <div class="ml-5 mt-2 space-y-2">
+                    ${(comment.replies || []).map(reply => `
+                        <p class="text-xs text-gray-600"><strong class="text-brandGreen">${escapeHtml(reply.author)}</strong> ${escapeHtml(reply.text)}</p>
+                    `).join('')}
+                </div>
+                <form class="reply-form hidden ml-5 mt-2 flex items-center gap-2">
+                    <input class="reply-input flex-1 rounded-lg bg-gray-50 border border-gray-100 px-3 py-2 text-xs outline-none focus:border-brandYellow"
+                           placeholder="Reply to ${escapeHtml(comment.author)}..."
+                           required>
+                    <button class="text-[11px] font-bold text-brandGreen" type="submit">Reply</button>
+                </form>
+            </div>
+        `;
+    }
+
+    function renderRecommendations() {
+        const preferredTags = posts
+            .filter(post => post.author === currentUser.name)
+            .map(post => post.tag);
+        const recommended = posts
+            .filter(post => post.author !== currentUser.name)
+            .sort((a, b) => {
+                const tagScore = Number(preferredTags.includes(b.tag)) - Number(preferredTags.includes(a.tag));
+                if (tagScore !== 0) return tagScore;
+                return b.likes - a.likes;
+            })
+            .slice(0, 3);
+
+        recommendedPosts.innerHTML = recommended.map(post => `
+            <button class="jump-post w-full text-left flex gap-3" data-post-id="${post.id}" type="button">
+                <img src="${post.image}" alt="" class="w-16 h-16 rounded-xl object-cover bg-gray-100 flex-none">
+                <span class="min-w-0">
+                    <span class="block text-xs font-bold text-brandGreen truncate">${escapeHtml(post.author)}</span>
+                    <span class="block text-xs text-gray-500 truncate">${escapeHtml(post.location || post.tag)}</span>
+                    <span class="block text-[10px] font-bold text-brandYellow uppercase tracking-wider mt-1">${escapeHtml(post.tag)}</span>
+                </span>
+            </button>
+        `).join('');
+
+        const trekkers = [...new Map(posts.filter(post => post.author !== currentUser.name).map(post => [post.author, post])).values()].slice(0, 4);
+        trekkersToFollow.innerHTML = trekkers.map(post => {
+            const isFollowing = followedTrekkers.includes(post.author);
+            return `
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-9 h-9 rounded-full ${post.avatarColor || 'bg-brandGreen'} text-white flex items-center justify-center text-xs font-bold">${escapeHtml(post.initials)}</div>
+                        <div class="min-w-0">
+                            <p class="text-xs font-bold text-brandGreen truncate">${escapeHtml(post.author)}</p>
+                            <p class="text-[11px] text-gray-400 truncate">${escapeHtml(post.tag)} trekker</p>
+                        </div>
+                    </div>
+                    <button class="follow-trekker text-[11px] font-bold ${isFollowing ? 'text-gray-400' : 'text-brandGreen'}" data-author="${escapeHtml(post.author)}" type="button">
+                        ${isFollowing ? 'Following' : 'Follow'}
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function bindPostActions() {
+        document.querySelectorAll('[data-post-id]').forEach(container => {
+            const postId = container.dataset.postId;
+            const post = posts.find(item => item.id === postId);
+            if (!post) return;
+
+            container.querySelector('.like-post')?.addEventListener('click', () => {
+                post.liked = !post.liked;
+                post.likes = Math.max(0, Number(post.likes || 0) + (post.liked ? 1 : -1));
+                savePosts();
+                renderFeed();
+            });
+
+            container.querySelector('.focus-comment')?.addEventListener('click', () => {
+                container.querySelector('.comment-input')?.focus();
+            });
+
+            container.querySelector('.recommend-post')?.addEventListener('click', () => {
+                post.recommendedBy = post.recommendedBy || [];
+                if (post.recommendedBy.includes(currentUser.name)) return;
+                post.recommendedBy.push(currentUser.name);
+                post.recommendations = Number(post.recommendations || 0) + 1;
+                savePosts();
+                renderFeed();
+            });
+
+            container.querySelector('.comment-form')?.addEventListener('submit', event => {
+                event.preventDefault();
+                const input = container.querySelector('.comment-input');
+                const text = input.value.trim();
+                if (!text) return;
+                post.comments.push({ author: currentUser.name, text, replies: [] });
+                input.value = '';
+                savePosts();
+                renderFeed();
+            });
+
+            container.querySelectorAll('.reply-toggle').forEach(button => {
+                button.addEventListener('click', () => {
+                    button.parentElement.querySelector('.reply-form')?.classList.toggle('hidden');
+                });
+            });
+
+            container.querySelectorAll('.reply-form').forEach(formElement => {
+                formElement.addEventListener('submit', event => {
+                    event.preventDefault();
+                    const commentIndex = Number(formElement.closest('[data-comment-index]').dataset.commentIndex);
+                    const input = formElement.querySelector('.reply-input');
+                    const text = input.value.trim();
+                    if (!text) return;
+                    post.comments[commentIndex].replies = post.comments[commentIndex].replies || [];
+                    post.comments[commentIndex].replies.push({ author: currentUser.name, text });
+                    savePosts();
+                    renderFeed();
+                });
+            });
+        });
+
+        document.querySelectorAll('.jump-post').forEach(button => {
+            button.addEventListener('click', () => {
+                const card = document.querySelector(`article[data-post-id="${button.dataset.postId}"]`);
+                card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        });
+
+        document.querySelectorAll('.follow-trekker').forEach(button => {
+            button.addEventListener('click', () => {
+                const author = button.dataset.author;
+                const isFollowing = followedTrekkers.includes(author);
+                followedTrekkers = isFollowing
+                    ? followedTrekkers.filter(item => item !== author)
+                    : [...followedTrekkers, author];
+                followerCounts[author] = Math.max(0, Number(followerCounts[author] || 0) + (isFollowing ? -1 : 1));
+                if (!isFollowing) {
+                    try {
+                        const evKey = 'ghumna_jam_follower_events';
+                        const evs = JSON.parse(localStorage.getItem(evKey) || '[]');
+                        evs.push({ target: author, ts: Date.now() });
+                        localStorage.setItem(evKey, JSON.stringify(evs));
+                    } catch {}
+                }
+                saveFollows();
+                saveFollowerCounts();
+                renderRecommendations();
+            });
+        });
+    }
+
+    imageInput.addEventListener('change', () => {
+        const file = imageInput.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = event => {
+            selectedImage = event.target.result;
+            preview.src = selectedImage;
+            previewWrap.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    });
+
+    form.addEventListener('submit', event => {
+        event.preventDefault();
+        const caption = captionInput.value.trim();
+        if (!caption) return;
+
+        const tag = tagInput.value;
+        posts.unshift({
+            id: `post-${Date.now()}`,
+            author: currentUser.name,
+            initials: currentUser.initials,
+            avatarColor: 'bg-brandGreen',
+            location: `${tag} Trail`,
+            tag,
+            caption,
+            image: selectedImage,
+            createdAt: Date.now(),
+            likes: 0,
+            liked: false,
+            recommendations: 0,
+            recommendedBy: [],
+            views: 0,
+            comments: []
+        });
+
+        savePosts();
+        form.reset();
+        selectedImage = '';
+        preview.src = '';
+        previewWrap.classList.add('hidden');
+        activeFilter = 'all';
+        updateFilterButtons();
+        renderFeed();
+    });
+
+    function updateFilterButtons() {
+        filterButtons.forEach(button => {
+            const active = button.dataset.filter === activeFilter;
+            button.className = active
+                ? 'social-filter w-full text-left rounded-xl bg-brandGreen text-white px-4 py-3 text-sm font-semibold'
+                : 'social-filter w-full text-left rounded-xl bg-gray-50 hover:bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-600';
+        });
+    }
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            activeFilter = button.dataset.filter;
+            updateFilterButtons();
+            renderFeed();
+        });
+    });
+
+    renderFeed();
+});
+</script>
+{% endblock %}

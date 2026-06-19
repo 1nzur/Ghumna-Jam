@@ -1,0 +1,98 @@
+{% extends "main_layout.html" %}
+
+{% block title %}Ghumna Jam - My Reviews{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-8">
+        <h1 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold">Review Management</h1>
+        <p class="text-xs sm:text-sm text-gray-500 mt-1">Edit, hide, publish, or remove your destination reviews.</p>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
+            <span class="block text-[10px] uppercase font-bold tracking-wider text-gray-400">Total Reviews</span>
+            <strong class="text-2xl text-brandGreen">{{ stats.total }}</strong>
+        </div>
+        <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
+            <span class="block text-[10px] uppercase font-bold tracking-wider text-gray-400">Published</span>
+            <strong class="text-2xl text-brandGreen">{{ stats.published }}</strong>
+        </div>
+        <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
+            <span class="block text-[10px] uppercase font-bold tracking-wider text-gray-400">Hidden</span>
+            <strong class="text-2xl text-brandGreen">{{ stats.hidden }}</strong>
+        </div>
+        <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
+            <span class="block text-[10px] uppercase font-bold tracking-wider text-gray-400">Average Rating</span>
+            <strong class="text-2xl text-brandGreen">{{ "%.1f"|format(stats.average_rating) }}/5</strong>
+        </div>
+    </div>
+
+    {% if reviews %}
+        <div class="space-y-6">
+            {% for review in reviews %}
+                <article id="review-{{ review.id }}" class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-[220px_1fr]">
+                        <div class="h-48 lg:h-auto bg-cover bg-center bg-gray-100" style="background-image: url('{{ review.dest_image }}');"></div>
+                        <div class="p-6 space-y-5">
+                            <div class="flex flex-wrap items-start justify-between gap-3">
+                                <div>
+                                    <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400">{{ review.difficulty }} trek</span>
+                                    <h2 class="font-serif text-2xl text-brandGreen font-medium">{{ review.dest_name }}</h2>
+                                </div>
+                                <span class="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider {% if review.status == 'Published' %}bg-emerald-50 text-emerald-800 border border-emerald-100{% else %}bg-gray-50 text-gray-600 border border-gray-100{% endif %}">
+                                    {{ review.status }}
+                                </span>
+                            </div>
+
+                            <form method="POST" action="{{ url_for('reviews.edit_review', review_id=review.id) }}" class="grid grid-cols-1 gap-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <label class="text-[10px] uppercase font-bold tracking-wider text-gray-400">
+                                        Rating
+                                        <select name="rating" class="mt-2 w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+                                            {% for value in [5, 4, 3, 2, 1] %}
+                                                <option value="{{ value }}" {% if review.rating == value %}selected{% endif %}>{{ value }}/5</option>
+                                            {% endfor %}
+                                        </select>
+                                    </label>
+                                    <label class="sm:col-span-2 text-[10px] uppercase font-bold tracking-wider text-gray-400">
+                                        Title
+                                        <input name="title" value="{{ review.title }}" maxlength="120" required class="mt-2 w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+                                    </label>
+                                </div>
+                                <label class="text-[10px] uppercase font-bold tracking-wider text-gray-400">
+                                    Details
+                                    <textarea name="body" minlength="20" required rows="4" class="mt-2 w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">{{ review.body }}</textarea>
+                                </label>
+                                <div class="flex flex-wrap gap-3">
+                                    <button type="submit" class="bg-brandGreen hover:bg-emerald-950 text-white text-xs font-semibold px-5 py-3 rounded-lg transition">Save Changes</button>
+                                    <a href="{{ url_for('bookings.destination_detail', dest_id=review.destination_id) }}#reviews" class="border border-gray-200 hover:bg-gray-50 text-brandGreen text-xs font-semibold px-5 py-3 rounded-lg transition">View Public Page</a>
+                                </div>
+                            </form>
+
+                            <div class="flex flex-wrap gap-3 border-t border-gray-100 pt-4">
+                                <form method="POST" action="{{ url_for('reviews.toggle_review_status', review_id=review.id) }}">
+                                    <button type="submit" class="border border-gray-200 hover:bg-gray-50 text-brandGreen text-xs font-semibold px-5 py-3 rounded-lg transition">
+                                        {% if review.status == 'Published' %}Hide Review{% else %}Publish Review{% endif %}
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('reviews.delete_review', review_id=review.id) }}">
+                                    <button type="submit" class="border border-red-100 hover:bg-red-50 text-red-600 text-xs font-semibold px-5 py-3 rounded-lg transition">Delete Review</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-20 bg-gray-50/50 rounded-3xl border border-dashed border-gray-200 p-8">
+            <h3 class="font-serif text-xl text-brandGreen font-medium mb-2">No reviews yet</h3>
+            <p class="text-sm text-gray-500 max-w-sm mx-auto mb-8">Review a destination after exploring the trek details. Your notes help future travelers choose well.</p>
+            <a href="{{ url_for('main.home') }}#destinations" class="bg-brandGreen hover:bg-emerald-950 text-white font-bold text-sm px-6 py-3 rounded-xl transition shadow-md">
+                Browse Destinations
+            </a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
