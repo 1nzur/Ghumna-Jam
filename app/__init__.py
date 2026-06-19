@@ -2,6 +2,7 @@
 from flask import Flask, redirect, session, url_for
 from app.models.database import Database, close_db
 from app.routes.auth import AuthRoutes
+<<<<<<< HEAD
 =======
 from flask import Flask
 
@@ -11,6 +12,8 @@ from app.routes.auth import auth_bp
 from app.routes.bookings import bookings_bp
 from app.routes.reviews import reviews_bp
 >>>>>>> 28f10469f5bcc5a4b8bb22c4fcbaf984bdfb08e7
+=======
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
 
 
 def create_app(config_object=Config):
@@ -24,9 +27,15 @@ def create_app(config_object=Config):
     with app.app_context():
         init_db()
 
+<<<<<<< HEAD
     app.register_blueprint(auth_bp)
     app.register_blueprint(bookings_bp)
     app.register_blueprint(reviews_bp)
+=======
+    app.teardown_appcontext(close_db)
+    auth_routes = AuthRoutes()
+    app.register_blueprint(auth_routes.register())
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
 
     from app.routes.main import main_bp
     app.register_blueprint(main_bp)

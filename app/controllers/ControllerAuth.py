@@ -22,6 +22,14 @@ def register_user(name, email, password):
 <<<<<<< HEAD
 class AuthController:
     EXCHANGE_RATE = 134.0
+<<<<<<< HEAD
+=======
+    BADGE_THRESHOLDS = {
+        "first-trek": 1,
+        "summit-scout": 3,
+        "trail-master": 5,
+    }
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
 
     def _sample_destination(self, dest_id=1):
         return {
@@ -33,8 +41,11 @@ class AuthController:
             "season": "Mar-May, Sep-Nov",
             "description": "A classic Himalayan trek through Sherpa villages, alpine valleys, and dramatic views of the world's highest peaks.",
             "price_per_person": 1499.00 * self.EXCHANGE_RATE,
+<<<<<<< HEAD
             "altitude_meters": 5364,
             "highlights": "Sherpa culture, Kala Patthar viewpoint, historic base camp",
+=======
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
         }
 
     def _sample_destinations(self):
@@ -49,8 +60,11 @@ class AuthController:
                 "season": "Oct-Nov",
                 "description": "A sweeping circuit through river valleys, high passes, and traditional mountain settlements.",
                 "price_per_person": 1199.00 * self.EXCHANGE_RATE,
+<<<<<<< HEAD
                 "altitude_meters": 5416,
                 "highlights": "Thorong La Pass, Kali Gandaki Gorge, diverse landscapes",
+=======
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
             },
             {
                 "id": 3,
@@ -61,6 +75,7 @@ class AuthController:
                 "season": "Mar-May",
                 "description": "A beautiful alpine route with glacier views, yak pastures, and rich Tamang culture.",
                 "price_per_person": 799.00 * self.EXCHANGE_RATE,
+<<<<<<< HEAD
                 "altitude_meters": 3870,
                 "highlights": "Kyanjin Gompa, Yak pastures, panoramic glaciers",
             },
@@ -353,6 +368,32 @@ class AuthController:
         }
 
         return hotels_by_destination.get(dest_id, hotels_by_destination[1])
+=======
+            },
+        ]
+
+    def _get_badge_progress(self, user_id):
+        completed_treks = len(session.get("bookings", []))
+        all_badges = BaseModel.get_badges()
+        earned_badges = BaseModel.get_user_badges(user_id)
+        earned_slugs = {badge["slug"] for badge in earned_badges}
+
+        badge_progress = []
+        for badge in all_badges:
+            threshold = self.BADGE_THRESHOLDS.get(badge["slug"], 0)
+            progress_value = min(completed_treks, threshold)
+            percent = 0 if threshold == 0 else int((progress_value / threshold) * 100)
+            badge_progress.append(
+                {
+                    **badge,
+                    "earned": badge["slug"] in earned_slugs,
+                    "progress_value": progress_value,
+                    "progress_total": threshold,
+                    "progress_percent": percent,
+                }
+            )
+        return completed_treks, badge_progress, earned_badges
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
 
     def login(self):
         if request.method == "POST":
@@ -412,13 +453,13 @@ class AuthController:
     def signup(self):
         return self.register()
 
-    @login_required
     def home(self):
         return render_template(
             "landpage.html",
             destinations=self._sample_destinations(),
             user_name=session.get("user_name"),
         )
+<<<<<<< HEAD
 
     @login_required
     def landpage(self):
@@ -471,6 +512,62 @@ def authenticate_user(email, password):
     password = password or ""
 
 <<<<<<< HEAD
+=======
+
+    def landpage(self):
+        return self.home()
+
+    def about_us(self):
+        return render_template(
+            "about-us.html",
+            destinations=self._sample_destinations(),
+        )
+
+    def forgot_password(self):
+        email = ""
+        submitted_email = ""
+        if request.method == "POST":
+            email = request.form.get("email", "").strip().lower()
+            if not email:
+                flash("Please enter your email address.", "error")
+                return render_template("forgot_password.html", email=email), 400
+            submitted_email = email
+            flash("If that email exists, reset instructions will be sent.", "success")
+        return render_template(
+            "forgot_password.html",
+            email=email,
+            submitted_email=submitted_email,
+        )
+
+    @login_required
+    def bookings(self):
+        return render_template(
+            "bookings.html",
+            bookings=session.get("bookings", []),
+        )
+
+    @login_required
+    def badges(self):
+        completed_treks, badge_progress, earned_badges = self._get_badge_progress(
+            session["user_id"]
+        )
+        return render_template(
+            "badges.html",
+            completed_treks=completed_treks,
+            badge_progress=badge_progress,
+            earned_badges=earned_badges,
+        )
+
+    @login_required
+    def notifications(self):
+        notifications = BaseModel.get_user_notifications(session["user_id"])
+        BaseModel.mark_notifications_read(session["user_id"])
+        return render_template(
+            "notifications.html",
+            notifications=notifications,
+        )
+
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
     def destination_detail(self, dest_id):
         destination = next(
             (dest for dest in self._sample_destinations() if dest["id"] == dest_id),
@@ -479,7 +576,10 @@ def authenticate_user(email, password):
         return render_template(
             "destination_detail.html",
             destination=destination,
+<<<<<<< HEAD
             hotel_options=self._hotel_options(dest_id),
+=======
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
         )
 
     @login_required
@@ -490,7 +590,10 @@ def authenticate_user(email, password):
         )
         travelers_count = int(request.form.get("travelers_count", 1) or 1)
         departure_date = request.form.get("departure_date", "Not selected")
+<<<<<<< HEAD
         selected_hotel = request.form.get("selected_hotel", "No hotel selected")
+=======
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
         bookings = session.get("bookings", [])
         bookings.append(
             {
@@ -501,19 +604,57 @@ def authenticate_user(email, password):
                 "travelers_count": travelers_count,
                 "duration_days": destination["duration_days"],
                 "difficulty": destination["difficulty"],
+<<<<<<< HEAD
                 "selected_hotel": selected_hotel,
+=======
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
                 "booked_at": "Today",
                 "total_price": destination["price_per_person"] * travelers_count,
             }
         )
         session["bookings"] = bookings
         session.modified = True
+<<<<<<< HEAD
+=======
+
+        completed_treks = len(bookings)
+        if completed_treks >= 1:
+            BaseModel.award_badge_if_needed(
+                session["user_id"],
+                "first-trek",
+                "First Trek",
+                "You earned the First Trek badge for completing your first adventure.",
+            )
+        if completed_treks >= 3:
+            BaseModel.award_badge_if_needed(
+                session["user_id"],
+                "summit-scout",
+                "Summit Scout",
+                "You unlocked the Summit Scout badge after three treks.",
+            )
+        if completed_treks >= 5:
+            BaseModel.award_badge_if_needed(
+                session["user_id"],
+                "trail-master",
+                "Trail Master",
+                "You reached Trail Master status after five completed treks.",
+            )
+
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
         flash("Your journey has been added to your bookings.", "success")
         return redirect(url_for("auth.bookings"))
 
     @login_required
     def edit_profile(self):
         user = BaseModel.get_user_by_id(session["user_id"])
+<<<<<<< HEAD
+=======
+        completed_treks, badge_progress, earned_badges = self._get_badge_progress(
+            session["user_id"]
+        )
+        notifications = BaseModel.get_user_notifications(session["user_id"])
+
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
         if request.method == "POST":
             full_name = request.form.get("full_name", "").strip()
             email = request.form.get("email", "").strip().lower()
@@ -524,7 +665,18 @@ def authenticate_user(email, password):
 
             if not full_name or not email:
                 flash("Name and email are required.", "error")
+<<<<<<< HEAD
                 return render_template("edit-profile.html", user=user), 400
+=======
+                return render_template(
+                    "edit-profile.html",
+                    user=user,
+                    completed_treks=completed_treks,
+                    badge_progress=badge_progress,
+                    earned_badges=earned_badges,
+                    notifications=notifications,
+                ), 400
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
 
             try:
                 BaseModel.update_user(
@@ -538,17 +690,49 @@ def authenticate_user(email, password):
                 )
             except ValueError as exc:
                 flash(str(exc), "error")
+<<<<<<< HEAD
                 return render_template("edit-profile.html", user=user), 400
             except Exception:
                 flash("We could not update your profile right now.", "error")
                 return render_template("edit-profile.html", user=user), 500
+=======
+                return render_template(
+                    "edit-profile.html",
+                    user=user,
+                    completed_treks=completed_treks,
+                    badge_progress=badge_progress,
+                    earned_badges=earned_badges,
+                    notifications=notifications,
+                ), 400
+            except Exception:
+                flash("We could not update your profile right now.", "error")
+                return render_template(
+                    "edit-profile.html",
+                    user=user,
+                    completed_treks=completed_treks,
+                    badge_progress=badge_progress,
+                    earned_badges=earned_badges,
+                    notifications=notifications,
+                ), 500
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
 
             session["user_name"] = full_name
             session["profile_picture_url"] = profile_picture_url or None
             flash("Profile updated successfully.", "success")
             return redirect(url_for("auth.edit_profile"))
 
+<<<<<<< HEAD
         return render_template("edit-profile.html", user=user)
+=======
+        return render_template(
+            "edit-profile.html",
+            user=user,
+            completed_treks=completed_treks,
+            badge_progress=badge_progress,
+            earned_badges=earned_badges,
+            notifications=notifications,
+        )
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
 
     def logout(self):
         session.clear()

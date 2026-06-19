@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿{% extends "main_layout.html" %}
 
 {% block title %}Ghumna Jam - Compare Prices{% endblock %}
@@ -130,3 +131,122 @@
 </script>
 {% endblock %}
 
+=======
+{% extends "base.html" %}
+
+{% block title %}Ghumna Jam - Compare Treks{% endblock %}
+
+{% macro compare_url(ids, remove_id=None, add_id=None) -%}
+    {{ url_for('auth.compare_treks') }}?{% for id in ids if id != remove_id %}treks={{ id }}&{% endfor %}{% if add_id %}treks={{ add_id }}{% endif %}
+{%- endmacro %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+        <div>
+            <h1 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold">Compare Treks</h1>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">
+                Review route details side by side before choosing your next Himalayan journey.
+            </p>
+        </div>
+        <a href="{{ url_for('auth.home') }}#destinations" class="inline-flex justify-center bg-brandGreen hover:bg-emerald-950 text-white text-xs font-bold px-5 py-3 rounded-xl transition">
+            Select More Treks
+        </a>
+    </div>
+
+    {% if selected_treks|length < 2 %}
+        <div class="bg-white border border-dashed border-gray-200 rounded-2xl p-8 sm:p-10 text-center shadow-sm">
+            <h2 class="font-serif text-2xl text-brandGreen font-semibold mb-3">Select at least two treks</h2>
+            <p class="text-sm text-gray-500 max-w-xl mx-auto mb-6">
+                Choose two or more treks from the destination listing to unlock a side-by-side comparison.
+            </p>
+            <div class="flex flex-wrap justify-center gap-3">
+                {% for trek in destinations %}
+                    {% if trek.id in selected_ids %}
+                        <a href="{{ compare_url(selected_ids, remove_id=trek.id) }}" class="bg-brandGreen border border-brandGreen hover:bg-emerald-950 text-white text-xs font-bold px-4 py-2 rounded-full transition flex items-center gap-1.5 shadow-sm">
+                            <span>✓</span> {{ trek.name }}
+                        </a>
+                    {% else %}
+                        <a href="{{ compare_url(selected_ids, add_id=trek.id) }}" class="border border-gray-200 hover:border-brandGreen/30 hover:bg-brandGreen/5 text-brandGreen text-xs font-bold px-4 py-2 rounded-full transition">
+                            + {{ trek.name }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        {% set difference_rows = {
+            'difficulty': selected_treks | map(attribute='difficulty') | unique | list | length > 1,
+            'duration': selected_treks | map(attribute='duration_days') | unique | list | length > 1,
+            'altitude': selected_treks | map(attribute='altitude_meters') | unique | list | length > 1,
+            'cost': selected_treks | map(attribute='price_per_person') | unique | list | length > 1,
+            'season': selected_treks | map(attribute='season') | unique | list | length > 1,
+            'highlights': selected_treks | map(attribute='highlights') | unique | list | length > 1
+        } %}
+
+        <div class="overflow-x-auto bg-white border border-gray-100 rounded-2xl shadow-sm">
+            <table class="min-w-[760px] w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-gray-100">
+                        <th class="w-36 bg-gray-50 p-4 text-[10px] uppercase tracking-wider text-gray-400">Detail</th>
+                        {% for trek in selected_treks %}
+                            <th class="p-4 align-top min-w-52">
+                                <img src="{{ trek.image_url }}" alt="{{ trek.name }}" class="w-full h-28 object-cover rounded-xl mb-3">
+                                <div class="flex items-start justify-between gap-3">
+                                    <span class="font-serif text-lg text-brandGreen font-semibold leading-tight">{{ trek.name }}</span>
+                                    <a href="{{ compare_url(selected_ids, trek.id) }}" class="text-[10px] font-bold text-red-600 hover:text-red-700 uppercase tracking-wider">
+                                        Remove
+                                    </a>
+                                </div>
+                            </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody class="text-sm">
+                    <tr class="border-b border-gray-100 {% if difference_rows.difficulty %}bg-yellow-50/60{% endif %}">
+                        <th class="bg-gray-50 p-4 text-[10px] uppercase tracking-wider text-gray-400">Difficulty</th>
+                        {% for trek in selected_treks %}
+                            <td class="p-4 font-semibold text-gray-700">{{ trek.difficulty }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="border-b border-gray-100 {% if difference_rows.duration %}bg-yellow-50/60{% endif %}">
+                        <th class="bg-gray-50 p-4 text-[10px] uppercase tracking-wider text-gray-400">Duration</th>
+                        {% for trek in selected_treks %}
+                            <td class="p-4 font-semibold text-gray-700">{{ trek.duration_days }} Days</td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="border-b border-gray-100 {% if difference_rows.altitude %}bg-yellow-50/60{% endif %}">
+                        <th class="bg-gray-50 p-4 text-[10px] uppercase tracking-wider text-gray-400">Altitude</th>
+                        {% for trek in selected_treks %}
+                            <td class="p-4 font-semibold text-gray-700">{{ "{:,}".format(trek.altitude_meters) }}m</td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="border-b border-gray-100 {% if difference_rows.cost %}bg-yellow-50/60{% endif %}">
+                        <th class="bg-gray-50 p-4 text-[10px] uppercase tracking-wider text-gray-400">Cost</th>
+                        {% for trek in selected_treks %}
+                            <td class="p-4 font-bold text-brandGreen">Rs. {{ "{:,.2f}".format(trek.price_per_person) }} NPR</td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="border-b border-gray-100 {% if difference_rows.season %}bg-yellow-50/60{% endif %}">
+                        <th class="bg-gray-50 p-4 text-[10px] uppercase tracking-wider text-gray-400">Best Season</th>
+                        {% for trek in selected_treks %}
+                            <td class="p-4 font-semibold text-gray-700">{{ trek.season }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr class="{% if difference_rows.highlights %}bg-yellow-50/60{% endif %}">
+                        <th class="bg-gray-50 p-4 text-[10px] uppercase tracking-wider text-gray-400">Highlights</th>
+                        {% for trek in selected_treks %}
+                            <td class="p-4 text-gray-600 leading-relaxed">{{ trek.highlights }}</td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="text-[11px] text-gray-400 mt-4">
+            Highlighted rows show details that differ between your selected treks.
+        </p>
+    {% endif %}
+</section>
+{% endblock %}
+>>>>>>> 0a4586c3a60c2aaf85463b38455a243fc85d4f34
