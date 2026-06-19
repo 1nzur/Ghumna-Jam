@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Ghumna Jam - Notifications{% endblock %}
+
+{% block content %}
+<section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-8">
+        <h1 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold">Notifications</h1>
+        <p class="text-xs sm:text-sm text-gray-500 mt-1">Stay updated every time you unlock a new badge or milestone.</p>
+    </div>
+
+    {% if notifications %}
+    <div class="space-y-4">
+        {% for notification in notifications %}
+        <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-5 flex items-start gap-4">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center {% if notification.type == 'badge' %}bg-amber-50 text-amber-700{% else %}bg-brandGreen/10 text-brandGreen{% endif %}">
+                {% if notification.type == 'badge' %}
+                🏅
+                {% else %}
+                🔔
+                {% endif %}
+            </div>
+            <div class="flex-1">
+                <p class="text-sm text-gray-700">{{ notification.message }}</p>
+                <p class="text-[11px] text-gray-400 mt-1">{{ notification.created_at.strftime('%b %d, %Y · %I:%M %p') if notification.created_at else 'Just now' }}</p>
+            </div>
+            {% if not notification.is_read %}
+            <span class="text-[10px] uppercase tracking-wider font-bold text-brandGreen">New</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-20 bg-gray-50/50 rounded-3xl border border-dashed border-gray-200 p-8">
+        <span class="text-5xl block mb-4">🔔</span>
+        <h3 class="font-serif text-xl text-brandGreen font-medium mb-2">No notifications yet</h3>
+        <p class="text-sm text-gray-500 max-w-md mx-auto">Your badge alerts and milestone updates will appear here once you start exploring.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

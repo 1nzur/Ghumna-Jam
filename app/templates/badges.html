@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Ghumna Jam - Badges{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+        <div>
+            <h1 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold">Achievement Badges</h1>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">Track your milestone progress and celebrate every trek completed.</p>
+        </div>
+        <div class="bg-brandGreen text-white px-4 py-2 rounded-full text-sm font-semibold shadow-sm">
+            {{ completed_treks }} trek{% if completed_treks != 1 %}s{% endif %} completed
+        </div>
+    </div>
+
+    {% set next_badge = badge_progress | selectattr('earned', 'equalto', false) | first %}
+    {% if next_badge %}
+    <div class="mb-6 bg-gradient-to-r from-brandGreen to-emerald-900 text-white rounded-2xl p-5 shadow-sm">
+        <p class="text-[10px] uppercase tracking-wider font-semibold text-emerald-100">Next milestone</p>
+        <h2 class="font-serif text-2xl mt-1">{{ next_badge.name }}</h2>
+        <p class="text-sm text-emerald-50 mt-1">You are {{ next_badge.progress_value }} of {{ next_badge.progress_total }} steps toward your next badge.</p>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {% for badge in badge_progress %}
+        <div class="badge-card bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+            <div class="flex items-start justify-between gap-3">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ badge.color }} flex items-center justify-center text-2xl shadow-sm progress-track">
+                    {{ badge.icon }}
+                </div>
+                {% if badge.earned %}
+                <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider">Unlocked</span>
+                {% else %}
+                <span class="px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-wider">In progress</span>
+                {% endif %}
+            </div>
+            <h2 class="font-serif text-2xl text-brandGreen mt-4">{{ badge.name }}</h2>
+            <p class="text-sm text-gray-500 mt-2">{{ badge.description }}</p>
+            <p class="text-xs text-gray-400 mt-3">{{ badge.requirement_text }}</p>
+            <div class="mt-4">
+                <div class="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>Progress</span>
+                    <span>{{ badge.progress_value }} / {{ badge.progress_total }}</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden progress-track">
+                    <div class="h-full rounded-full bg-gradient-to-r {{ badge.color }}" style="width: {{ badge.progress_percent }}%"></div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if earned_badges %}
+    <section class="mt-10 bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+        <h2 class="font-serif text-2xl text-brandGreen">Your Earned Badges</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+            {% for badge in earned_badges %}
+            <div class="border border-emerald-100 bg-emerald-50 rounded-xl p-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">{{ badge.icon }}</span>
+                    <div>
+                        <h3 class="font-semibold text-brandGreen">{{ badge.name }}</h3>
+                        <p class="text-[11px] text-gray-500">Earned {{ badge.earned_at.strftime('%b %d, %Y') if badge.earned_at else 'recently' }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</section>
+{% endblock %}

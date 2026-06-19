@@ -1,0 +1,588 @@
+{% extends "base.html" %}
+
+{% block title %}Ghumna Jam - Offline Trek Tracker{% endblock %}
+
+{% block content %}
+<!-- Leaflet CSS for mapping -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<!-- Leaflet JS for mapping -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold">Offline Trail Tracker</h1>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">
+                Record your real-time path, distance, and coordinates. Operates without an active internet connection.
+            </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- Connection Status Badge -->
+            <span id="connection-status" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-100 flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                <span>Online</span>
+            </span>
+            <!-- GPS Status Badge -->
+            <span id="gps-status" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-200">
+                GPS Offline
+            </span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        
+        <!-- Left: Map Container (takes 2 cols on desktop) -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Map Card -->
+            <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden p-2">
+                <div id="map" class="h-[450px] w-full rounded-xl z-0"></div>
+                <div id="map-fallback" class="hidden h-[450px] w-full bg-gray-50 rounded-xl flex-col items-center justify-center p-8 text-center text-gray-500">
+                    <span class="text-4xl mb-3">📡</span>
+                    <h3 class="font-serif text-lg text-brandGreen font-semibold mb-1">Offline Map Mode</h3>
+                    <p class="text-xs text-gray-400 max-w-sm">
+                        Map tiles could not load because you are offline. However, your GPS coordinates and trail paths are still being tracked and logged locally.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Controls Panel -->
+            <div class="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm flex flex-wrap gap-4 items-center justify-between">
+                <div class="flex flex-wrap gap-2">
+                    <button id="btn-toggle-tracking" class="bg-brandGreen hover:bg-emerald-950 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span>Start Tracking</span>
+                    </button>
+                    <button id="btn-pause-trek" disabled class="border border-gray-200 bg-white text-gray-600 font-semibold text-xs px-5 py-3 rounded-xl transition opacity-50" type="button">
+                        Pause Trek
+                    </button>
+                    <button id="btn-clear-log" class="border border-gray-200 hover:bg-red-50 hover:text-red-700 text-gray-600 font-semibold text-xs px-5 py-3 rounded-xl transition">
+                        Clear Path
+                    </button>
+                </div>
+                <button id="btn-export-data" class="bg-brandYellow hover:bg-yellow-500 text-brandGreen font-bold text-xs px-6 py-3 rounded-xl transition shadow-sm">
+                    Export Trail (JSON)
+                </button>
+            </div>
+        </div>
+
+        <!-- Right: Location Metadata Info (takes 1 col) -->
+        <div class="space-y-6">
+            <!-- Coordinates Tracker Card -->
+            <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
+                <div>
+                    <h3 class="font-serif text-lg text-brandGreen font-semibold">Trek Metrics</h3>
+                    <p class="text-[10px] text-gray-400 mt-0.5">Real-time GPS telemetry from your device</p>
+                </div>
+                
+                <hr class="border-gray-100">
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Distance</span>
+                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-distance">0.00 km</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Duration</span>
+                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-duration">00:00:00</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Avg Speed</span>
+                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-average-speed">0.0 km/h</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Elevation Gain</span>
+                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-elevation-gain">0 m</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl col-span-2 md:col-span-1">
+                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Recorded Logs</span>
+                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-logs-count">0 pts</span>
+                    </div>
+                </div>
+
+                <!-- Live Coordinate Specs -->
+                <div class="space-y-4 pt-2">
+                    <div class="flex justify-between text-xs py-2.5 border-b border-gray-50">
+                        <span class="text-gray-400">Latitude</span>
+                        <span class="font-semibold text-gray-700" id="coord-latitude">--</span>
+                    </div>
+                    <div class="flex justify-between text-xs py-2.5 border-b border-gray-50">
+                        <span class="text-gray-400">Longitude</span>
+                        <span class="font-semibold text-gray-700" id="coord-longitude">--</span>
+                    </div>
+                    <div class="flex justify-between text-xs py-2.5 border-b border-gray-50">
+                        <span class="text-gray-400">Altitude</span>
+                        <span class="font-semibold text-gray-700" id="coord-altitude">--</span>
+                    </div>
+                    <div class="flex justify-between text-xs py-2.5 border-b border-gray-50">
+                        <span class="text-gray-400">Speed</span>
+                        <span class="font-semibold text-gray-700" id="coord-speed">--</span>
+                    </div>
+                    <div class="flex justify-between text-xs py-2.5">
+                        <span class="text-gray-400">GPS Accuracy</span>
+                        <span class="font-semibold text-gray-700" id="coord-accuracy">--</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-4 border-t border-gray-100">
+                    <div class="flex justify-between text-xs py-2.5">
+                        <span class="text-gray-400">Start time</span>
+                        <span class="font-semibold text-gray-700" id="stat-start-time">--</span>
+                    </div>
+                    <div class="flex justify-between text-xs py-2.5">
+                        <span class="text-gray-400">Last update</span>
+                        <span class="font-semibold text-gray-700" id="stat-last-update">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Offline Guide Instructions Card -->
+            <div class="bg-brandGreen text-white rounded-2xl shadow-sm p-6 sm:p-8 space-y-4">
+                <h4 class="font-serif text-base font-semibold text-brandYellow">Offline Operations Guide</h4>
+                <ul class="space-y-2.5 text-xs text-gray-300 leading-relaxed">
+                    <li class="flex items-start gap-2">
+                        <span class="text-brandYellow">✦</span>
+                        <span>Keep this page open while walking. Your device's hardware GPS keeps logging locations even without mobile data.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-brandYellow">✦</span>
+                        <span>Your path is serialized to local memory on-the-fly, ensuring that your trek data remains safe if the browser restarts.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-brandYellow">✦</span>
+                        <span>Export your path as a JSON log to load and overlay it on external maps or share with your guide.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Client side Offline GPS Tracking System -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        let isTracking = false;
+        let isPaused = false;
+        let watchId = null;
+        let trailPoints = []; // Stores Array of {lat, lng, alt, speed, acc, timestamp}
+        let map = null;
+        let pathLine = null;
+        let currentMarker = null;
+        let trackStartTime = null;
+        let lastUpdateTime = null;
+        let timerInterval = null;
+
+        // DOM elements
+        const connectionStatus = document.getElementById('connection-status');
+        const gpsStatus = document.getElementById('gps-status');
+        const btnToggleTracking = document.getElementById('btn-toggle-tracking');
+        const btnPauseTrek = document.getElementById('btn-pause-trek');
+        const btnClearLog = document.getElementById('btn-clear-log');
+        const btnExportData = document.getElementById('btn-export-data');
+
+        const statDistance = document.getElementById('stat-distance');
+        const statLogsCount = document.getElementById('stat-logs-count');
+
+        const coordLatitude = document.getElementById('coord-latitude');
+        const coordLongitude = document.getElementById('coord-longitude');
+        const coordAltitude = document.getElementById('coord-altitude');
+        const coordSpeed = document.getElementById('coord-speed');
+        const coordAccuracy = document.getElementById('coord-accuracy');
+        const statDuration = document.getElementById('stat-duration');
+        const statAvgSpeed = document.getElementById('stat-average-speed');
+        const statElevationGain = document.getElementById('stat-elevation-gain');
+        const statStartTime = document.getElementById('stat-start-time');
+        const statLastUpdate = document.getElementById('stat-last-update');
+
+        const mapContainer = document.getElementById('map');
+        const mapFallback = document.getElementById('map-fallback');
+
+        // Check Leaflet load status and connectivity
+        const hasLeaflet = (typeof L !== 'undefined');
+
+        // 1. Connection Status Updater
+        function updateConnectionState() {
+            if (navigator.onLine) {
+                connectionStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-100 flex items-center gap-1.5";
+                connectionStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span><span>Online</span>';
+                if (mapFallback) mapFallback.classList.add('hidden');
+                if (mapContainer) mapContainer.classList.remove('hidden');
+            } else {
+                connectionStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-100 flex items-center gap-1.5";
+                connectionStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span><span>Offline</span>';
+                // If offline and tiles won't render, show fallback guide but keep leaflet map active for local path rendering if loaded
+                if (!hasLeaflet) {
+                    if (mapContainer) mapContainer.classList.add('hidden');
+                    if (mapFallback) mapFallback.classList.remove('flex');
+                    if (mapFallback) mapFallback.classList.add('flex');
+                }
+            }
+        }
+        window.addEventListener('online', updateConnectionState);
+        window.addEventListener('offline', updateConnectionState);
+        updateConnectionState();
+
+        // 2. Initialize Leaflet Map
+        function initMap() {
+            if (!hasLeaflet) {
+                if (mapContainer) mapContainer.classList.add('hidden');
+                if (mapFallback) mapFallback.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                // Default map focus: Kathmandu coordinates
+                map = L.map('map', { zoomControl: false }).setView([27.7172, 85.3240], 13);
+                
+                L.control.zoom({
+                    position: 'bottomright'
+                }).addTo(map);
+
+                // Add OpenStreetMap tiles
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+
+                // Draw path line from any existing route coordinates and keep it live for new points
+                const initialRoute = trailPoints.map(point => [point.lat, point.lng]);
+                pathLine = L.polyline(initialRoute, {
+                    color: '#F5C647', // brandYellow
+                    weight: 5,
+                    opacity: 0.85,
+                    lineJoin: 'round'
+                }).addTo(map);
+
+                if (initialRoute.length > 0) {
+                    map.fitBounds(pathLine.getBounds(), { padding: [24, 24] });
+                }
+
+                // Current location marker (styled circular indicator)
+                const locationIcon = L.divIcon({
+                    className: 'relative flex items-center justify-center',
+                    html: '<span class="absolute inline-flex h-4 w-4 rounded-full bg-brandYellow/40 animate-ping"></span><span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-brandYellow border border-white shadow"></span>',
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                });
+                currentMarker = L.marker([27.7172, 85.3240], { icon: locationIcon }).addTo(map);
+
+            } catch (err) {
+                console.error("Map load failed", err);
+                if (mapContainer) mapContainer.classList.add('hidden');
+                if (mapFallback) mapFallback.classList.remove('hidden');
+            }
+        }
+        initMap();
+
+        // 3. Load stored logs from localStorage
+        function loadSavedTrail() {
+            const stored = localStorage.getItem('ghumna_jam_trail_log');
+            if (stored) {
+                try {
+                    trailPoints = JSON.parse(stored);
+                    updateStats();
+                    renderStoredTrail();
+                } catch (e) {
+                    console.error("Could not parse saved trail log", e);
+                }
+            }
+        }
+
+        // 4. Render Saved Path Points on Map
+        function renderStoredTrail() {
+            if (trailPoints.length === 0) return;
+
+            const latlngs = trailPoints.map(p => [p.lat, p.lng]);
+            
+            if (pathLine) {
+                pathLine.setLatLngs(latlngs);
+            }
+
+            const lastPoint = trailPoints[trailPoints.length - 1];
+            if (currentMarker && map) {
+                currentMarker.setLatLng([lastPoint.lat, lastPoint.lng]);
+                map.setView([lastPoint.lat, lastPoint.lng], 15);
+            }
+
+            // Update details UI
+            coordLatitude.textContent = lastPoint.lat.toFixed(5) + '°';
+            coordLongitude.textContent = lastPoint.lng.toFixed(5) + '°';
+            coordAltitude.textContent = lastPoint.alt ? lastPoint.alt.toFixed(0) + ' m' : 'N/A';
+            coordSpeed.textContent = lastPoint.speed ? (lastPoint.speed * 3.6).toFixed(1) + ' km/h' : '0.0 km/h';
+            coordAccuracy.textContent = lastPoint.acc ? '± ' + lastPoint.acc.toFixed(0) + ' m' : 'N/A';
+
+            lastUpdateTime = lastPoint.timestamp;
+            if (!trackStartTime) {
+                trackStartTime = trailPoints[0].timestamp;
+            }
+            updateStats();
+        }
+
+        function formatDuration(totalSeconds) {
+            const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+
+        function getAverageSpeed(distanceKm, seconds) {
+            if (!seconds || distanceKm === 0) {
+                return '0.0';
+            }
+            return (distanceKm / (seconds / 3600)).toFixed(1);
+        }
+
+        function calculateElevationGain() {
+            let gain = 0;
+            let highest = null;
+            let lowest = null;
+
+            for (let i = 0; i < trailPoints.length; i++) {
+                const alt = trailPoints[i].alt;
+                if (alt === null || alt === undefined) continue;
+                if (highest === null || alt > highest) highest = alt;
+                if (lowest === null || alt < lowest) lowest = alt;
+                if (i > 0) {
+                    const prevAlt = trailPoints[i - 1].alt;
+                    if (prevAlt !== null && prevAlt !== undefined && alt > prevAlt) {
+                        gain += alt - prevAlt;
+                    }
+                }
+            }
+            return Math.round(gain);
+        }
+
+        function updateTimingDisplay() {
+            const now = Date.now();
+            const start = trackStartTime ? Number(trackStartTime) : null;
+            const last = lastUpdateTime ? Number(lastUpdateTime) : null;
+
+            statStartTime.textContent = start ? new Date(start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--';
+            statLastUpdate.textContent = last ? new Date(last).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--';
+
+            const elapsed = start ? Math.max(0, Math.floor((last || now) / 1000 - Math.floor(start / 1000))) : 0;
+            statDuration.textContent = formatDuration(elapsed);
+            statAverageSpeed.textContent = `${getAverageSpeed(calculateCumulativeDistance(), elapsed)} km/h`;
+        }
+
+        // 5. Harvesine formula for cumulative distance
+        function calculateCumulativeDistance() {
+            if (trailPoints.length < 2) return 0;
+            let dist = 0;
+
+            for (let i = 1; i < trailPoints.length; i++) {
+                dist += getHaversineDistance(
+                    trailPoints[i-1].lat, trailPoints[i-1].lng,
+                    trailPoints[i].lat, trailPoints[i].lng
+                );
+            }
+            return dist;
+        }
+
+        function getHaversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // earth radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // 6. Update stats layout
+        function updateStats() {
+            statLogsCount.textContent = trailPoints.length + ' pts';
+            const dist = calculateCumulativeDistance();
+            const elapsed = trackStartTime ? Math.max(0, Math.floor((lastUpdateTime || Date.now()) / 1000 - Math.floor(Number(trackStartTime) / 1000))) : 0;
+
+            statDistance.textContent = dist.toFixed(2) + ' km';
+            statDuration.textContent = formatDuration(elapsed);
+            statAverageSpeed.textContent = `${getAverageSpeed(dist, elapsed)} km/h`;
+            statElevationGain.textContent = `${calculateElevationGain()} m`;
+            updateTimingDisplay();
+        }
+
+        // 7. Geolocation Callbacks
+        function onLocationSuccess(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const alt = position.coords.altitude; // might be null
+            const speed = position.coords.speed; // might be null
+            const acc = position.coords.accuracy;
+            const timestamp = position.timestamp;
+
+            // Update GPS badge
+            gpsStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-brandYellow text-brandGreen border border-brandYellow flex items-center gap-1.5 shadow-sm";
+            gpsStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-brandGreen"></span><span>GPS Connected</span>';
+
+            // Show telemetry on screen
+            coordLatitude.textContent = lat.toFixed(5) + '°';
+            coordLongitude.textContent = lng.toFixed(5) + '°';
+            coordAltitude.textContent = alt ? alt.toFixed(0) + ' m' : 'N/A';
+            coordSpeed.textContent = speed && speed > 0 ? (speed * 3.6).toFixed(1) + ' km/h' : '0.0 km/h';
+            coordAccuracy.textContent = '± ' + acc.toFixed(0) + ' m';
+
+            if (isPaused) {
+                return;
+            }
+
+            if (isTracking) {
+                // Start timing on first valid sample
+                if (!trackStartTime && trailPoints.length === 0) {
+                    trackStartTime = timestamp;
+                }
+
+                // Throttle identical coords to reduce noise
+                if (trailPoints.length > 0) {
+                    const last = trailPoints[trailPoints.length - 1];
+                    const diff = getHaversineDistance(last.lat, last.lng, lat, lng);
+                    if (diff < 0.002) return; // Ignore movements under 2 meters
+                }
+
+                const point = { lat, lng, alt, speed, acc, timestamp };
+                trailPoints.push(point);
+                localStorage.setItem('ghumna_jam_trail_log', JSON.stringify(trailPoints));
+                lastUpdateTime = timestamp;
+
+                // Update Stats
+                updateStats();
+
+                // Draw live polyline update
+                if (pathLine) {
+                    pathLine.addLatLng([lat, lng]);
+                }
+            }
+
+            // Move Marker and fit bounds
+            if (currentMarker) {
+                currentMarker.setLatLng([lat, lng]);
+            }
+            if (map && isTracking) {
+                map.panTo([lat, lng]);
+            }
+        }
+
+        function onLocationError(error) {
+            console.error("GPS location error:", error);
+            gpsStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-50 text-red-800 border border-red-100 flex items-center gap-1.5";
+            
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    gpsStatus.textContent = "GPS Access Blocked";
+                    alert("Location access permission was denied. Please unlock permission in your browser settings to track trails.");
+                    pauseTracking();
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    gpsStatus.textContent = "Signal Lost";
+                    break;
+                case error.TIMEOUT:
+                    gpsStatus.textContent = "GPS Timeout";
+                    break;
+                default:
+                    gpsStatus.textContent = "GPS Failure";
+            }
+        }
+
+        // 8. Toggle Tracking Logic
+        function startTracking() {
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by your browser.");
+                return;
+            }
+
+            isTracking = true;
+            isPaused = false;
+            btnToggleTracking.className = "bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2";
+            btnToggleTracking.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-white animate-pulse"></span><span>Pause Tracking</span>';
+            btnPauseTrek.disabled = false;
+            btnPauseTrek.classList.remove('opacity-50');
+
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0
+            };
+            
+            watchId = navigator.geolocation.watchPosition(onLocationSuccess, onLocationError, options);
+            if (!timerInterval) {
+                timerInterval = setInterval(updateTimingDisplay, 1000);
+            }
+        }
+
+        function pauseTracking() {
+            isTracking = false;
+            isPaused = true;
+            btnToggleTracking.className = "bg-brandGreen hover:bg-emerald-950 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2";
+            btnToggleTracking.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span><span>Start Tracking</span>';
+            btnPauseTrek.disabled = true;
+            btnPauseTrek.classList.add('opacity-50');
+
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            if (timerInterval !== null) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            gpsStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-200";
+            gpsStatus.textContent = "GPS Paused";
+        }
+
+        btnToggleTracking.addEventListener('click', () => {
+            if (isTracking) {
+                pauseTracking();
+            } else {
+                startTracking();
+            }
+        });
+
+        btnPauseTrek.addEventListener('click', () => {
+            if (isTracking) {
+                pauseTracking();
+            }
+        });
+
+        // 9. Clear Trail Logic
+        btnClearLog.addEventListener('click', () => {
+            if (confirm("Are you sure you want to delete your current path? This action cannot be undone.")) {
+                localStorage.removeItem('ghumna_jam_trail_log');
+                trailPoints = [];
+                updateStats();
+                
+                if (pathLine) {
+                    pathLine.setLatLngs([]);
+                }
+                
+                coordLatitude.textContent = '--';
+                coordLongitude.textContent = '--';
+                coordAltitude.textContent = '--';
+                coordSpeed.textContent = '--';
+                coordAccuracy.textContent = '--';
+            }
+        });
+
+        // 10. Export Trail data (JSON)
+        btnExportData.addEventListener('click', () => {
+            if (trailPoints.length === 0) {
+                alert("No recorded logs available to export.");
+                return;
+            }
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trailPoints, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `ghumna_jam_trail_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        });
+
+        // Load saved state on start
+        loadSavedTrail();
+    });
+</script>
+{% endblock %}
