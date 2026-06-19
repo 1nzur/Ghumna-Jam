@@ -165,7 +165,7 @@ class AuthController:
                 "duration_days": 18,
                 "season": "Sep-Nov, Mar-May",
                 "description": "A challenging journey through the Makalu Barun National Park to the base of the world's fifth-highest peak.",
-                "price_per_person": 1899.00 * self.EXCHANGE_RATE,
+                "price_per_person": 2099.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 4870,
                 "highlights": "Barun river valley, hanging glaciers, granite cliffs",
             },
