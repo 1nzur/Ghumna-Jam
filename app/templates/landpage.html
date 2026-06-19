@@ -88,6 +88,11 @@
                                 <span class="compare-icon text-[10px] text-gray-400 group-hover:text-brandGreen font-bold transition">＋</span>
                             </label>
                         </div>
+                        {% if favorite_ids and dest.id in favorite_ids %}
+                            <span class="absolute top-3 left-3 bg-brandYellow text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded text-brandGreen">
+                                Saved
+                            </span>
+                        {% endif %}
                         {% if dest.name == "Everest Base Camp" %}
                             <span class="absolute bottom-3 left-3 bg-brandYellow text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded text-brandGreen">Most Popular</span>
                         {% elif dest.difficulty == "Easy" %}
@@ -115,6 +120,14 @@
                         </div>
 
                         <p class="text-xs text-gray-500 line-clamp-3 mb-4 leading-relaxed">{{ dest.description }}</p>
+
+                        <div class="flex items-center justify-between text-[11px] text-gray-500 mb-3">
+                            <span class="flex items-center gap-2">
+                                <span class="text-brandYellow">★</span>
+                                <span>{{ "{:.1f}".format(dest.average_rating or 0) }} rating</span>
+                            </span>
+                            <span>{{ dest.review_count or 0 }} reviews</span>
+                        </div>
 
                         {% include "partials/weather-forecast-card.html" %}
                         

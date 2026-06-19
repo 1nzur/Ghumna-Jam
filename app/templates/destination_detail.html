@@ -102,11 +102,33 @@
                 <span class="text-xs text-gray-500 font-medium"> NPR</span>
             </div>
 
-            <hr class="border-gray-100">
+            {% if session.get('user_id') %}
+                <div class="rounded-2xl border border-gray-100 bg-gray-50 p-4 mb-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <span class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400">Rating</span>
+                            <span class="text-xl font-bold text-brandGreen">{{ "{:.1f}".format(average_rating) }}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400">Reviews</span>
+                            <span class="text-base font-semibold text-brandGreen">{{ review_count }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <form method="POST" action="{{ url_for('auth.toggle_favorite', dest_id=destination.id) }}">
+                        <button type="submit" class="w-full bg-brandYellow text-brandGreen font-bold py-3 rounded-xl hover:bg-yellow-400 transition">
+                            {% if destination.id in favorite_ids %}
+                                Remove from Favorites
+                            {% else %}
+                                Save to Favorites
+                            {% endif %}
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
 
             <form method="POST" action="{{ url_for('auth.book_trip', dest_id=destination.id) }}" class="space-y-4">
-                
-                <!-- Departure Date -->
                 <div>
                     <label for="departure_date" class="block text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-2">
                         Departure Date
@@ -164,6 +186,68 @@
             </form>
         </div>
 
+    </div>
+
+    <!-- Review Summary Section -->
+    <div class="mt-10 bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+            <div>
+                <h2 class="font-serif text-2xl text-brandGreen font-semibold">Traveler Reviews</h2>
+                <p class="text-xs text-gray-500 mt-1">Read what explorers are saying about this trek.</p>
+            </div>
+            <div class="text-right">
+                <span class="block text-[10px] uppercase tracking-wider text-gray-400">Average Rating</span>
+                <span class="text-3xl font-bold text-brandGreen">{{ "{:.1f}".format(average_rating) }}</span>
+                <span class="block text-[10px] text-gray-500">({{ review_count }} reviews)</span>
+            </div>
+        </div>
+
+        {% if reviews %}
+            <div class="space-y-4">
+                {% for review in reviews %}
+                    <div class="bg-gray-50 rounded-2xl border border-gray-100 p-5">
+                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+                            <div>
+                                <h4 class="text-base font-semibold text-brandGreen">{{ review.full_name }}</h4>
+                                <p class="text-[10px] uppercase tracking-wider text-gray-400">{{ review.created_at }}</p>
+                            </div>
+                            <span class="text-sm font-bold text-brandGreen">{{ review.rating }}/5</span>
+                        </div>
+                        <p class="text-sm text-gray-600 leading-relaxed">{{ review.comment or 'No comment provided.' }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-gray-500">
+                <p class="font-semibold text-brandGreen">No reviews yet.</p>
+                <p class="text-xs mt-2">Be the first to share your experience.</p>
+            </div>
+        {% endif %}
+
+        {% if session.get('user_id') %}
+            <form method="POST" action="{{ url_for('auth.submit_review', dest_id=destination.id) }}" class="space-y-4 mt-6">
+                <div>
+                    <label class="block text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-2">Your Rating</label>
+                    <select name="rating" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen" required>
+                        <option value="">Select Rating</option>
+                        {% for score in range(1, 6) %}
+                            <option value="{{ score }}">{{ score }} out of 5</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-2">Comment</label>
+                    <textarea name="comment" rows="4" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen" placeholder="Share your trek experience..."></textarea>
+                </div>
+                <button type="submit" class="w-full bg-brandGreen hover:bg-emerald-950 text-white font-bold py-3 rounded-xl transition">
+                    Add Review
+                </button>
+            </form>
+        {% else %}
+            <div class="text-center text-xs text-gray-500 mt-6">
+                <a href="{{ url_for('auth.login', next=url_for('auth.destination_detail', dest_id=destination.id)) }}" class="text-brandGreen font-semibold">Log in</a> to share a review.
+            </div>
+        {% endif %}
     </div>
 </section>
 
