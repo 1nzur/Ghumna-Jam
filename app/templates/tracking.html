@@ -192,6 +192,14 @@
     </div>
 </section>
 
+<!-- GPS Permission Denied Banner -->
+<div id="gps-denied-banner" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+    <div class="bg-amber-50 border border-amber-200 rounded-xl px-5 py-3.5 text-sm text-amber-800 font-medium flex items-start gap-3">
+        <span class="text-lg flex-none">⚠️</span>
+        <span>Location access was denied. To enable GPS tracking, allow location permission in your browser settings and reload the page.</span>
+    </div>
+</div>
+
 <!-- SOS Modal Overlay -->
 <div id="sos-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300">
     <div class="bg-white rounded-2xl border border-gray-100 shadow-2xl p-6 sm:p-8 max-w-md w-full transform scale-95 opacity-0 transition-all duration-300 flex flex-col items-center text-center space-y-4" id="sos-modal-content">
@@ -199,11 +207,14 @@
             🚨
         </div>
         <h3 class="font-serif text-2xl text-red-600 font-bold">Emergency Signal Broadcasted</h3>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 w-full text-xs text-amber-800 font-bold uppercase tracking-wider text-center">
+            DEMO ONLY — No real signals are sent
+        </div>
         <p class="text-sm text-gray-600 leading-relaxed font-sans">
-            Your current coordinates and profile data have been sent to our alpine response center. Local rescue authorities and guides in your region have been notified.
+            In a real deployment your coordinates would be sent to an alpine response center. This is a demonstration feature — no rescue authorities are actually notified.
         </p>
         <div class="bg-red-50 border border-red-100/60 p-4 rounded-xl w-full text-xs text-red-800 font-medium font-sans">
-            Help is on the way. Please remain at your location.
+            In a real emergency, call Nepal Police: 100 or Mountain Rescue: +977-1-4107234.
         </div>
         <button id="btn-close-sos" class="w-full bg-brandGreen hover:bg-emerald-950 text-white font-bold text-xs py-3 rounded-xl transition">
             Acknowledge & Close
@@ -571,7 +582,7 @@
             switch (error.code) {
                 case error.PERMISSION_DENIED:
                     gpsStatus.textContent = "GPS Access Blocked";
-                    alert("Location access permission was denied. Please unlock permission in your browser settings to track trails.");
+                    document.getElementById('gps-denied-banner').classList.remove('hidden');
                     pauseTracking();
                     break;
                 case error.POSITION_UNAVAILABLE:
@@ -588,7 +599,8 @@
         // 8. Toggle Tracking Logic
         function startTracking() {
             if (!navigator.geolocation) {
-                alert("Geolocation is not supported by your browser.");
+                document.getElementById('gps-denied-banner').textContent = 'Geolocation is not supported by your browser.';
+                document.getElementById('gps-denied-banner').classList.remove('hidden');
                 return;
             }
 
