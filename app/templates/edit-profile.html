@@ -3,179 +3,498 @@
 {% block title %}Ghumna Jam - Edit Profile{% endblock %}
 
 {% block content %}
-<section class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="mb-8">
-        <h1 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold">Edit Profile</h1>
-        <p class="text-xs sm:text-sm text-gray-500 mt-1">
-            Keep your explorer details up to date for future journeys.
-        </p>
-    </div>
+<div class="min-h-screen bg-[#F4F6F4]">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-6">
 
-    <form method="POST" action="{{ url_for('auth.edit_profile') }}" enctype="multipart/form-data" class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
-        <div>
-            <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-2">
-                Full Name
-            </label>
-            <input type="text"
-                   name="full_name"
-                   value="{{ user.full_name if user else '' }}"
-                   class="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
-        </div>
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs text-gray-400">
+        <a href="{{ url_for('auth.home') }}" class="hover:text-brandGreen transition font-medium">Home</a>
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-brandGreen font-semibold">Edit Profile</span>
+    </nav>
 
-        <div>
-            <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-2">
-                Email Address
-            </label>
-            <input type="email"
-                   name="email"
-                   value="{{ user.email if user else '' }}"
-                   placeholder="explorer@alpine.com"
-                   class="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
-        </div>
-
-        <div>
-            <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-2">
-                Phone Number
-            </label>
-            <input type="text"
-                   name="phone_number"
-                   value="{{ user.phone_number if user and user.phone_number else '' }}"
-                   placeholder="+977 98XXXXXXXX"
-                   class="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
-        </div>
-
-        <div>
-            <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-2">
-                Date of Birth
-            </label>
-            <input type="date"
-                   name="date_of_birth"
-                   value="{{ user.date_of_birth if user and user.date_of_birth else '' }}"
-                   class="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
-        </div>
-
-        <div>
-            <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-2">
-                Profile Picture
-            </label>
-            <div class="flex items-center space-x-4">
-                <div class="w-16 h-16 rounded-full bg-brandGreen/10 flex items-center justify-center text-brandGreen font-bold text-lg overflow-hidden border border-gray-100 shadow-sm flex-shrink-0" id="pfp-preview-container">
-                    {% if user and user.profile_picture_url %}
-                        <img id="pfp-preview" src="{{ user.profile_picture_url }}" alt="Profile Picture" class="w-full h-full object-cover">
-                    {% else %}
-                        <span id="pfp-placeholder">{{ user.full_name[0] | upper if user else '?' }}</span>
-                        <img id="pfp-preview" src="" alt="Profile Picture" class="w-full h-full object-cover hidden">
-                    {% endif %}
+    <!-- Profile Hero -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brandGreen via-emerald-800 to-slate-900 text-white shadow-lg">
+        <div class="absolute inset-0 opacity-[0.04]" style="background-image:url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E\");background-size:60px;"></div>
+        <div class="relative px-6 py-8 sm:px-10 sm:py-10">
+            <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-center gap-5">
+                    <div class="relative flex-none">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/15 backdrop-blur-sm border-2 border-white/25 flex items-center justify-center overflow-hidden shadow-xl">
+                            {% if user and user.profile_picture_url %}
+                                <img id="hero-pfp-img" src="{{ user.profile_picture_url }}" alt="" class="w-full h-full object-cover">
+                            {% else %}
+                                <span id="hero-pfp-initial" class="text-3xl font-bold text-white">{{ user.full_name[0] | upper if user else '?' }}</span>
+                                <img id="hero-pfp-img" src="" alt="" class="w-full h-full object-cover hidden">
+                            {% endif %}
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-brandYellow border-2 border-emerald-800 shadow-sm"></div>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-brandYellow mb-1">Explorer Profile</p>
+                        <h1 class="font-serif text-2xl sm:text-3xl font-bold leading-tight">{{ user.full_name if user else 'Trekker' }}</h1>
+                        <p class="text-sm text-white/55 mt-0.5">{{ user.email if user else '' }}</p>
+                        <div id="hero-top-trail" class="mt-2.5 hidden">
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white/75">
+                                <span class="w-1.5 h-1.5 rounded-full bg-brandYellow inline-block flex-none"></span>
+                                <span id="hero-trail-name"></span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label class="cursor-pointer inline-flex items-center justify-center px-4 py-2.5 border border-gray-200 rounded-xl text-xs font-semibold text-gray-600 bg-white hover:bg-gray-50 transition shadow-sm">
-                        <span>Choose Photo</span>
-                        <input type="file"
-                               id="pfp-file-input"
-                               name="profile_picture"
-                               accept="image/*"
-                               class="hidden">
-                    </label>
-                    <p class="text-[10px] text-gray-400 mt-1.5" id="file-name-display">
-                        Accepts JPG, PNG, GIF. Max size 2MB.
-                    </p>
+
+                <div class="grid grid-cols-2 gap-2 sm:gap-3">
+                    <div class="rounded-2xl bg-white/10 backdrop-blur-sm px-4 py-3.5 text-center min-w-[70px]">
+                        <p id="hero-posts" class="text-2xl font-bold tabular-nums">0</p>
+                        <p class="text-[9px] uppercase tracking-wider text-white/55 mt-0.5">Posts</p>
+                    </div>
+                    <div class="rounded-2xl bg-white/10 backdrop-blur-sm px-4 py-3.5 text-center min-w-[70px]">
+                        <p id="hero-followers" class="text-2xl font-bold tabular-nums">0</p>
+                        <p class="text-[9px] uppercase tracking-wider text-white/55 mt-0.5">Followers</p>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div>
-            <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-2">
-                Emergency Contact Name
-            </label>
-            <input type="text"
-                   id="emergency-contact-name"
-                   placeholder="e.g. Himalayan Rescue Association"
-                   class="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+    <!-- Main two-column layout -->
+    <div class="grid gap-5 lg:grid-cols-[1fr_380px] items-start">
+
+        <!-- ── LEFT: Dashboard ── -->
+        <div class="space-y-5">
+
+            <!-- KPI cards -->
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div class="rounded-2xl bg-white border border-gray-100 shadow-sm p-5 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">Likes</p>
+                        <span class="text-base leading-none select-none">♥</span>
+                    </div>
+                    <p id="kpi-likes" class="text-3xl font-bold text-brandGreen tabular-nums">0</p>
+                    <p class="text-[10px] text-gray-400">total received</p>
+                </div>
+                <div class="rounded-2xl bg-white border border-gray-100 shadow-sm p-5 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">Comments</p>
+                        <span class="text-base leading-none select-none">💬</span>
+                    </div>
+                    <p id="kpi-comments" class="text-3xl font-bold text-brandGreen tabular-nums">0</p>
+                    <p class="text-[10px] text-gray-400">on your posts</p>
+                </div>
+                <div class="rounded-2xl bg-white border border-gray-100 shadow-sm p-5 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">Recommended</p>
+                        <span class="text-base leading-none select-none">⭐</span>
+                    </div>
+                    <p id="kpi-recommendations" class="text-3xl font-bold text-brandGreen tabular-nums">0</p>
+                    <p class="text-[10px] text-gray-400">trail picks</p>
+                </div>
+                <div class="rounded-2xl bg-white border border-gray-100 shadow-sm p-5 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">Views</p>
+                        <span class="text-base leading-none select-none">👁</span>
+                    </div>
+                    <p id="kpi-views" class="text-3xl font-bold text-brandGreen tabular-nums">0</p>
+                    <p class="text-[10px] text-gray-400">impressions</p>
+                </div>
+            </div>
+
+            <!-- Monthly followers + Trail affinity -->
+            <div class="grid gap-3 sm:grid-cols-2">
+                <div class="rounded-2xl bg-white border border-gray-100 shadow-sm p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400">Followers per Month</p>
+                        <p id="follower-month-total" class="text-[10px] font-bold text-brandGreen tabular-nums">0 this month</p>
+                    </div>
+                    <div class="flex items-end gap-1" style="height:80px" id="follower-monthly-bars"></div>
+                    <div class="flex mt-2" id="follower-monthly-labels"></div>
+                    <p id="follower-month-label" class="text-[10px] text-gray-400 mt-2">Follow others on Socials to see growth here.</p>
+                </div>
+
+                <div class="rounded-2xl bg-white border border-gray-100 shadow-sm p-5">
+                    <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-4">Trail Affinity</p>
+                    <div id="trail-affinity" class="space-y-2.5">
+                        <p class="text-xs text-gray-400">Post on Socials to see your trail breakdown.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly posts chart -->
+            <div class="rounded-2xl bg-white border border-gray-100 shadow-sm p-5 sm:p-6">
+                <div class="flex items-start justify-between mb-5">
+                    <div>
+                        <h3 class="font-serif text-lg font-semibold text-brandGreen">Posts per Month</h3>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Publishing activity · last 6 months</p>
+                    </div>
+                    <span id="chart-post-count" class="rounded-full bg-brandGreen/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-brandGreen">0 total</span>
+                </div>
+                <div class="flex items-end gap-1.5 h-32" id="monthly-bars"></div>
+                <div class="flex gap-1.5 mt-2" id="monthly-labels"></div>
+            </div>
+
+            <!-- Recent posts -->
+            <div class="rounded-2xl bg-white border border-gray-100 shadow-sm p-5 sm:p-6">
+                <div class="flex items-center justify-between mb-5">
+                    <h3 class="font-serif text-lg font-semibold text-brandGreen">Recent Posts</h3>
+                    <a href="{{ url_for('auth.socials') }}" class="text-[11px] font-bold text-brandGreen hover:underline underline-offset-2">View all →</a>
+                </div>
+                <div id="recent-posts" class="space-y-3"></div>
+                <div id="best-post-wrap" class="hidden mt-4 rounded-2xl bg-gradient-to-br from-brandGreen/5 to-emerald-50 border border-brandGreen/10 p-4">
+                    <p class="text-[9px] font-bold uppercase tracking-[0.25em] text-brandYellow mb-2">Top Performing Post</p>
+                    <p id="best-post-text" class="text-sm text-gray-600 leading-relaxed"></p>
+                </div>
+            </div>
+
         </div>
 
-        <div>
-            <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-2">
-                Emergency Contact Phone
-            </label>
-            <input type="text"
-                   id="emergency-contact-phone"
-                   placeholder="e.g. +977-1-4440293"
-                   class="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
-        </div>
+        <!-- ── RIGHT: Edit form (sticky) ── -->
+        <div class="space-y-4 lg:sticky lg:top-24">
 
-        <div>
-            <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-2">
-                New Password
-            </label>
-            <input type="password"
-                   name="password"
-                   placeholder="Leave blank to keep current password"
-                   class="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
-        </div>
+            <form method="POST" action="{{ url_for('auth.edit_profile') }}" enctype="multipart/form-data" class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
 
-        <div class="flex flex-wrap gap-3 justify-end">
-            <a href="{{ url_for('auth.home') }}" class="px-5 py-3 rounded-xl text-sm font-semibold text-gray-500 hover:text-brandGreen transition">
-                Cancel
-            </a>
-            <button type="submit" class="bg-brandGreen hover:bg-emerald-950 text-white font-bold text-sm px-6 py-3 rounded-xl transition shadow-md">
-                Save Profile
-            </button>
+                <!-- Section: Personal -->
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+                    <h2 class="font-serif text-base font-semibold text-brandGreen">Personal Info</h2>
+                    <p class="text-[10px] text-gray-400 mt-0.5">Your public trekker details</p>
+                </div>
+                <div class="p-5 space-y-3.5">
+                    <!-- Avatar upload -->
+                    <div class="flex items-center gap-4 pb-4 border-b border-gray-100">
+                        <div class="w-14 h-14 rounded-xl bg-brandGreen/10 flex items-center justify-center text-brandGreen font-bold text-lg overflow-hidden border border-gray-100 flex-shrink-0">
+                            {% if user and user.profile_picture_url %}
+                                <img id="pfp-preview" src="{{ user.profile_picture_url }}" alt="" class="w-full h-full object-cover">
+                            {% else %}
+                                <span id="pfp-placeholder">{{ user.full_name[0] | upper if user else '?' }}</span>
+                                <img id="pfp-preview" src="" alt="" class="w-full h-full object-cover hidden">
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <label class="cursor-pointer inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-[11px] font-semibold text-gray-600 bg-white hover:bg-gray-50 transition shadow-sm">
+                                <svg class="w-3.5 h-3.5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                Change photo
+                                <input type="file" id="pfp-file-input" name="profile_picture" accept="image/*" class="hidden">
+                            </label>
+                            <p class="text-[10px] text-gray-400 mt-1" id="file-name-display">JPG, PNG, GIF · max 2 MB</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="block text-[9px] uppercase tracking-wider font-bold text-gray-400">Full Name</label>
+                        <input type="text" name="full_name" value="{{ user.full_name if user else '' }}"
+                               class="w-full bg-gray-50 border border-gray-100 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[9px] uppercase tracking-wider font-bold text-gray-400">Email Address</label>
+                        <input type="email" name="email" value="{{ user.email if user else '' }}" placeholder="explorer@alpine.com"
+                               class="w-full bg-gray-50 border border-gray-100 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[9px] uppercase tracking-wider font-bold text-gray-400">Phone Number</label>
+                        <input type="text" name="phone_number" value="{{ user.phone_number if user and user.phone_number else '' }}" placeholder="+977 98XXXXXXXX"
+                               class="w-full bg-gray-50 border border-gray-100 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[9px] uppercase tracking-wider font-bold text-gray-400">Date of Birth</label>
+                        <input type="date" name="date_of_birth" value="{{ user.date_of_birth if user and user.date_of_birth else '' }}"
+                               class="w-full bg-gray-50 border border-gray-100 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+                    </div>
+                </div>
+
+                <!-- Section: Emergency Contact -->
+                <div class="px-6 py-3.5 border-t border-b border-gray-100 bg-gray-50/60">
+                    <h3 class="text-[9px] uppercase tracking-wider font-bold text-gray-400">Emergency Contact</h3>
+                </div>
+                <div class="p-5 space-y-3">
+                    <input type="text" id="emergency-contact-name" placeholder="Contact name"
+                           class="w-full bg-gray-50 border border-gray-100 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+                    <input type="text" id="emergency-contact-phone" placeholder="+977-1-4440293"
+                           class="w-full bg-gray-50 border border-gray-100 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+                </div>
+
+                <!-- Section: Security -->
+                <div class="px-6 py-3.5 border-t border-b border-gray-100 bg-gray-50/60">
+                    <h3 class="text-[9px] uppercase tracking-wider font-bold text-gray-400">Security</h3>
+                </div>
+                <div class="p-5">
+                    <input type="password" name="password" placeholder="New password (blank = keep current)"
+                           class="w-full bg-gray-50 border border-gray-100 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+                </div>
+
+                <!-- Actions -->
+                <div class="px-5 py-4 border-t border-gray-100 flex items-center justify-between gap-3">
+                    <a href="{{ url_for('auth.home') }}" class="text-sm font-semibold text-gray-400 hover:text-brandGreen transition">Cancel</a>
+                    <button type="submit" class="bg-brandGreen hover:bg-emerald-950 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition shadow-md">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+
+            <!-- Quick links -->
+            <div class="rounded-2xl bg-white border border-gray-100 shadow-sm p-4">
+                <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-2.5">Quick Links</p>
+                <div class="divide-y divide-gray-50">
+                    <a href="{{ url_for('auth.socials') }}" class="flex items-center justify-between py-2.5 px-1 hover:text-brandGreen transition group">
+                        <span class="text-sm font-semibold text-gray-700 group-hover:text-brandGreen">Open Socials</span>
+                        <svg class="w-4 h-4 text-gray-300 group-hover:text-brandGreen transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </a>
+                    <a href="{{ url_for('auth.home') }}" class="flex items-center justify-between py-2.5 px-1 hover:text-brandGreen transition group">
+                        <span class="text-sm font-semibold text-gray-700 group-hover:text-brandGreen">Back to Home</span>
+                        <svg class="w-4 h-4 text-gray-300 group-hover:text-brandGreen transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
+            </div>
+
         </div>
-    </form>
-</section>
+    </div>
+</div>
+</div>
+
+{% if name_changed_from %}
+<script>
+(function() {
+    const oldName = {{ name_changed_from | tojson }};
+    const newName = {{ session.get('user_name', 'Trekker') | tojson }};
+    try {
+        const KEY = 'ghumna_jam_social_posts';
+        const posts = JSON.parse(localStorage.getItem(KEY) || '[]');
+        let changed = false;
+        posts.forEach(p => { if (p.author === oldName) { p.author = newName; changed = true; } });
+        if (changed) localStorage.setItem(KEY, JSON.stringify(posts));
+    } catch (e) {}
+})();
+</script>
+{% endif %}
 
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const fileInput = document.getElementById('pfp-file-input');
-        const pfpPreview = document.getElementById('pfp-preview');
-        const pfpPlaceholder = document.getElementById('pfp-placeholder');
-        const fileNameDisplay = document.getElementById('file-name-display');
+document.addEventListener("DOMContentLoaded", () => {
+    // MUST match the key socials.html uses when creating posts: session.get('user_name')
+    // user.full_name (DB value) can differ from session['user_name'], breaking the author filter
+    const profileName = {{ session.get('user_name', 'Trekker') | tojson }};
+    const socialPostsKey = 'ghumna_jam_social_posts';
+    const followersKey   = 'ghumna_jam_trekker_followers';
 
-        const contactNameInput = document.getElementById('emergency-contact-name');
-        const contactPhoneInput = document.getElementById('emergency-contact-phone');
+    const fileInput       = document.getElementById('pfp-file-input');
+    const pfpPreview      = document.getElementById('pfp-preview');
+    const pfpPlaceholder  = document.getElementById('pfp-placeholder');
+    const heroPfpImg      = document.getElementById('hero-pfp-img');
+    const heroPfpInitial  = document.getElementById('hero-pfp-initial');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    const contactName     = document.getElementById('emergency-contact-name');
+    const contactPhone    = document.getElementById('emergency-contact-phone');
 
-        // Load emergency contacts from localStorage
-        if (contactNameInput) {
-            contactNameInput.value = localStorage.getItem('emergency_contact_name') || '';
+    function fmt(v) { return new Intl.NumberFormat('en').format(Number(v || 0)); }
+
+    function esc(v) {
+        return String(v)
+            .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+            .replaceAll('"','&quot;').replaceAll("'",'&#039;');
+    }
+
+    function timeAgo(ts) {
+        const m = Math.max(1, Math.round((Date.now() - ts) / 60000));
+        if (m < 60)  return `${m}m ago`;
+        const h = Math.round(m / 60);
+        if (h < 24)  return `${h}h ago`;
+        return `${Math.round(h / 24)}d ago`;
+    }
+
+    function renderDashboard() {
+        let posts = [], followers = {};
+        try { posts     = JSON.parse(localStorage.getItem(socialPostsKey) || '[]'); } catch {}
+        try { followers = JSON.parse(localStorage.getItem(followersKey)   || '{}'); } catch {}
+
+        const own = posts
+            .filter(p => p.author === profileName)
+            .sort((a,b) => Number(b.createdAt||0) - Number(a.createdAt||0));
+
+        const totals = own.reduce((s, p) => {
+            s.likes            += Number(p.likes || 0);
+            s.views            += Number(p.views || 0);
+            s.recommendations  += Number(p.recommendations || 0);
+            s.comments         += (p.comments || []).length;
+            return s;
+        }, { likes:0, views:0, recommendations:0, comments:0 });
+
+        // KPI cards
+        document.getElementById('kpi-likes').textContent           = fmt(totals.likes);
+        document.getElementById('kpi-comments').textContent        = fmt(totals.comments);
+        document.getElementById('kpi-recommendations').textContent = fmt(totals.recommendations);
+        document.getElementById('kpi-views').textContent           = fmt(totals.views);
+
+        // Hero stats
+        document.getElementById('hero-posts').textContent     = own.length;
+        document.getElementById('hero-followers').textContent = fmt(followers[profileName] || 0);
+
+        // Monthly followers chart
+        let followerEvents = [];
+        try { followerEvents = JSON.parse(localStorage.getItem('ghumna_jam_follower_events') || '[]'); } catch {}
+        const myFollowerEvents = followerEvents.filter(ev => ev.target === profileName);
+        const MNf = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const nowF = new Date();
+        const fMonths = Array.from({length: 6}, (_, i) => {
+            const d = new Date(nowF.getFullYear(), nowF.getMonth() - 5 + i, 1);
+            return { year: d.getFullYear(), month: d.getMonth(), label: MNf[d.getMonth()], count: 0 };
+        });
+        myFollowerEvents.forEach(ev => {
+            const d = new Date(Number(ev.ts || 0));
+            const slot = fMonths.find(m => m.year === d.getFullYear() && m.month === d.getMonth());
+            if (slot) slot.count++;
+        });
+        const fMax = Math.max(1, ...fMonths.map(m => m.count));
+        const thisMonthFollowers = fMonths[fMonths.length - 1].count;
+        document.getElementById('follower-month-total').textContent = `+${thisMonthFollowers} this month`;
+        document.getElementById('follower-monthly-bars').innerHTML = fMonths.map(m => `
+            <div class="flex flex-col items-center flex-1 gap-1 group cursor-default">
+                <span class="text-[9px] font-bold text-brandGreen transition-opacity ${m.count ? 'opacity-100' : 'opacity-0'}">${m.count}</span>
+                <div class="w-full flex flex-col justify-end" style="height:60px">
+                    <div class="w-full rounded-t-md transition-all duration-700 ease-out ${m.count > 0 ? 'bg-brandGreen group-hover:bg-emerald-600' : 'bg-transparent'}"
+                         style="height:${m.count > 0 ? Math.max(4, Math.round((m.count / fMax) * 56)) : 0}px"></div>
+                </div>
+            </div>
+        `).join('');
+        document.getElementById('follower-monthly-labels').innerHTML = fMonths.map(m => `
+            <span class="flex-1 text-center text-[9px] font-bold uppercase tracking-wider text-gray-400">${m.label}</span>
+        `).join('');
+        document.getElementById('follower-month-label').textContent = myFollowerEvents.length
+            ? `${fmt(myFollowerEvents.length)} total follower${myFollowerEvents.length !== 1 ? 's' : ''} gained`
+            : 'Follow others on Socials to see growth here.';
+
+        // Trail affinity
+        const tagCounts = {};
+        own.forEach(p => { tagCounts[p.tag] = (tagCounts[p.tag] || 0) + 1; });
+        const sorted = Object.entries(tagCounts).sort((a,b) => b[1] - a[1]);
+        const maxTag = sorted[0]?.[1] || 1;
+        const affinityEl = document.getElementById('trail-affinity');
+        if (sorted.length) {
+            affinityEl.innerHTML = sorted.slice(0,4).map(([tag, count]) => `
+                <div>
+                    <div class="flex justify-between mb-1">
+                        <span class="text-xs font-semibold text-brandGreen">${esc(tag)}</span>
+                        <span class="text-[10px] font-bold text-gray-400">${count} post${count !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div class="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                        <div class="h-full rounded-full bg-brandGreen transition-all duration-700 ease-out" style="width:${Math.round(count/maxTag*100)}%"></div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('hero-trail-name').textContent = `${sorted[0][0]} trekker`;
+            document.getElementById('hero-top-trail').classList.remove('hidden');
+        } else {
+            affinityEl.innerHTML = '<p class="text-xs text-gray-400">Post on Socials to see your trail breakdown.</p>';
         }
-        if (contactPhoneInput) {
-            contactPhoneInput.value = localStorage.getItem('emergency_contact_phone') || '';
-        }
 
-        if (fileInput) {
-            fileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    // Update label with selected file name
-                    fileNameDisplay.textContent = file.name;
+        // Monthly chart
+        const MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const now = new Date();
+        const months = Array.from({length:6}, (_,i) => {
+            const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+            return { year:d.getFullYear(), month:d.getMonth(), label:MN[d.getMonth()], count:0 };
+        });
+        own.forEach(p => {
+            const d = new Date(Number(p.createdAt||0));
+            const slot = months.find(m => m.year===d.getFullYear() && m.month===d.getMonth());
+            if (slot) slot.count++;
+        });
+        const maxCount = Math.max(1, ...months.map(m => m.count));
+        document.getElementById('chart-post-count').textContent = `${own.length} total`;
+        document.getElementById('monthly-bars').innerHTML = months.map(m => `
+            <div class="flex flex-col items-center flex-1 gap-1 group cursor-default">
+                <span class="text-[10px] font-bold text-brandGreen transition-opacity duration-150 ${m.count ? 'opacity-100' : 'opacity-0'}">${m.count}</span>
+                <div class="w-full flex flex-col justify-end" style="height:108px">
+                    <div class="w-full rounded-t-lg transition-all duration-700 ease-out ${m.count > 0 ? 'bg-brandGreen group-hover:bg-emerald-600' : 'bg-transparent'}"
+                         style="height:${m.count > 0 ? Math.max(6, Math.round((m.count/maxCount)*104)) : 0}px"></div>
+                </div>
+            </div>
+        `).join('');
+        document.getElementById('monthly-labels').innerHTML = months.map(m => `
+            <span class="flex-1 text-center text-[9px] font-bold uppercase tracking-wider text-gray-400">${m.label}</span>
+        `).join('');
 
-                    // Read file and show preview
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        if (pfpPreview) {
-                            pfpPreview.src = event.target.result;
-                            pfpPreview.classList.remove('hidden');
-                        }
-                        if (pfpPlaceholder) {
-                            pfpPlaceholder.classList.add('hidden');
-                        }
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
+        // Recent posts
+        // Reset best-post highlight on every render before conditionally showing it
+        document.getElementById('best-post-wrap').classList.add('hidden');
 
-        const form = document.querySelector('form');
-        if (form) {
-            form.addEventListener('submit', () => {
-                if (contactNameInput) {
-                    localStorage.setItem('emergency_contact_name', contactNameInput.value.trim());
-                }
-                if (contactPhoneInput) {
-                    localStorage.setItem('emergency_contact_phone', contactPhoneInput.value.trim());
-                }
-            });
+        const recentEl = document.getElementById('recent-posts');
+        if (!own.length) {
+            recentEl.innerHTML = `
+                <div class="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-sm text-gray-400 text-center">
+                    No posts yet — share your first trek on Socials.
+                </div>`;
+        } else {
+            recentEl.innerHTML = own.slice(0,3).map(p => `
+                <article class="flex gap-3 rounded-xl border border-gray-100 bg-gray-50/50 p-3.5 hover:border-brandGreen/20 transition">
+                    ${p.image
+                        ? `<img src="${p.image}" alt="" class="h-16 w-16 flex-none rounded-xl object-cover bg-gray-100">`
+                        : `<div class="h-16 w-16 flex-none rounded-xl bg-brandGreen/10 flex items-center justify-center text-brandGreen text-sm font-bold">${esc((p.tag||'?')[0])}</div>`}
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <span class="rounded-full bg-brandYellow/25 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-brandGreen">${esc(p.tag||'Trail')}</span>
+                            <span class="text-[10px] text-gray-400">${timeAgo(p.createdAt)}</span>
+                        </div>
+                        <p class="line-clamp-1 text-xs text-gray-700 leading-relaxed">${esc(p.caption||'')}</p>
+                        <div class="mt-1.5 flex flex-wrap gap-2.5 text-[10px] font-bold text-brandGreen/70">
+                            <span>♥ ${fmt(p.likes)}</span>
+                            <span>💬 ${(p.comments||[]).length}</span>
+                            <span>⭐ ${fmt(p.recommendations)}</span>
+                            <span>👁 ${fmt(p.views)}</span>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+
+            const best = own.reduce((b,p) => {
+                const s  = Number(p.likes||0) + Number(p.views||0) + Number(p.recommendations||0);
+                const bs = b ? Number(b.likes||0) + Number(b.views||0) + Number(b.recommendations||0) : -1;
+                return s > bs ? p : b;
+            }, null);
+            if (best) {
+                document.getElementById('best-post-wrap').classList.remove('hidden');
+                const preview = (best.caption||'').slice(0,80) + ((best.caption||'').length > 80 ? '…' : '');
+                document.getElementById('best-post-text').textContent =
+                    `"${preview}" · ${fmt(best.likes)} likes, ${fmt(best.views)} views, ${fmt(best.recommendations)} recommendations.`;
+            }
         }
+    }
+
+    renderDashboard();
+
+    // Re-render when user switches back from another tab (e.g. after recommending on Socials)
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') renderDashboard();
     });
+
+    // Re-render when localStorage is updated from another tab/window
+    window.addEventListener('storage', e => {
+        if (e.key === socialPostsKey || e.key === followersKey) renderDashboard();
+    });
+
+    if (contactName)  contactName.value  = localStorage.getItem('emergency_contact_name')  || '';
+    if (contactPhone) contactPhone.value = localStorage.getItem('emergency_contact_phone') || '';
+
+    if (fileInput) {
+        fileInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            fileNameDisplay.textContent = file.name;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const src = ev.target.result;
+                if (pfpPreview)   { pfpPreview.src = src; pfpPreview.classList.remove('hidden'); }
+                if (pfpPlaceholder) pfpPlaceholder.classList.add('hidden');
+                if (heroPfpImg)   { heroPfpImg.src = src; heroPfpImg.classList.remove('hidden'); }
+                if (heroPfpInitial) heroPfpInitial.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', () => {
+            if (contactName)  localStorage.setItem('emergency_contact_name',  contactName.value.trim());
+            if (contactPhone) localStorage.setItem('emergency_contact_phone', contactPhone.value.trim());
+        });
+    }
+});
 </script>
 {% endblock %}
