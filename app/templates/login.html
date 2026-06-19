@@ -15,17 +15,19 @@
     adventure registry.
 </p>
 
-<form method="post" action="{{ url_for('auth.login') }}" style="display:contents;">
+<form method="post" action="{{ url_for('auth.login') }}" style="display:contents;" aria-label="Login form">
+    <input type="hidden" name="next" value="{{ request.args.get('next','') }}">
     <label class="field">
         Email Address
 
         <div class="input">
             <span aria-hidden="true">&#9993;</span>
-            <input type="email"
+            <input id="email" type="email"
                    name="email"
+                   value="{{ request.form.get('email','') }}"
                    placeholder="explorer@alpine.com"
                    autocomplete="email"
-                   required>
+                   required aria-required="true">
         </div>
     </label>
 
@@ -44,7 +46,7 @@
 
     <div class="row">
         <label style="display:flex; align-items:center; gap:8px;">
-            <input type="checkbox" name="remember">
+            <input type="checkbox" name="remember" {% if request.form.get('remember') %}checked{% endif %}>
             Remember me
         </label>
 

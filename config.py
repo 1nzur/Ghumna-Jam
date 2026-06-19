@@ -1,5 +1,5 @@
 SECRET_KEY = "random-secret-key"
 MYSQL_HOST = "localhost"
 MYSQL_USER = "root"
-MYSQL_PASSWORD = "kathmandu@12"
+MYSQL_PASSWORD = "sagarb.k.7"
 MYSQL_DATABASE = "ghumna_jam"

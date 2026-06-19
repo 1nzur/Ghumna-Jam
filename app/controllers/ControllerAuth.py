@@ -1,4 +1,5 @@
 from functools import wraps
+import random
 
 from flask import current_app, flash, redirect, render_template, request, session, url_for
 
@@ -19,11 +20,6 @@ def login_required(view):
 
 class AuthController:
     EXCHANGE_RATE = 134.0
-    BADGE_THRESHOLDS = {
-        "first-trek": 1,
-        "summit-scout": 3,
-        "trail-master": 5,
-    }
 
     def _sample_destination(self, dest_id=1):
         return {
@@ -35,6 +31,8 @@ class AuthController:
             "season": "Mar-May, Sep-Nov",
             "description": "A classic Himalayan trek through Sherpa villages, alpine valleys, and dramatic views of the world's highest peaks.",
             "price_per_person": 1499.00 * self.EXCHANGE_RATE,
+            "altitude_meters": 5364,
+            "highlights": "Sherpa culture, Kala Patthar viewpoint, historic base camp",
         }
 
     def _sample_destinations(self):
@@ -49,6 +47,8 @@ class AuthController:
                 "season": "Oct-Nov",
                 "description": "A sweeping circuit through river valleys, high passes, and traditional mountain settlements.",
                 "price_per_person": 1199.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5416,
+                "highlights": "Thorong La Pass, Kali Gandaki Gorge, diverse landscapes",
             },
             {
                 "id": 3,
@@ -59,30 +59,250 @@ class AuthController:
                 "season": "Mar-May",
                 "description": "A beautiful alpine route with glacier views, yak pastures, and rich Tamang culture.",
                 "price_per_person": 799.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 3870,
+                "highlights": "Kyanjin Gompa, Yak pastures, panoramic glaciers",
+            },
+            {
+                "id": 4,
+                "name": "Manaslu Circuit",
+                "image_url": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 14,
+                "season": "Oct-Nov",
+                "description": "A remote, spectacular loop around the world's eighth-highest mountain, featuring the challenging Larkya La Pass.",
+                "price_per_person": 1399.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5106,
+                "highlights": "Larkya La Pass, Buddhist monasteries, border region cultures",
+            },
+            {
+                "id": 5,
+                "name": "Upper Mustang",
+                "image_url": "https://images.unsplash.com/photo-1548565431-7e8c312521f7?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Moderate",
+                "duration_days": 10,
+                "season": "May-Oct",
+                "description": "Explore the ancient, dry kingdom of Lo Manthang, characterized by red cliffs, cave dwellings, and Tibetan culture.",
+                "price_per_person": 1799.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 3840,
+                "highlights": "Lo Manthang walled city, sky caves, Tibetan-style palace",
+            },
+            {
+                "id": 6,
+                "name": "Gokyo Lakes & Ri",
+                "image_url": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Moderate",
+                "duration_days": 12,
+                "season": "Mar-May, Sep-Nov",
+                "description": "Trek to the turquoise glacial lakes of the Gokyo Valley and climb Gokyo Ri for premium views of Everest and Lhotse.",
+                "price_per_person": 1299.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5357,
+                "highlights": "Turquoise lakes, Ngozumpa Glacier, views of four 8,000m peaks",
+            },
+            {
+                "id": 7,
+                "name": "Kanchenjunga Base Camp",
+                "image_url": "https://images.unsplash.com/photo-1533240332313-0db49b459ad6?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 20,
+                "season": "Oct-Nov, Mar-May",
+                "description": "A long journey to the far eastern border of Nepal to reach the base camp of Kanchenjunga, the world's third highest peak.",
+                "price_per_person": 2199.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5143,
+                "highlights": "Remote wilderness, Limbu culture, views of Yalung glacier",
+            },
+            {
+                "id": 8,
+                "name": "Mardi Himal",
+                "image_url": "https://images.unsplash.com/photo-1491555180598-88ee14744f4f?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Easy",
+                "duration_days": 6,
+                "season": "Mar-May, Sep-Nov",
+                "description": "A short, beautiful trek offering up-close views of Mount Machapuchare (Fishtail) and the Annapurna range.",
+                "price_per_person": 599.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 4500,
+                "highlights": "Machapuchare views, forest trails, quiet teahouses",
+            },
+            {
+                "id": 9,
+                "name": "Poon Hill Trek",
+                "image_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Easy",
+                "duration_days": 5,
+                "season": "Sep-May",
+                "description": "A classic short trek in the Annapurna foothills, famous for its panoramic sunrise views over Dhaulagiri and Annapurna.",
+                "price_per_person": 499.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 3210,
+                "highlights": "Sunrise over Annapurna, rhododendron forests, Gurung heritage",
+            },
+            {
+                "id": 10,
+                "name": "Gosaikunda Lake",
+                "image_url": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Moderate",
+                "duration_days": 7,
+                "season": "May-Oct",
+                "description": "A holy alpine lake trek in the Langtang region, sacred to both Hindus and Buddhists.",
+                "price_per_person": 699.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 4380,
+                "highlights": "Sacred alpine lakes, Laurebina Pass, views of Ganesh Himal",
+            },
+            {
+                "id": 11,
+                "name": "Rara Lake Wilderness",
+                "image_url": "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Moderate",
+                "duration_days": 9,
+                "season": "Mar-May, Sep-Nov",
+                "description": "Trek through the untouched forests of western Nepal to the largest and deepest freshwater lake in the country.",
+                "price_per_person": 1099.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 2990,
+                "highlights": "Pristine pine forests, bird watching, boating on Rara Lake",
+            },
+            {
+                "id": 12,
+                "name": "Makalu Base Camp",
+                "image_url": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 18,
+                "season": "Sep-Nov, Mar-May",
+                "description": "A challenging journey through the Makalu Barun National Park to the base of the world's fifth-highest peak.",
+                "price_per_person": 1899.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 4870,
+                "highlights": "Barun river valley, hanging glaciers, granite cliffs",
+            },
+            {
+                "id": 13,
+                "name": "Upper Dolpo Wilderness",
+                "image_url": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 21,
+                "season": "Jun-Sep",
+                "description": "A high-altitude, trans-Himalayan trek in the isolated Shey Phoksundo National Park, featuring Bon Buddhist heritage.",
+                "price_per_person": 2499.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5130,
+                "highlights": "Phoksundo Lake, Shey Gompa, snow leopard habitats",
+            },
+            {
+                "id": 14,
+                "name": "Nar Phu Valley hidden villages",
+                "image_url": "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 11,
+                "season": "Sep-Nov, Mar-May",
+                "description": "Explore the hidden Tibetan valleys of Nar and Phu, with ancient stone villages and high pass crossings.",
+                "price_per_person": 1499.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5320,
+                "highlights": "Kang La Pass, ancient fortified villages, unique monasteries",
+            },
+            {
+                "id": 15,
+                "name": "Everest Three Passes",
+                "image_url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 19,
+                "season": "Mar-May, Sep-Nov",
+                "description": "The ultimate Khumbu adventure crossing three high passes: Renjo La, Cho La, and Kongma La.",
+                "price_per_person": 1999.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5535,
+                "highlights": "Kongma La, Cho La, Renjo La, Gokyo lakes, Everest Base Camp",
             },
         ]
 
-    def _get_badge_progress(self, user_id):
-        completed_treks = len(session.get("bookings", []))
-        all_badges = BaseModel.get_badges()
-        earned_badges = BaseModel.get_user_badges(user_id)
-        earned_slugs = {badge["slug"] for badge in earned_badges}
-
-        badge_progress = []
-        for badge in all_badges:
-            threshold = self.BADGE_THRESHOLDS.get(badge["slug"], 0)
-            progress_value = min(completed_treks, threshold)
-            percent = 0 if threshold == 0 else int((progress_value / threshold) * 100)
-            badge_progress.append(
+    def _hotel_options(self, dest_id):
+        hotels_by_destination = {
+            1: [
                 {
-                    **badge,
-                    "earned": badge["slug"] in earned_slugs,
-                    "progress_value": progress_value,
-                    "progress_total": threshold,
-                    "progress_percent": percent,
-                }
-            )
-        return completed_treks, badge_progress, earned_badges
+                    "name": "Everest View Lodge",
+                    "location": "Namche Bazaar",
+                    "style": "Mountain lodge",
+                    "price_per_night": 8500,
+                    "perk": "Panoramic Everest sunrise views",
+                },
+                {
+                    "name": "Sherpa Heritage Inn",
+                    "location": "Khumjung",
+                    "style": "Family-run inn",
+                    "price_per_night": 6200,
+                    "perk": "Traditional Sherpa meals",
+                },
+                {
+                    "name": "Base Camp Retreat",
+                    "location": "Lobuche",
+                    "style": "High-altitude lodge",
+                    "price_per_night": 7800,
+                    "perk": "Warm dining hall and oxygen support",
+                },
+                {
+                    "name": "Yak & Yeti Trail House",
+                    "location": "Phakding",
+                    "style": "Trail guesthouse",
+                    "price_per_night": 4800,
+                    "perk": "Riverside rooms near the Dudh Koshi",
+                },
+            ],
+            2: [
+                {
+                    "name": "Annapurna Alpine Lodge",
+                    "location": "Manang",
+                    "style": "Alpine lodge",
+                    "price_per_night": 7200,
+                    "perk": "Acclimatization-day comfort",
+                },
+                {
+                    "name": "Thorong Pass Tea House",
+                    "location": "Thorong Phedi",
+                    "style": "Tea house",
+                    "price_per_night": 5600,
+                    "perk": "Closest rest before the pass",
+                },
+                {
+                    "name": "Marshyangdi River Stay",
+                    "location": "Chame",
+                    "style": "Riverside hotel",
+                    "price_per_night": 5100,
+                    "perk": "Hot showers and valley views",
+                },
+                {
+                    "name": "Apple Orchard Guesthouse",
+                    "location": "Braga",
+                    "style": "Village guesthouse",
+                    "price_per_night": 4600,
+                    "perk": "Quiet rooms near old monasteries",
+                },
+            ],
+            3: [
+                {
+                    "name": "Langtang Glacier Lodge",
+                    "location": "Kyanjin Gompa",
+                    "style": "Glacier-view lodge",
+                    "price_per_night": 5800,
+                    "perk": "Views toward Langtang Lirung",
+                },
+                {
+                    "name": "Tamang Heritage Stay",
+                    "location": "Langtang Village",
+                    "style": "Cultural homestay",
+                    "price_per_night": 4300,
+                    "perk": "Local Tamang hospitality",
+                },
+                {
+                    "name": "Rhododendron Trail Inn",
+                    "location": "Lama Hotel",
+                    "style": "Forest inn",
+                    "price_per_night": 3900,
+                    "perk": "Peaceful forest stopover",
+                },
+                {
+                    "name": "Valley View Guesthouse",
+                    "location": "Syabrubesi",
+                    "style": "Comfort guesthouse",
+                    "price_per_night": 4100,
+                    "perk": "Easy first-night access",
+                },
+            ],
+        }
+
+        return hotels_by_destination.get(dest_id, hotels_by_destination[1])
 
     def login(self):
         if request.method == "POST":
@@ -108,8 +328,13 @@ class AuthController:
             session["user_id"] = user["id"]
             session["user_name"] = user["full_name"]
             session["profile_picture_url"] = user.get("profile_picture_url")
+            # Honor the 'remember' checkbox
+            remember = request.form.get('remember')
+            session.permanent = True if remember else False
+
             flash("Logged in successfully.", "success")
-            next_url = request.args.get("next")
+            # Prefer next from POST form, then fallback to query param
+            next_url = request.form.get("next") or request.args.get("next")
             return redirect(next_url or url_for("auth.home"))
 
         return render_template("login.html")
@@ -119,9 +344,14 @@ class AuthController:
             full_name = request.form.get("full_name", "").strip()
             email = request.form.get("email", "").strip().lower()
             password = request.form.get("password", "")
+            terms = request.form.get("terms")
 
             if not full_name or not email or not password:
                 flash("Please fill in every required field.", "error")
+                return render_template("signup.html"), 400
+
+            if not terms:
+                flash("You must agree to the terms to create an account.", "error")
                 return render_template("signup.html"), 400
 
             try:
@@ -134,7 +364,10 @@ class AuthController:
                 flash("We could not create your account right now.", "error")
                 return render_template("signup.html"), 500
 
-            flash("Account created successfully. You can log in now.", "success")
+            flash("Account created successfully. Please log in to continue.", "success")
+            next_url = request.form.get("next") or request.args.get("next")
+            if next_url:
+                return redirect(url_for("auth.login", next=next_url))
             return redirect(url_for("auth.login"))
 
         return render_template("signup.html")
@@ -142,6 +375,7 @@ class AuthController:
     def signup(self):
         return self.register()
 
+    @login_required
     def home(self):
         return render_template(
             "landpage.html",
@@ -149,14 +383,9 @@ class AuthController:
             user_name=session.get("user_name"),
         )
 
+    @login_required
     def landpage(self):
         return self.home()
-
-    def about_us(self):
-        return render_template(
-            "about-us.html",
-            destinations=self._sample_destinations(),
-        )
 
     def forgot_password(self):
         email = ""
@@ -173,34 +402,77 @@ class AuthController:
             email=email,
             submitted_email=submitted_email,
         )
+    
+    def compare_treks(self):
+        selected_ids = []
+        for raw_id in request.args.getlist("treks"):
+            try:
+                trek_id = int(raw_id)
+            except ValueError:
+                continue
+
+            if trek_id not in selected_ids:
+                selected_ids.append(trek_id)
+
+        remove_id = request.args.get("remove", type=int)
+        if remove_id:
+            selected_ids = [trek_id for trek_id in selected_ids if trek_id != remove_id]
+
+        destinations = self._sample_destinations()
+        selected_treks = [
+            destination
+            for destination in destinations
+            if destination["id"] in selected_ids
+        ]
+
+        return render_template(
+            "compare.html",
+            destinations=destinations,
+            selected_treks=selected_treks,
+            selected_ids=[trek["id"] for trek in selected_treks],
+        )
 
     @login_required
     def bookings(self):
-        return render_template(
-            "bookings.html",
-            bookings=session.get("bookings", []),
-        )
+        return render_template("bookings.html", bookings=session.get("bookings", []))
 
     @login_required
-    def badges(self):
-        completed_treks, badge_progress, earned_badges = self._get_badge_progress(
-            session["user_id"]
-        )
-        return render_template(
-            "badges.html",
-            completed_treks=completed_treks,
-            badge_progress=badge_progress,
-            earned_badges=earned_badges,
-        )
+    def trip_history(self):
+        trips = session.get("bookings", [])
+        today = None
+        try:
+            from datetime import date
+            today = date.today()
+        except Exception:
+            today = None
+
+        def compute_status(trip):
+            if trip.get("status") == "Cancelled":
+                return "Cancelled"
+            if trip.get("departure_date") and today is not None:
+                try:
+                    from datetime import datetime
+                    dep = datetime.strptime(trip["departure_date"], "%Y-%m-%d").date()
+                    if dep < today:
+                        return "Completed"
+                    return "Yet to be"
+                except Exception:
+                    return trip.get("status", "Confirmed")
+            return trip.get("status", "Confirmed")
+
+        for trip in trips:
+            trip["history_status"] = compute_status(trip)
+        return render_template("trip_history.html", trips=trips)
 
     @login_required
-    def notifications(self):
-        notifications = BaseModel.get_user_notifications(session["user_id"])
-        BaseModel.mark_notifications_read(session["user_id"])
-        return render_template(
-            "notifications.html",
-            notifications=notifications,
-        )
+    def trip_detail(self, trip_id):
+        trips = session.get("bookings", [])
+        trip = next((item for item in trips if item.get("trip_id") == trip_id), None)
+        if trip is None:
+            flash("Trip not found.", "error")
+            return redirect(url_for("auth.trip_history"))
+
+        return render_template("trip_detail.html", trip=trip)
 
     def destination_detail(self, dest_id):
         destination = next(
@@ -210,6 +482,7 @@ class AuthController:
         return render_template(
             "destination_detail.html",
             destination=destination,
+            hotel_options=self._hotel_options(dest_id),
         )
 
     @login_required
@@ -220,9 +493,12 @@ class AuthController:
         )
         travelers_count = int(request.form.get("travelers_count", 1) or 1)
         departure_date = request.form.get("departure_date", "Not selected")
+        selected_hotel = request.form.get("selected_hotel", "No hotel selected")
         bookings = session.get("bookings", [])
+        trip_id = max((item.get("trip_id", 0) for item in bookings), default=0) + 1
         bookings.append(
             {
+                "trip_id": trip_id,
                 "dest_name": destination["name"],
                 "dest_image": destination["image_url"],
                 "status": "Confirmed",
@@ -230,47 +506,20 @@ class AuthController:
                 "travelers_count": travelers_count,
                 "duration_days": destination["duration_days"],
                 "difficulty": destination["difficulty"],
+                "selected_hotel": selected_hotel,
+                "guide_name": "Sherpa Guide Dorje",
                 "booked_at": "Today",
                 "total_price": destination["price_per_person"] * travelers_count,
             }
         )
         session["bookings"] = bookings
         session.modified = True
-
-        completed_treks = len(bookings)
-        if completed_treks >= 1:
-            BaseModel.award_badge_if_needed(
-                session["user_id"],
-                "first-trek",
-                "First Trek",
-                "You earned the First Trek badge for completing your first adventure.",
-            )
-        if completed_treks >= 3:
-            BaseModel.award_badge_if_needed(
-                session["user_id"],
-                "summit-scout",
-                "Summit Scout",
-                "You unlocked the Summit Scout badge after three treks.",
-            )
-        if completed_treks >= 5:
-            BaseModel.award_badge_if_needed(
-                session["user_id"],
-                "trail-master",
-                "Trail Master",
-                "You reached Trail Master status after five completed treks.",
-            )
-
         flash("Your journey has been added to your bookings.", "success")
         return redirect(url_for("auth.bookings"))
 
     @login_required
     def edit_profile(self):
         user = BaseModel.get_user_by_id(session["user_id"])
-        completed_treks, badge_progress, earned_badges = self._get_badge_progress(
-            session["user_id"]
-        )
-        notifications = BaseModel.get_user_notifications(session["user_id"])
-
         if request.method == "POST":
             full_name = request.form.get("full_name", "").strip()
             email = request.form.get("email", "").strip().lower()
@@ -281,14 +530,7 @@ class AuthController:
 
             if not full_name or not email:
                 flash("Name and email are required.", "error")
-                return render_template(
-                    "edit-profile.html",
-                    user=user,
-                    completed_treks=completed_treks,
-                    badge_progress=badge_progress,
-                    earned_badges=earned_badges,
-                    notifications=notifications,
-                ), 400
+                return render_template("edit-profile.html", user=user), 400
 
             try:
                 BaseModel.update_user(
@@ -302,40 +544,165 @@ class AuthController:
                 )
             except ValueError as exc:
                 flash(str(exc), "error")
-                return render_template(
-                    "edit-profile.html",
-                    user=user,
-                    completed_treks=completed_treks,
-                    badge_progress=badge_progress,
-                    earned_badges=earned_badges,
-                    notifications=notifications,
-                ), 400
+                return render_template("edit-profile.html", user=user), 400
             except Exception:
                 flash("We could not update your profile right now.", "error")
-                return render_template(
-                    "edit-profile.html",
-                    user=user,
-                    completed_treks=completed_treks,
-                    badge_progress=badge_progress,
-                    earned_badges=earned_badges,
-                    notifications=notifications,
-                ), 500
+                return render_template("edit-profile.html", user=user), 500
 
             session["user_name"] = full_name
             session["profile_picture_url"] = profile_picture_url or None
             flash("Profile updated successfully.", "success")
             return redirect(url_for("auth.edit_profile"))
 
+        return render_template("edit-profile.html", user=user)
+
+    @login_required
+    def follow_page(self):
+        current_user_id = session["user_id"]
+        search_query = request.args.get("q", "").strip()
+        all_users = BaseModel.get_all_users(exclude_user_id=current_user_id)
+
+        if search_query:
+            normalized_query = search_query.lower()
+            all_users = [
+                user for user in all_users
+                if normalized_query in user["full_name"].lower()
+                or normalized_query in user["email"].lower()
+            ]
+
+        # Sort users by trek activity (highest count first)
+        for user in all_users:
+            user["trek_count"] = BaseModel.get_trek_count(user["id"])
+        all_users.sort(key=lambda u: u["trek_count"], reverse=True)
+
+        followers = BaseModel.get_followers(current_user_id)
+        following = BaseModel.get_following(current_user_id)
+        notifications = BaseModel.get_notifications(current_user_id)
+        following_ids = {user["id"] for user in following}
+
+        # Suggest up to 3 users the current user isn't following yet
+        candidates = [u for u in all_users if u["id"] not in following_ids and u["id"] != current_user_id]
+        suggested_users = []
+        try:
+            if candidates:
+                suggested_users = random.sample(candidates, min(3, len(candidates)))
+        except Exception:
+            # fallback deterministic slice if sampling fails
+            suggested_users = candidates[:3]
+
         return render_template(
-            "edit-profile.html",
-            user=user,
-            completed_treks=completed_treks,
-            badge_progress=badge_progress,
-            earned_badges=earned_badges,
+            "follow.html",
+            users=all_users,
+            followers=followers,
+            following=following,
+            following_ids=following_ids,
+            suggested_users=suggested_users,
             notifications=notifications,
+            search_query=search_query,
         )
+
+    @login_required
+    def trekker_profile(self, user_id):
+        current_user_id = session["user_id"]
+        user = BaseModel.get_user_by_id(user_id)
+        if user is None:
+            flash("The requested trekker was not found.", "error")
+            return redirect(url_for("auth.follow_page"))
+
+        followers = BaseModel.get_followers(user_id)
+        following = BaseModel.get_following(user_id)
+        current_following_ids = {
+            follow["id"] for follow in BaseModel.get_following(current_user_id)
+        }
+        is_following = user_id in current_following_ids
+        is_own_profile = user_id == current_user_id
+        last_trek = BaseModel.get_last_trek(user_id)
+        total_distance = BaseModel.get_total_distance(user_id)
+
+        return render_template(
+            "trekker_profile.html",
+            user=user,
+            followers=followers,
+            following=following,
+            is_following=is_following,
+            is_own_profile=is_own_profile,
+            last_trek=last_trek,
+            total_distance=total_distance,
+        )
+
+    @login_required
+    def toggle_follow(self, user_id):
+        current_user_id = session["user_id"]
+        action = request.form.get("action", "follow")
+        next_url = request.form.get("next")
+        if not next_url or not next_url.startswith("/") or "//" in next_url:
+            next_url = url_for("auth.follow_page")
+
+        if action == "follow":
+            if user_id != current_user_id:
+                BaseModel.follow_user(current_user_id, user_id)
+                flash("You are now following that trekker.", "success")
+        else:
+            BaseModel.unfollow_user(current_user_id, user_id)
+            flash("You are no longer following that trekker.", "success")
+
+        return redirect(next_url)
+
+    @login_required
+    def post_activity(self):
+        current_user_id = session["user_id"]
+        activity_type = request.form.get("activity_type", "comment")
+        activity_text = request.form.get("activity_text", "shared a new update with followers.").strip()
+        actor = BaseModel.get_user_by_id(current_user_id)
+
+        if not activity_text:
+            flash("Please add a message before sharing your update.", "error")
+            return redirect(url_for("auth.follow_page"))
+
+        notification_message = f"{actor['full_name']} left a new {activity_type}: {activity_text}"
+        BaseModel.notify_followers(current_user_id, notification_message)
+
+        flash("Your followers have been notified of your latest post.", "success")
+        return redirect(url_for("auth.follow_page"))
+
+    @login_required
+    def complete_trek(self):
+        payload = request.get_json(silent=True)
+        if not payload:
+            flash("Unable to complete trek. Please try again.", "error")
+            return redirect(url_for("auth.follow_page"))
+
+        distance = payload.get("distance_km")
+        duration_seconds = payload.get("duration_seconds")
+        points = payload.get("points")
+
+        if distance is None or duration_seconds is None:
+            flash("Distance and duration are required to complete the trek.", "error")
+            return redirect(url_for("auth.follow_page"))
+
+        try:
+            BaseModel.record_trek(
+                session["user_id"],
+                float(distance),
+                int(duration_seconds),
+                str(points) if points is not None else None,
+            )
+        except Exception:
+            flash("Could not save trek summary at this time.", "error")
+            return redirect(url_for("auth.follow_page"))
+
+        flash("Trek completed and saved successfully.", "success")
+        return ("", 204)
 
     def logout(self):
         session.clear()
         flash("You have been logged out.", "success")
         return redirect(url_for("auth.login"))
+
+    @login_required
+    def tracking(self):
+        return render_template("tracking.html")
+
+    @login_required
+    def cost_breakdown(self):
+        return render_template("costbreakdown.html")

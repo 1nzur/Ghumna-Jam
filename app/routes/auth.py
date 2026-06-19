@@ -33,10 +33,6 @@ class AuthRoutes:
             self.controller.landpage
         )
 
-        self.bp.route("/about-us")(
-            self.controller.about_us
-        )
-
         self.bp.route("/logout")(
             self.controller.logout
         )
@@ -52,6 +48,9 @@ class AuthRoutes:
         self.bp.route("/destination/<int:dest_id>")(
             self.controller.destination_detail
         )
+        self.bp.route("/compare")(
+            self.controller.compare_treks
+        )
 
         self.bp.route("/book/<int:dest_id>", methods=["POST"])(
             self.controller.book_trip
@@ -65,12 +64,38 @@ class AuthRoutes:
             self.controller.edit_profile
         )
 
-        self.bp.route("/badges")(
-            self.controller.badges
+        self.bp.route("/follow")(
+            self.controller.follow_page
+        )
+        self.bp.route("/trekker/<int:user_id>")(
+            self.controller.trekker_profile
+        )
+        self.bp.route("/trip-history")(
+            self.controller.trip_history
         )
 
-        self.bp.route("/notifications")(
-            self.controller.notifications
+        self.bp.route("/trip-history/<int:trip_id>")(
+            self.controller.trip_detail
+        )
+
+        self.bp.route("/follow/<int:user_id>", methods=["POST"])(
+            self.controller.toggle_follow
+        )
+
+        self.bp.route("/follow/activity", methods=["POST"])(
+            self.controller.post_activity
+        )
+
+        self.bp.route("/follow/complete-trek", methods=["POST"])(
+            self.controller.complete_trek
+        )
+
+        self.bp.route("/tracking")(
+            self.controller.tracking
+        )
+
+        self.bp.route("/cost-breakdown")(
+            self.controller.cost_breakdown
         )
 
         return self.bp
