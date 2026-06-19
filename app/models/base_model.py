@@ -108,6 +108,38 @@ class BaseModel:
             raise
 
     @staticmethod
+    def create_booking(user_id, dest_name, dest_image, status, departure_date,
+                       travelers_count, duration_days, difficulty, selected_hotel, total_price):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO bookings (user_id, dest_name, dest_image, status, departure_date,
+                                      travelers_count, duration_days, difficulty, selected_hotel, total_price)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (user_id, dest_name, dest_image, status, departure_date,
+                 travelers_count, duration_days, difficulty, selected_hotel, total_price),
+            )
+        db.commit()
+
+    @staticmethod
+    def get_bookings_by_user(user_id):
+        db = get_db()
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT id, dest_name, dest_image, status, departure_date,
+                       travelers_count, duration_days, difficulty, selected_hotel, total_price, booked_at
+                FROM bookings
+                WHERE user_id = %s
+                ORDER BY booked_at DESC
+                """,
+                (user_id,),
+            )
+            return cursor.fetchall()
+
+    @staticmethod
     def create_user(full_name, email, password):
         db = get_db()
         password_hash = generate_password_hash(password)
