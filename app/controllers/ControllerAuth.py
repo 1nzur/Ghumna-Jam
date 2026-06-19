@@ -189,7 +189,7 @@ class AuthController:
                 "duration_days": 11,
                 "season": "Sep-Nov, Mar-May",
                 "description": "Explore the hidden Tibetan valleys of Nar and Phu, with ancient stone villages and high pass crossings.",
-                "price_per_person": 1499.00 * self.EXCHANGE_RATE,
+                "price_per_person": 749.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 5320,
                 "highlights": "Kang La Pass, ancient fortified villages, unique monasteries",
             },
