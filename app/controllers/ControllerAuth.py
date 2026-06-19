@@ -141,7 +141,7 @@ class AuthController:
                 "duration_days": 7,
                 "season": "May-Oct",
                 "description": "A holy alpine lake trek in the Langtang region, sacred to both Hindus and Buddhists.",
-                "price_per_person": 699.00 * self.EXCHANGE_RATE,
+                "price_per_person": 499.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 4380,
                 "highlights": "Sacred alpine lakes, Laurebina Pass, views of Ganesh Himal",
             },
