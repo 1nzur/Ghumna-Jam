@@ -12,21 +12,12 @@
 
 body{
     font-family:'Inter',sans-serif;
-}
-
-body:not(.site-shell){
     background:linear-gradient(120deg,#d6ddd7,#e6ece6);
     min-height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
     padding:20px;
-}
-
-body.site-shell{
-    padding:0;
-    justify-content:flex-start;
-    align-items:stretch;
 }
 
 .card{
@@ -46,7 +37,7 @@ body.site-shell{
     display:block;
     padding:38px;
     overflow:hidden;
-    background-image:url("../mountain.jpg");
+    background-image:url("../mountainbg.jpg");
     background-size:cover;
     background-position:center;
     background-repeat:no-repeat;
@@ -66,10 +57,10 @@ body.site-shell{
 
 .logo{
     position:absolute;
-    top:-30px;
+    top:-80px;
     left:10px;
     z-index:2;
-    width:240px;
+    width:300px;
     max-width:60%;
     object-fit:contain;
     filter:drop-shadow(0 8px 18px rgba(0,0,0,.45));
@@ -289,46 +280,6 @@ body.site-shell{
     letter-spacing:.8px;
 }
 
-.hotel-option-card{
-    position:relative;
-}
-
-.hotel-option-card::after{
-    content:"";
-    position:absolute;
-    top:18px;
-    right:16px;
-    width:16px;
-    height:16px;
-    border:2px solid rgba(3,35,28,.3);
-    border-radius:999px;
-    background:#fff;
-    transition:.2s;
-}
-
-.hotel-option-card:hover{
-    border-color:rgba(3,35,28,.35);
-    box-shadow:0 12px 28px rgba(3,35,28,.08);
-    transform:translateY(-1px);
-}
-
-.hotel-option-input:checked + .hotel-option-card{
-    border-color:#03231C;
-    background:#f7fbf8;
-    box-shadow:0 16px 35px rgba(3,35,28,.12);
-}
-
-.hotel-option-input:checked + .hotel-option-card::after{
-    border-color:#03231C;
-    background:#03231C;
-    box-shadow:inset 0 0 0 4px #fff;
-}
-
-.hotel-option-input:focus-visible + .hotel-option-card{
-    outline:3px solid rgba(245,198,71,.45);
-    outline-offset:3px;
-}
-
 @media(max-width:950px){
     .card{
         grid-template-columns:1fr;
@@ -357,12 +308,12 @@ body.site-shell{
     }
 
     .logo{
-        width:220px;
+        width:240px;
     }
 }
 
 @media(max-width:560px){
-    body:not(.site-shell){
+    body{
         padding:0;
         align-items:stretch;
     }

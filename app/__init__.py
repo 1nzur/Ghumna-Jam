@@ -1,5 +1,4 @@
 from flask import Flask, redirect, session, url_for
-
 from app.models.database import Database, close_db
 from app.routes.auth import AuthRoutes
 

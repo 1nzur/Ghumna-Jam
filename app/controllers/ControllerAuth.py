@@ -1,8 +1,6 @@
-import os
 from functools import wraps
 
 from flask import current_app, flash, redirect, render_template, request, session, url_for
-from werkzeug.utils import secure_filename
 
 from app.models.base_model import BaseModel
 from app.models.database import init_db
@@ -21,14 +19,6 @@ def login_required(view):
 
 class AuthController:
     EXCHANGE_RATE = 134.0
-    ALLOWED_PROFILE_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
-    MAX_PROFILE_PICTURE_BYTES = 2 * 1024 * 1024
-
-    def _allowed_profile_picture(self, filename):
-        return (
-            "." in filename
-            and filename.rsplit(".", 1)[1].lower() in self.ALLOWED_PROFILE_EXTENSIONS
-        )
 
     def _sample_destination(self, dest_id=1):
         return {
@@ -40,6 +30,8 @@ class AuthController:
             "season": "Mar-May, Sep-Nov",
             "description": "A classic Himalayan trek through Sherpa villages, alpine valleys, and dramatic views of the world's highest peaks.",
             "price_per_person": 1499.00 * self.EXCHANGE_RATE,
+            "altitude_meters": 5364,
+            "highlights": "Sherpa culture, Kala Patthar viewpoint, historic base camp",
         }
 
     def _sample_destinations(self):
@@ -54,6 +46,8 @@ class AuthController:
                 "season": "Oct-Nov",
                 "description": "A sweeping circuit through river valleys, high passes, and traditional mountain settlements.",
                 "price_per_person": 1199.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5416,
+                "highlights": "Thorong La Pass, Kali Gandaki Gorge, diverse landscapes",
             },
             {
                 "id": 3,
@@ -64,100 +58,298 @@ class AuthController:
                 "season": "Mar-May",
                 "description": "A beautiful alpine route with glacier views, yak pastures, and rich Tamang culture.",
                 "price_per_person": 799.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 3870,
+                "highlights": "Kyanjin Gompa, Yak pastures, panoramic glaciers",
+            },
+            {
+                "id": 4,
+                "name": "Manaslu Circuit",
+                "image_url": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 14,
+                "season": "Oct-Nov",
+                "description": "A remote, spectacular loop around the world's eighth-highest mountain, featuring the challenging Larkya La Pass.",
+                "price_per_person": 1399.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5106,
+                "highlights": "Larkya La Pass, Buddhist monasteries, border region cultures",
+            },
+            {
+                "id": 5,
+                "name": "Upper Mustang",
+                "image_url": "https://images.unsplash.com/photo-1548565431-7e8c312521f7?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Moderate",
+                "duration_days": 10,
+                "season": "May-Oct",
+                "description": "Explore the ancient, dry kingdom of Lo Manthang, characterized by red cliffs, cave dwellings, and Tibetan culture.",
+                "price_per_person": 1799.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 3840,
+                "highlights": "Lo Manthang walled city, sky caves, Tibetan-style palace",
+            },
+            {
+                "id": 6,
+                "name": "Gokyo Lakes & Ri",
+                "image_url": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Moderate",
+                "duration_days": 12,
+                "season": "Mar-May, Sep-Nov",
+                "description": "Trek to the turquoise glacial lakes of the Gokyo Valley and climb Gokyo Ri for premium views of Everest and Lhotse.",
+                "price_per_person": 1299.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5357,
+                "highlights": "Turquoise lakes, Ngozumpa Glacier, views of four 8,000m peaks",
+            },
+            {
+                "id": 7,
+                "name": "Kanchenjunga Base Camp",
+                "image_url": "https://images.unsplash.com/photo-1533240332313-0db49b459ad6?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 20,
+                "season": "Oct-Nov, Mar-May",
+                "description": "A long journey to the far eastern border of Nepal to reach the base camp of Kanchenjunga, the world's third highest peak.",
+                "price_per_person": 2199.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5143,
+                "highlights": "Remote wilderness, Limbu culture, views of Yalung glacier",
+            },
+            {
+                "id": 8,
+                "name": "Mardi Himal",
+                "image_url": "https://images.unsplash.com/photo-1491555180598-88ee14744f4f?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Easy",
+                "duration_days": 6,
+                "season": "Mar-May, Sep-Nov",
+                "description": "A short, beautiful trek offering up-close views of Mount Machapuchare (Fishtail) and the Annapurna range.",
+                "price_per_person": 599.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 4500,
+                "highlights": "Machapuchare views, forest trails, quiet teahouses",
+            },
+            {
+                "id": 9,
+                "name": "Poon Hill Trek",
+                "image_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Easy",
+                "duration_days": 5,
+                "season": "Sep-May",
+                "description": "A classic short trek in the Annapurna foothills, famous for its panoramic sunrise views over Dhaulagiri and Annapurna.",
+                "price_per_person": 499.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 3210,
+                "highlights": "Sunrise over Annapurna, rhododendron forests, Gurung heritage",
+            },
+            {
+                "id": 10,
+                "name": "Gosaikunda Lake",
+                "image_url": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Moderate",
+                "duration_days": 7,
+                "season": "May-Oct",
+                "description": "A holy alpine lake trek in the Langtang region, sacred to both Hindus and Buddhists.",
+                "price_per_person": 699.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 4380,
+                "highlights": "Sacred alpine lakes, Laurebina Pass, views of Ganesh Himal",
+            },
+            {
+                "id": 11,
+                "name": "Rara Lake Wilderness",
+                "image_url": "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Moderate",
+                "duration_days": 9,
+                "season": "Mar-May, Sep-Nov",
+                "description": "Trek through the untouched forests of western Nepal to the largest and deepest freshwater lake in the country.",
+                "price_per_person": 1099.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 2990,
+                "highlights": "Pristine pine forests, bird watching, boating on Rara Lake",
+            },
+            {
+                "id": 12,
+                "name": "Makalu Base Camp",
+                "image_url": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 18,
+                "season": "Sep-Nov, Mar-May",
+                "description": "A challenging journey through the Makalu Barun National Park to the base of the world's fifth-highest peak.",
+                "price_per_person": 1899.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 4870,
+                "highlights": "Barun river valley, hanging glaciers, granite cliffs",
+            },
+            {
+                "id": 13,
+                "name": "Upper Dolpo Wilderness",
+                "image_url": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 21,
+                "season": "Jun-Sep",
+                "description": "A high-altitude, trans-Himalayan trek in the isolated Shey Phoksundo National Park, featuring Bon Buddhist heritage.",
+                "price_per_person": 2499.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5130,
+                "highlights": "Phoksundo Lake, Shey Gompa, snow leopard habitats",
+            },
+            {
+                "id": 14,
+                "name": "Nar Phu Valley hidden villages",
+                "image_url": "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 11,
+                "season": "Sep-Nov, Mar-May",
+                "description": "Explore the hidden Tibetan valleys of Nar and Phu, with ancient stone villages and high pass crossings.",
+                "price_per_person": 1499.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5320,
+                "highlights": "Kang La Pass, ancient fortified villages, unique monasteries",
+            },
+            {
+                "id": 15,
+                "name": "Everest Three Passes",
+                "image_url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+                "difficulty": "Challenging",
+                "duration_days": 19,
+                "season": "Mar-May, Sep-Nov",
+                "description": "The ultimate Khumbu adventure crossing three high passes: Renjo La, Cho La, and Kongma La.",
+                "price_per_person": 1999.00 * self.EXCHANGE_RATE,
+                "altitude_meters": 5535,
+                "highlights": "Kongma La, Cho La, Renjo La, Gokyo lakes, Everest Base Camp",
             },
         ]
 
-    def _hotel_options_for_destination(self, dest_id):
-        hotel_sets = {
+    def _hotel_options(self, dest_id):
+        hotels_by_destination = {
             1: [
                 {
-                    "id": "trail-teahouse",
-                    "name": "Trailside Tea House",
-                    "tier": "Included",
-                    "location": "Phakding and Namche",
-                    "description": "Classic mountain tea-house rooms selected by the guide team for warm dining rooms and easy trail access.",
-                    "amenities": ["Shared bath", "Breakfast", "Guide-picked"],
-                    "price_per_person": 0,
-                },
-                {
-                    "id": "namche-comfort",
-                    "name": "Namche Comfort Lodge",
-                    "tier": "Popular",
+                    "name": "Everest View Lodge",
                     "location": "Namche Bazaar",
-                    "description": "Private twin rooms on key acclimatization nights with hot showers where available and quieter rest stops.",
-                    "amenities": ["Private room", "Hot shower", "Wi-Fi zones"],
-                    "price_per_person": 4500,
+                    "style": "Mountain lodge",
+                    "price_per_night": 8500,
+                    "perk": "Panoramic Everest sunrise views",
                 },
                 {
-                    "id": "heritage-hotel",
-                    "name": "Kathmandu Heritage Hotel + Lodge",
-                    "tier": "Premium",
-                    "location": "Kathmandu and Khumbu",
-                    "description": "A boutique Kathmandu hotel before the trek plus the best available lodge stays along the route.",
-                    "amenities": ["Airport pickup", "Boutique stay", "Best rooms"],
-                    "price_per_person": 9500,
+                    "name": "Sherpa Heritage Inn",
+                    "location": "Khumjung",
+                    "style": "Family-run inn",
+                    "price_per_night": 6200,
+                    "perk": "Traditional Sherpa meals",
+                },
+                {
+                    "name": "Base Camp Retreat",
+                    "location": "Lobuche",
+                    "style": "High-altitude lodge",
+                    "price_per_night": 7800,
+                    "perk": "Warm dining hall and oxygen support",
+                },
+                {
+                    "name": "Yak & Yeti Trail House",
+                    "location": "Phakding",
+                    "style": "Trail guesthouse",
+                    "price_per_night": 4800,
+                    "perk": "Riverside rooms near the Dudh Koshi",
                 },
             ],
             2: [
                 {
-                    "id": "trail-teahouse",
-                    "name": "Annapurna Tea House",
-                    "tier": "Included",
-                    "location": "Dharapani to Muktinath",
-                    "description": "Reliable local lodges near the circuit villages with hearty dining rooms and quick access to the trail.",
-                    "amenities": ["Shared bath", "Breakfast", "Village stays"],
-                    "price_per_person": 0,
+                    "name": "Annapurna Alpine Lodge",
+                    "location": "Manang",
+                    "style": "Alpine lodge",
+                    "price_per_night": 7200,
+                    "perk": "Acclimatization-day comfort",
                 },
                 {
-                    "id": "manang-comfort",
-                    "name": "Manang View Lodge",
-                    "tier": "Popular",
-                    "location": "Manang and Lower Mustang",
-                    "description": "Comfort-focused rooms during acclimatization stops, chosen for mountain views and calmer evenings.",
-                    "amenities": ["Private room", "Hot shower", "View rooms"],
-                    "price_per_person": 4200,
+                    "name": "Thorong Pass Tea House",
+                    "location": "Thorong Phedi",
+                    "style": "Tea house",
+                    "price_per_night": 5600,
+                    "perk": "Closest rest before the pass",
                 },
                 {
-                    "id": "pokhara-retreat",
-                    "name": "Pokhara Lakeside Retreat + Lodge",
-                    "tier": "Premium",
-                    "location": "Pokhara and Annapurna",
-                    "description": "Adds a lakeside recovery hotel in Pokhara and upgraded rooms where the circuit has availability.",
-                    "amenities": ["Lakeside hotel", "Airport pickup", "Best rooms"],
-                    "price_per_person": 8900,
+                    "name": "Marshyangdi River Stay",
+                    "location": "Chame",
+                    "style": "Riverside hotel",
+                    "price_per_night": 5100,
+                    "perk": "Hot showers and valley views",
+                },
+                {
+                    "name": "Apple Orchard Guesthouse",
+                    "location": "Braga",
+                    "style": "Village guesthouse",
+                    "price_per_night": 4600,
+                    "perk": "Quiet rooms near old monasteries",
                 },
             ],
             3: [
                 {
-                    "id": "trail-teahouse",
-                    "name": "Langtang Tea House",
-                    "tier": "Included",
-                    "location": "Lama Hotel to Kyanjin",
-                    "description": "Family-run lodges with warm meals, simple rooms, and direct access to the valley trail.",
-                    "amenities": ["Shared bath", "Breakfast", "Family lodges"],
-                    "price_per_person": 0,
-                },
-                {
-                    "id": "kyanjin-comfort",
-                    "name": "Kyanjin Comfort Lodge",
-                    "tier": "Popular",
+                    "name": "Langtang Glacier Lodge",
                     "location": "Kyanjin Gompa",
-                    "description": "Upgraded rest nights near the monastery with better bedding and glacier-view common areas.",
-                    "amenities": ["Private room", "Hot drinks", "View lounge"],
-                    "price_per_person": 3500,
+                    "style": "Glacier-view lodge",
+                    "price_per_night": 5800,
+                    "perk": "Views toward Langtang Lirung",
                 },
                 {
-                    "id": "tamang-heritage",
-                    "name": "Tamang Heritage Stay + Lodge",
-                    "tier": "Premium",
-                    "location": "Syabrubesi and Langtang",
-                    "description": "Pairs the valley trek with a curated heritage stay and the best available mountain rooms.",
-                    "amenities": ["Heritage stay", "Local dinner", "Best rooms"],
-                    "price_per_person": 7200,
+                    "name": "Tamang Heritage Stay",
+                    "location": "Langtang Village",
+                    "style": "Cultural homestay",
+                    "price_per_night": 4300,
+                    "perk": "Local Tamang hospitality",
+                },
+                {
+                    "name": "Rhododendron Trail Inn",
+                    "location": "Lama Hotel",
+                    "style": "Forest inn",
+                    "price_per_night": 3900,
+                    "perk": "Peaceful forest stopover",
+                },
+                {
+                    "name": "Valley View Guesthouse",
+                    "location": "Syabrubesi",
+                    "style": "Comfort guesthouse",
+                    "price_per_night": 4100,
+                    "perk": "Easy first-night access",
                 },
             ],
+            4: [
+                {"name": "Manaslu Mountain Resort", "location": "Samagaon", "style": "Resort", "price_per_night": 6000, "perk": "Close to Manaslu Base Camp"},
+                {"name": "Larkya Rest House", "location": "Dharmasala", "style": "Tea house", "price_per_night": 4500, "perk": "Last stop before the pass"},
+            ],
+            5: [
+                {"name": "Mustang Heritage Hotel", "location": "Lo Manthang", "style": "Heritage", "price_per_night": 7500, "perk": "Traditional Tibetan architecture"},
+                {"name": "Oasis Guesthouse", "location": "Charang", "style": "Guesthouse", "price_per_night": 5500, "perk": "Views of the ancient monastery"},
+            ],
+            6: [
+                {"name": "Gokyo Lake Resort", "location": "Gokyo", "style": "Lakeside Lodge", "price_per_night": 8000, "perk": "Direct views of Gokyo Lake"},
+                {"name": "Ngozumpa Inn", "location": "Machhermo", "style": "Inn", "price_per_night": 6500, "perk": "Cozy dining room"},
+            ],
+            7: [
+                {"name": "Kanchenjunga Base Camp Lodge", "location": "Pangpema", "style": "Base Camp Lodge", "price_per_night": 6000, "perk": "Closest to the mountain"},
+                {"name": "Yalung Glacier Retreat", "location": "Ramche", "style": "Retreat", "price_per_night": 5000, "perk": "Glacier views"},
+            ],
+            8: [
+                {"name": "Mardi High Camp Lodge", "location": "High Camp", "style": "Lodge", "price_per_night": 5500, "perk": "Sunset views of Machapuchare"},
+                {"name": "Forest Camp Rest", "location": "Forest Camp", "style": "Eco-lodge", "price_per_night": 4000, "perk": "Immersive forest experience"},
+            ],
+            9: [
+                {"name": "Poon Hill Sunrise Hotel", "location": "Ghorepani", "style": "Hotel", "price_per_night": 5000, "perk": "Quick access to Poon Hill"},
+                {"name": "Ulleri Steps Inn", "location": "Ulleri", "style": "Inn", "price_per_night": 3500, "perk": "Rest after the steep climb"},
+            ],
+            10: [
+                {"name": "Sacred Lake Lodge", "location": "Gosaikunda", "style": "Lakeside Lodge", "price_per_night": 6500, "perk": "Right by the holy lake"},
+                {"name": "Laurebina Pass Retreat", "location": "Laurebina", "style": "Retreat", "price_per_night": 5500, "perk": "Panoramic mountain views"},
+            ],
+            11: [
+                {"name": "Rara Lake View Resort", "location": "Rara", "style": "Resort", "price_per_night": 8000, "perk": "Boating and lake views"},
+                {"name": "Pine Forest Guesthouse", "location": "Talcha", "style": "Guesthouse", "price_per_night": 4500, "perk": "Quiet forest setting"},
+            ],
+            12: [
+                {"name": "Makalu Base Camp Hut", "location": "Makalu Base Camp", "style": "Hut", "price_per_night": 7000, "perk": "Base camp experience"},
+                {"name": "Barun Valley Inn", "location": "Yangle Kharka", "style": "Inn", "price_per_night": 5000, "perk": "Beautiful valley views"},
+            ],
+            13: [
+                {"name": "Phoksundo Lake Hotel", "location": "Ringmo", "style": "Hotel", "price_per_night": 8500, "perk": "Overlooking the turquoise lake"},
+                {"name": "Shey Gompa Rest", "location": "Shey Gompa", "style": "Rest house", "price_per_night": 6000, "perk": "Near the ancient monastery"},
+            ],
+            14: [
+                {"name": "Nar Village Homestay", "location": "Nar", "style": "Homestay", "price_per_night": 4500, "perk": "Authentic local culture"},
+                {"name": "Phu Heritage Lodge", "location": "Phu", "style": "Lodge", "price_per_night": 5000, "perk": "Historic stone village setting"},
+            ],
+            15: [
+                {"name": "Kongma La Rest", "location": "Chukhung", "style": "Lodge", "price_per_night": 6000, "perk": "Preparation for the first pass"},
+                {"name": "Renjo La Viewpoint Hotel", "location": "Lungden", "style": "Hotel", "price_per_night": 6500, "perk": "Stunning sunset views"},
+            ],
         }
-        return hotel_sets.get(dest_id, hotel_sets[1])
+
+        return hotels_by_destination.get(dest_id, hotels_by_destination[1])
 
     def login(self):
         if request.method == "POST":
@@ -244,6 +436,35 @@ class AuthController:
             email=email,
             submitted_email=submitted_email,
         )
+    
+    def compare_treks(self):
+        selected_ids = []
+        for raw_id in request.args.getlist("treks"):
+            try:
+                trek_id = int(raw_id)
+            except ValueError:
+                continue
+
+            if trek_id not in selected_ids:
+                selected_ids.append(trek_id)
+
+        remove_id = request.args.get("remove", type=int)
+        if remove_id:
+            selected_ids = [trek_id for trek_id in selected_ids if trek_id != remove_id]
+
+        destinations = self._sample_destinations()
+        selected_treks = [
+            destination
+            for destination in destinations
+            if destination["id"] in selected_ids
+        ]
+
+        return render_template(
+            "compare.html",
+            destinations=destinations,
+            selected_treks=selected_treks,
+            selected_ids=[trek["id"] for trek in selected_treks],
+        )
 
     @login_required
     def bookings(self):
@@ -257,7 +478,7 @@ class AuthController:
         return render_template(
             "destination_detail.html",
             destination=destination,
-            hotel_options=self._hotel_options_for_destination(dest_id),
+            hotel_options=self._hotel_options(dest_id),
         )
 
     @login_required
@@ -266,21 +487,9 @@ class AuthController:
             (dest for dest in self._sample_destinations() if dest["id"] == dest_id),
             self._sample_destination(dest_id),
         )
-        try:
-            travelers_count = int(request.form.get("travelers_count", 1) or 1)
-        except ValueError:
-            travelers_count = 1
-        travelers_count = max(1, min(travelers_count, 12))
+        travelers_count = int(request.form.get("travelers_count", 1) or 1)
         departure_date = request.form.get("departure_date", "Not selected")
-        hotel_options = self._hotel_options_for_destination(dest_id)
-        hotel_id = request.form.get("hotel_id", hotel_options[0]["id"])
-        selected_hotel = next(
-            (hotel for hotel in hotel_options if hotel["id"] == hotel_id),
-            hotel_options[0],
-        )
-        price_per_explorer = (
-            destination["price_per_person"] + selected_hotel["price_per_person"]
-        )
+        selected_hotel = request.form.get("selected_hotel", "No hotel selected")
         bookings = session.get("bookings", [])
         bookings.append(
             {
@@ -291,12 +500,9 @@ class AuthController:
                 "travelers_count": travelers_count,
                 "duration_days": destination["duration_days"],
                 "difficulty": destination["difficulty"],
-                "hotel_name": selected_hotel["name"],
-                "hotel_tier": selected_hotel["tier"],
-                "hotel_location": selected_hotel["location"],
-                "hotel_price_per_person": selected_hotel["price_per_person"],
+                "selected_hotel": selected_hotel,
                 "booked_at": "Today",
-                "total_price": price_per_explorer * travelers_count,
+                "total_price": destination["price_per_person"] * travelers_count,
             }
         )
         session["bookings"] = bookings
@@ -312,41 +518,12 @@ class AuthController:
             email = request.form.get("email", "").strip().lower()
             phone_number = request.form.get("phone_number", "").strip()
             date_of_birth = request.form.get("date_of_birth", "").strip() or None
-            profile_picture_url = user.get("profile_picture_url") if user else None
-            profile_picture = request.files.get("profile_picture")
+            profile_picture_url = request.form.get("profile_picture_url", "").strip()
             password = request.form.get("password", "")
 
             if not full_name or not email:
                 flash("Name and email are required.", "error")
                 return render_template("edit-profile.html", user=user), 400
-
-            if profile_picture and profile_picture.filename:
-                if not self._allowed_profile_picture(profile_picture.filename):
-                    flash("Please upload a JPG, PNG, GIF, or WEBP profile picture.", "error")
-                    return render_template("edit-profile.html", user=user), 400
-
-                profile_picture.stream.seek(0, os.SEEK_END)
-                profile_picture_size = profile_picture.stream.tell()
-                profile_picture.stream.seek(0)
-                if profile_picture_size > self.MAX_PROFILE_PICTURE_BYTES:
-                    flash("Profile pictures must be 2MB or smaller.", "error")
-                    return render_template("edit-profile.html", user=user), 400
-
-                filename = secure_filename(profile_picture.filename)
-                extension = filename.rsplit(".", 1)[1].lower()
-                stored_filename = f"user-{session['user_id']}.{extension}"
-                upload_folder = os.path.join(
-                    current_app.root_path,
-                    "static",
-                    "uploads",
-                    "profile_pictures",
-                )
-                os.makedirs(upload_folder, exist_ok=True)
-                profile_picture.save(os.path.join(upload_folder, stored_filename))
-                profile_picture_url = url_for(
-                    "static",
-                    filename=f"uploads/profile_pictures/{stored_filename}",
-                )
 
             try:
                 BaseModel.update_user(
@@ -376,3 +553,16 @@ class AuthController:
         session.clear()
         flash("You have been logged out.", "success")
         return redirect(url_for("auth.login"))
+
+    @login_required
+    def tracking(self):
+        return render_template("tracking.html")
+
+    @login_required
+    def packing_checklist(self):
+        return render_template("packing_checklist.html")
+
+    @login_required
+    def recommendations(self):
+        destinations = self._sample_destinations()
+        return render_template("recommended_treks.html", destinations=destinations)

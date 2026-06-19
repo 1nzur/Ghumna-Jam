@@ -8,7 +8,7 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=7">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=5">
 
 <script>
     tailwind.config = {
@@ -38,7 +38,7 @@
 <main class="card">
     <section class="left">
         <img class="logo"
-             src="{{ url_for('static', filename='ghumnajamlogo.png') }}?v=1"
+             src="{{ url_for('static', filename='logobg.png') }}?v=3"
              alt=""
              aria-hidden="true">
 
@@ -68,7 +68,7 @@
 </main>
 </body>
 {% else %}
-<body class="site-shell bg-[#FBFDFB] font-sans text-gray-800 antialiased min-h-screen flex flex-col">
+<body class="bg-[#FBFDFB] font-sans text-gray-800 antialiased min-h-screen flex flex-col">
     <header class="w-full border-b border-gray-100 bg-white sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-2">
@@ -82,6 +82,9 @@
                 <a href="{{ url_for('auth.home') }}#destinations" class="hover:text-brandGreen transition">Destinations</a>
                 {% if session.get('user_id') %}
                     <a href="{{ url_for('auth.bookings') }}" class="hover:text-brandGreen transition">My Bookings</a>
+                    <a href="{{ url_for('auth.tracking') }}" class="hover:text-brandGreen transition">Tracking</a>
+                    <a href="{{ url_for('auth.packing_checklist') }}" class="hover:text-brandGreen transition">Packing Checklist</a>
+                    <a href="{{ url_for('auth.recommendations') }}" class="hover:text-brandGreen transition">Recommended Treks</a>
                 {% endif %}
             </nav>
 

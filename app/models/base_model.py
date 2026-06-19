@@ -5,8 +5,6 @@ from app.models.database import get_db
 
 
 class BaseModel:
-    PASSWORD_HASH_METHOD = "pbkdf2:sha256"
-
     @staticmethod
     def get_user_by_email(email):
         db = get_db()
@@ -78,10 +76,7 @@ class BaseModel:
                             phone_number,
                             date_of_birth or None,
                             profile_picture_url,
-                            generate_password_hash(
-                                password,
-                                method=BaseModel.PASSWORD_HASH_METHOD,
-                            ),
+                            generate_password_hash(password),
                             user_id,
                         ),
                     )
@@ -115,10 +110,7 @@ class BaseModel:
     @staticmethod
     def create_user(full_name, email, password):
         db = get_db()
-        password_hash = generate_password_hash(
-            password,
-            method=BaseModel.PASSWORD_HASH_METHOD,
-        )
+        password_hash = generate_password_hash(password)
 
         try:
             with db.cursor() as cursor:
