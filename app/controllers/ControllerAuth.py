@@ -45,7 +45,7 @@ class AuthController:
                 "duration_days": 12,
                 "season": "Oct-Nov",
                 "description": "A sweeping circuit through river valleys, high passes, and traditional mountain settlements.",
-                "price_per_person": 1199.00 * self.EXCHANGE_RATE,
+                "price_per_person": 999.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 5416,
                 "highlights": "Thorong La Pass, Kali Gandaki Gorge, diverse landscapes",
             },
