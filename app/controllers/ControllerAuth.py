@@ -117,7 +117,7 @@ class AuthController:
                 "duration_days": 6,
                 "season": "Mar-May, Sep-Nov",
                 "description": "A short, beautiful trek offering up-close views of Mount Machapuchare (Fishtail) and the Annapurna range.",
-                "price_per_person": 599.00 * self.EXCHANGE_RATE,
+                "price_per_person": 449.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 4500,
                 "highlights": "Machapuchare views, forest trails, quiet teahouses",
             },
