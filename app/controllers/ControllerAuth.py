@@ -129,7 +129,7 @@ class AuthController:
                 "duration_days": 5,
                 "season": "Sep-May",
                 "description": "A classic short trek in the Annapurna foothills, famous for its panoramic sunrise views over Dhaulagiri and Annapurna.",
-                "price_per_person": 499.00 * self.EXCHANGE_RATE,
+                "price_per_person": 299.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 3210,
                 "highlights": "Sunrise over Annapurna, rhododendron forests, Gurung heritage",
             },
