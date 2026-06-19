@@ -177,7 +177,7 @@ class AuthController:
                 "duration_days": 21,
                 "season": "Jun-Sep",
                 "description": "A high-altitude, trans-Himalayan trek in the isolated Shey Phoksundo National Park, featuring Bon Buddhist heritage.",
-                "price_per_person": 2499.00 * self.EXCHANGE_RATE,
+                "price_per_person": 3499.00 * self.EXCHANGE_RATE,
                 "altitude_meters": 5130,
                 "highlights": "Phoksundo Lake, Shey Gompa, snow leopard habitats",
             },
