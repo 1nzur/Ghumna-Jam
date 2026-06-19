@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "main_layout.html" %}
 
 {% block title %}Ghumna Jam - My Bookings{% endblock %}
 
@@ -7,6 +7,25 @@
     <div class="mb-8">
         <h1 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold">Your Adventure Registry</h1>
         <p class="text-xs sm:text-sm text-gray-500 mt-1">Keep track of your active summits, treks, and planned alpine journeys.</p>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
+            <span class="block text-[10px] uppercase font-bold tracking-wider text-gray-400">Bookings</span>
+            <strong class="text-2xl text-brandGreen">{{ stats.total }}</strong>
+        </div>
+        <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
+            <span class="block text-[10px] uppercase font-bold tracking-wider text-gray-400">Active</span>
+            <strong class="text-2xl text-brandGreen">{{ stats.active }}</strong>
+        </div>
+        <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
+            <span class="block text-[10px] uppercase font-bold tracking-wider text-gray-400">Explorers</span>
+            <strong class="text-2xl text-brandGreen">{{ stats.travelers }}</strong>
+        </div>
+        <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
+            <span class="block text-[10px] uppercase font-bold tracking-wider text-gray-400">Confirmed Spend</span>
+            <strong class="text-2xl text-brandGreen">${{ "{:,.2f}".format(stats.spent) }}</strong>
+        </div>
     </div>
 
     <!-- Bookings Listing -->
@@ -57,12 +76,6 @@
                                     <span class="font-semibold text-gray-700 text-sm mt-0.5 block">{{ booking.difficulty }}</span>
                                 </div>
                             </div>
-                            {% if booking.selected_hotel %}
-                                <div class="text-xs text-gray-500 mb-4">
-                                    <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Selected Hotel</span>
-                                    <span class="font-semibold text-brandGreen text-sm mt-0.5 block">{{ booking.selected_hotel }}</span>
-                                </div>
-                            {% endif %}
                         </div>
 
                         <!-- Footer actions and prices -->
@@ -71,9 +84,16 @@
                                 Booked on {{ booking.booked_at }}
                             </span>
                             <div class="flex items-center space-x-4">
+                                {% if booking.status != 'Cancelled' %}
+                                    <form method="POST" action="{{ url_for('bookings.cancel_booking', booking_id=booking.id) }}">
+                                        <button type="submit" class="text-xs font-bold text-red-600 hover:text-red-700 border border-red-100 px-3 py-2 rounded-lg">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                {% endif %}
                                 <div class="text-right">
                                     <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Total Price</span>
-                                    <span class="text-xl font-bold text-brandGreen">Rs. {{ "{:,.2f}".format(booking.total_price) }} NPR</span>
+                                    <span class="text-xl font-bold text-brandGreen">${{ "{:,.2f}".format(booking.total_price) }} USD</span>
                                 </div>
                             </div>
                         </div>
@@ -84,15 +104,16 @@
     {% else %}
         <!-- Empty State -->
         <div class="text-center py-20 bg-gray-50/50 rounded-3xl border border-dashed border-gray-200 p-8">
-            <span class="text-5xl block mb-4">🧗</span>
+            <span class="text-5xl block mb-4">ðŸ§—</span>
             <h3 class="font-serif text-xl text-brandGreen font-medium mb-2">No expeditions booked yet</h3>
             <p class="text-sm text-gray-500 max-w-sm mx-auto mb-8">
                 Your registry is currently empty. Explore our professional mountain trails and begin planning your next summit!
             </p>
-            <a href="{{ url_for('auth.home') }}#destinations" class="bg-brandGreen hover:bg-emerald-950 text-white font-bold text-sm px-6 py-3 rounded-xl transition shadow-md">
+            <a href="{{ url_for('main.home') }}#destinations" class="bg-brandGreen hover:bg-emerald-950 text-white font-bold text-sm px-6 py-3 rounded-xl transition shadow-md">
                 Browse Trails
             </a>
         </div>
     {% endif %}
 </section>
 {% endblock %}
+

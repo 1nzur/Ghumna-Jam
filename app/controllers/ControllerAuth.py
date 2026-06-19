@@ -1,22 +1,25 @@
-from functools import wraps
+from werkzeug.security import generate_password_hash, check_password_hash
+from app.db import execute_query
 
-from flask import current_app, flash, redirect, render_template, request, session, url_for
-
-from app.models.base_model import BaseModel
-from app.models.database import init_db
+MIN_PASSWORD_LENGTH = 8
 
 
-def login_required(view):
-    @wraps(view)
-    def wrapped_view(*args, **kwargs):
-        if "user_id" not in session:
-            flash("Please log in to access the homepage.", "error")
-            return redirect(url_for("auth.login"))
-        return view(*args, **kwargs)
+def register_user(name, email, password):
+    """
+    Registers a new user after hashing the password.
+    Returns (success_boolean, message)
+    """
+    name = (name or "").strip()
+    email = (email or "").strip().lower()
+    password = password or ""
 
-    return wrapped_view
+    if not name or not email or not password:
+        return False, "All fields are required."
 
+    if "@" not in email or "." not in email.rsplit("@", 1)[-1]:
+        return False, "Please enter a valid email address."
 
+<<<<<<< HEAD
 class AuthController:
     EXCHANGE_RATE = 134.0
 
@@ -436,40 +439,38 @@ class AuthController:
             email=email,
             submitted_email=submitted_email,
         )
+=======
+    if len(password) < MIN_PASSWORD_LENGTH:
+        return False, f"Password must be at least {MIN_PASSWORD_LENGTH} characters."
+>>>>>>> 28f10469f5bcc5a4b8bb22c4fcbaf984bdfb08e7
     
-    def compare_treks(self):
-        selected_ids = []
-        for raw_id in request.args.getlist("treks"):
-            try:
-                trek_id = int(raw_id)
-            except ValueError:
-                continue
-
-            if trek_id not in selected_ids:
-                selected_ids.append(trek_id)
-
-        remove_id = request.args.get("remove", type=int)
-        if remove_id:
-            selected_ids = [trek_id for trek_id in selected_ids if trek_id != remove_id]
-
-        destinations = self._sample_destinations()
-        selected_treks = [
-            destination
-            for destination in destinations
-            if destination["id"] in selected_ids
-        ]
-
-        return render_template(
-            "compare.html",
-            destinations=destinations,
-            selected_treks=selected_treks,
-            selected_ids=[trek["id"] for trek in selected_treks],
+    # Check if user already exists
+    existing = execute_query("SELECT id FROM users WHERE email = ?", (email,))
+    if existing:
+        return False, "An account with this email address already exists."
+    
+    # Hash password
+    pwd_hash = generate_password_hash(password)
+    
+    try:
+        user_id = execute_query(
+            "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+            (name, email, pwd_hash),
+            commit=True
         )
+        return True, f"Registration successful. User ID: {user_id}"
+    except Exception as e:
+        return False, f"Database error during registration: {e}"
 
-    @login_required
-    def bookings(self):
-        return render_template("bookings.html", bookings=session.get("bookings", []))
+def authenticate_user(email, password):
+    """
+    Authenticates a user by email and password.
+    Returns (success_boolean, user_dict_or_error_message)
+    """
+    email = (email or "").strip().lower()
+    password = password or ""
 
+<<<<<<< HEAD
     def destination_detail(self, dest_id):
         destination = next(
             (dest for dest in self._sample_destinations() if dest["id"] == dest_id),
@@ -566,3 +567,20 @@ class AuthController:
     def recommendations(self):
         destinations = self._sample_destinations()
         return render_template("recommended_treks.html", destinations=destinations)
+=======
+    if not email or not password:
+        return False, "Email and password are required."
+    
+    users = execute_query("SELECT * FROM users WHERE email = ?", (email,))
+    if not users:
+        return False, "Invalid email or password."
+    
+    user = users[0]
+    if check_password_hash(user['password_hash'], password):
+        # Successful authentication. Clear password hash before returning
+        user_data = dict(user)
+        user_data.pop('password_hash', None)
+        return True, user_data
+    
+    return False, "Invalid email or password."
+>>>>>>> 28f10469f5bcc5a4b8bb22c4fcbaf984bdfb08e7
