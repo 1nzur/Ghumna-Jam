@@ -298,6 +298,16 @@ def init_db(app):
             # Backfill category for rows that existed before the column was added
             _backfill_dest_categories(cur)
 
+            # Auto-create default admin account if none exists
+            cur.execute("SELECT COUNT(*) AS cnt FROM users WHERE email = 'admin@admin.com'")
+            if cur.fetchone()["cnt"] == 0:
+                from werkzeug.security import generate_password_hash
+                hashed = generate_password_hash("admin123")
+                cur.execute(
+                    "INSERT INTO users (full_name, email, password_hash, is_admin) VALUES (%s, %s, %s, 1)",
+                    ("Admin", "admin@admin.com", hashed),
+                )
+
         db.commit()
 
 
