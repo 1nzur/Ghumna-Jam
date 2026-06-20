@@ -1,0 +1,100 @@
+{% extends "admin/base.html" %}
+{% block title %}Trek Routes{% endblock %}
+{% block header %}Trek Routes{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-5">
+  <p class="text-sm text-slate-500">{{ destinations|length }} route(s) in database</p>
+  <a href="{{ url_for('admin.destination_new') }}"
+     class="inline-flex items-center gap-2 px-4 py-2 bg-[#1f2a27] text-white rounded-lg text-sm font-semibold hover:bg-[#2d3d38] transition-colors">
+    ＋ Add New Route
+  </a>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-slate-50 border-b border-slate-200">
+          <th class="text-left px-5 py-3 font-semibold text-slate-600 w-8">#</th>
+          <th class="text-left px-5 py-3 font-semibold text-slate-600">Name</th>
+          <th class="text-left px-4 py-3 font-semibold text-slate-600">Category</th>
+          <th class="text-left px-4 py-3 font-semibold text-slate-600">Difficulty</th>
+          <th class="text-right px-4 py-3 font-semibold text-slate-600">Days</th>
+          <th class="text-right px-4 py-3 font-semibold text-slate-600">Price (NPR)</th>
+          <th class="text-center px-4 py-3 font-semibold text-slate-600">Status</th>
+          <th class="text-right px-5 py-3 font-semibold text-slate-600">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for d in destinations %}
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="px-5 py-3 text-slate-400">{{ d.id }}</td>
+          <td class="px-5 py-3">
+            <div class="flex items-center gap-3">
+              {% if d.image_url %}
+              <img src="{{ d.image_url }}" alt="" class="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+              {% else %}
+              <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-lg flex-shrink-0">⛰</div>
+              {% endif %}
+              <div>
+                <p class="font-medium text-slate-800">{{ d.name }}</p>
+                <p class="text-xs text-slate-400">{{ d.altitude_meters }}m altitude</p>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3">
+            {% set cat_color = {"basecamp": "blue", "cultural": "purple", "hike": "green"} %}
+            <span class="px-2 py-1 rounded-full text-xs font-medium
+              bg-{{ cat_color.get(d.category, 'slate') }}-100
+              text-{{ cat_color.get(d.category, 'slate') }}-700">
+              {{ d.category }}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            {% set diff_color = {"Easy": "green", "Moderate": "yellow", "Challenging": "red"} %}
+            <span class="text-{{ diff_color.get(d.difficulty, 'slate') }}-600 font-medium text-xs">
+              {{ d.difficulty }}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-right text-slate-700">{{ d.duration_days }}d</td>
+          <td class="px-4 py-3 text-right font-medium text-slate-800">
+            {{ "{:,.0f}".format(d.price_per_person) }}
+          </td>
+          <td class="px-4 py-3 text-center">
+            {% if d.is_active %}
+            <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700 font-medium">Active</span>
+            {% else %}
+            <span class="px-2 py-1 rounded-full text-xs bg-slate-100 text-slate-500 font-medium">Hidden</span>
+            {% endif %}
+          </td>
+          <td class="px-5 py-3">
+            <div class="flex items-center justify-end gap-2">
+              <a href="{{ url_for('admin.destination_edit', dest_id=d.id) }}"
+                 class="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors text-slate-600">
+                Edit
+              </a>
+              <form method="POST" action="{{ url_for('admin.destination_delete', dest_id=d.id) }}"
+                    onsubmit="return confirm('Delete {{ d.name }}? This cannot be undone.')">
+                <button type="submit"
+                        class="px-3 py-1.5 text-xs font-medium bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition-colors">
+                  Delete
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" class="px-5 py-12 text-center text-slate-400">
+            No destinations found. <a href="{{ url_for('admin.destination_new') }}" class="text-yellow-600 hover:underline">Add your first route.</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

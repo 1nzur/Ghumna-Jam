@@ -1,0 +1,125 @@
+{% extends "admin/base.html" %}
+{% block title %}Photos{% endblock %}
+{% block header %}Photo Management{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <!-- Upload form -->
+  <div class="lg:col-span-1">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sticky top-20">
+      <h2 class="font-semibold text-slate-700 mb-4">Add Photo</h2>
+      <form method="POST" action="{{ url_for('admin.photo_add') }}" class="space-y-4">
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Image URL <span class="text-red-500">*</span></label>
+          <input type="url" name="image_url" required id="imgUrl"
+                 class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                 placeholder="https://..." oninput="previewImg(this.value)" />
+          <img id="imgPreview" src="" alt="" class="mt-2 h-32 w-full object-cover rounded-lg hidden" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Caption</label>
+          <input type="text" name="title"
+                 class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                 placeholder="Optional caption" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Section</label>
+          <select name="section" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            {% for sec in sections %}
+            <option value="{{ sec }}">{{ sec|capitalize }}</option>
+            {% endfor %}
+            <option value="gallery">gallery</option>
+            <option value="hero">hero</option>
+            <option value="destinations">destinations</option>
+          </select>
+        </div>
+
+        <button type="submit"
+                class="w-full py-2.5 bg-[#1f2a27] text-white font-semibold rounded-lg text-sm hover:bg-[#2d3d38] transition-colors">
+          Add Photo
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Photo grid -->
+  <div class="lg:col-span-2">
+    <p class="text-sm text-slate-500 mb-4">{{ photos|length }} photo(s) stored</p>
+
+    {% if photos %}
+    <!-- Group by section -->
+    {% set ns = namespace(current_section=None) %}
+    {% for p in photos %}
+      {% if p.section != ns.current_section %}
+        {% if not loop.first %}</div>{% endif %}
+        {% set ns.current_section = p.section %}
+        <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 {% if not loop.first %}mt-6{% endif %}">
+          {{ p.section|capitalize }}
+        </h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {% endif %}
+
+      <div class="relative group rounded-xl overflow-hidden border border-slate-200 shadow-sm {% if not p.is_active %}opacity-50{% endif %}">
+        <img src="{{ p.image_url }}" alt="{{ p.title or '' }}"
+             class="w-full h-32 object-cover" loading="lazy"
+             onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'" />
+
+        <!-- Overlay actions -->
+        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+          <form method="POST" action="{{ url_for('admin.photo_toggle', photo_id=p.id) }}">
+            <button type="submit" title="{{ 'Hide' if p.is_active else 'Show' }}"
+                    class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 text-white text-xs flex items-center justify-center transition-colors">
+              {{ "👁" if p.is_active else "🙈" }}
+            </button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.photo_delete', photo_id=p.id) }}"
+                onsubmit="return confirm('Delete this photo?')">
+            <button type="submit" title="Delete"
+                    class="w-8 h-8 rounded-full bg-red-500/80 hover:bg-red-600 text-white text-xs flex items-center justify-center transition-colors">
+              ✕
+            </button>
+          </form>
+        </div>
+
+        {% if p.title %}
+        <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 px-2 py-1">
+          <p class="text-white text-xs truncate">{{ p.title }}</p>
+        </div>
+        {% endif %}
+
+        {% if not p.is_active %}
+        <div class="absolute top-1 right-1">
+          <span class="px-1.5 py-0.5 rounded text-xs bg-slate-800/80 text-slate-300">Hidden</span>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if loop.last %}</div>{% endif %}
+    {% endfor %}
+
+    {% else %}
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center text-slate-400">
+      No photos yet. Add one using the form on the left.
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+function previewImg(url) {
+  const img = document.getElementById('imgPreview');
+  if (url) {
+    img.src = url;
+    img.classList.remove('hidden');
+    img.onerror = () => img.classList.add('hidden');
+  } else {
+    img.classList.add('hidden');
+  }
+}
+</script>
+{% endblock %}

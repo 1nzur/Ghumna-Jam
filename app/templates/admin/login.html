@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — Ghumna Jam</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+  <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="min-h-screen bg-[#1f2a27] flex items-center justify-center p-4">
+
+  <div class="w-full max-w-sm">
+
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-yellow-400 mb-4">
+        <span class="text-2xl">⛰</span>
+      </div>
+      <h1 class="text-white text-2xl font-bold" style="font-family:'Playfair Display',serif">Ghumna Jam</h1>
+      <p class="text-slate-400 text-sm mt-1">Admin Panel — Authorized Access Only</p>
+    </div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-4 space-y-2">
+          {% for category, message in messages %}
+            {% set color = 'green' if category == 'success' else ('yellow' if category == 'info' else 'red') %}
+            <div class="p-3 rounded-lg bg-{{ color }}-900/40 border border-{{ color }}-700 text-{{ color }}-300 text-sm">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Login card -->
+    <div class="bg-white rounded-2xl shadow-2xl p-8">
+      <h2 class="text-slate-800 text-xl font-semibold mb-6">Sign in to Admin</h2>
+
+      <form method="POST" action="{{ url_for('admin.login') }}" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Email address</label>
+          <input type="email" name="email" required autocomplete="email"
+                 class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                 placeholder="admin@example.com" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+          <input type="password" name="password" required autocomplete="current-password"
+                 class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                 placeholder="••••••••" />
+        </div>
+
+        <button type="submit"
+                class="w-full bg-[#1f2a27] hover:bg-[#2d3d38] text-white font-semibold py-2.5 rounded-lg text-sm transition-colors mt-2">
+          Sign in
+        </button>
+      </form>
+
+      <p class="text-center text-xs text-slate-400 mt-6">
+        <a href="{{ url_for('auth.login') }}" class="hover:text-slate-600 transition-colors">← Back to main site</a>
+      </p>
+    </div>
+
+    <p class="text-center text-xs text-slate-500 mt-4">
+      Default admin: <span class="text-yellow-400">admin@admin.com</span> / <span class="text-yellow-400">admin123</span>
+    </p>
+  </div>
+
+</body>
+</html>
