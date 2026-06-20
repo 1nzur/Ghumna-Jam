@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghumna Jam - Discover Destinations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandGreen: '#03231C',
+                        brandYellow: '#F5C647',
+                        lightBg: '#F8F9FA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white font-sans text-gray-800 antialiased min-h-screen relative pb-24">
+
+    <header class="w-full border-b border-gray-100 bg-white sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="font-serif text-xl font-bold tracking-wider text-brandGreen">GHUMNA जाम</span>
+            </div>
+            
+            <nav class="hidden md:flex space-x-8 text-sm font-medium text-gray-600">
+                <a href="{{ url_for('auth.home') }}" class="hover:text-brandGreen transition">Home</a>
+                <a href="#destinations-section" class="text-brandGreen border-b-2 border-brandGreen pb-1">Destinations</a>
+                <a href="{{ url_for('auth.tracking') }}" class="hover:text-brandGreen transition">Trails</a>
+                <a href="{{ url_for('auth.socials') }}" class="hover:text-brandGreen transition">Community</a>
+            </nav>
+            
+            <div class="flex items-center space-x-6">
+                <div class="relative hidden sm:block">
+                    <input type="text" placeholder="Search trails..." class="bg-gray-100 text-xs rounded-full pl-8 pr-4 py-2 w-48 focus:outline-none focus:ring-1 focus:ring-brandGreen">
+                    <span class="absolute left-3 top-2.5 text-gray-400 text-xs">🔍</span>
+                </div>
+                <button class="text-gray-600 text-lg relative">
+                    🔔 <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                <a href="{{ url_for('auth.logout') }}" class="text-xs font-semibold text-brandGreen hover:underline">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="relative bg-brandGreen text-white py-24 sm:py-32 overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-50 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-brandGreen/40 z-0"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal max-w-2xl leading-tight">
+                Discover the Spirit of the Himalayas
+            </h1>
+        </div>
+    </section>
+
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20">
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div class="md:col-span-2">
+                <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1.5">Search Destinations</label>
+                <div class="relative">
+                    <span class="absolute left-3 top-3.5 text-gray-400 text-sm">🔍</span>
+                    <input type="text" placeholder="Where do you want to explore?" class="w-full bg-gray-50 border border-gray-100 rounded-lg pl-9 pr-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen">
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1.5">Difficulty</label>
+                <select class="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-3 text-sm text-gray-600 focus:outline-none focus:ring-1 focus:ring-brandGreen appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:10px_auto] bg-[right_14px_center] bg-no-repeat">
+                    <option>All Levels</option>
+                    <option>Easy</option>
+                    <option>Moderate</option>
+                    <option>Hard</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1.5">Season</label>
+                <select class="w-full bg-gray-50 border border-gray-100 rounded-lg px-3 py-3 text-sm text-gray-600 focus:outline-none focus:ring-1 focus:ring-brandGreen appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:10px_auto] bg-[right_14px_center] bg-no-repeat">
+                    <option>Any Season</option>
+                    <option>Spring</option>
+                    <option>Autumn</option>
+                    <option>Winter</option>
+                </select>
+            </div>
+            <div class="md:col-span-4 mt-2 flex justify-end">
+                <button class="w-full md:w-auto bg-brandGreen hover:bg-emerald-950 text-white text-sm font-medium px-8 py-3 rounded-lg transition">
+                    Find Destinations
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-wrap items-center gap-2 text-xs">
+        <span class="text-gray-500 font-medium mr-2">Suggested:</span>
+        <button class="bg-brandGreen text-white px-4 py-1.5 rounded-full font-medium">High Altitude</button>
+        <button class="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-1.5 rounded-full transition">Cultural Treks</button>
+        <button class="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-1.5 rounded-full transition">Beginner Friendly</button>
+        <button class="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-1.5 rounded-full transition">Solo Travel</button>
+        <button class="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-1.5 rounded-full transition">Base Camps</button>
+    </section>
+
+    <main id="destinations-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="flex justify-between items-end mb-6">
+            <div>
+                <h2 id="section-title" class="font-serif text-2xl sm:text-3xl text-brandGreen">Featured Destinations</h2>
+                <p id="section-subtitle" class="text-xs text-gray-500 mt-1">The most iconic paths across the roof of the world.</p>
+            </div>
+            <a href="{{ url_for('auth.compare_treks') }}" class="text-xs font-semibold text-brandGreen flex items-center space-x-1 border-b border-transparent hover:border-brandGreen transition">
+                <span>View All Trails</span> <span>→</span>
+            </a>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="flex gap-2 mb-8 border-b border-gray-100 pb-4 overflow-x-auto">
+            <button onclick="filterCategory('all')" data-cat="all" class="category-tab bg-brandGreen text-white px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">All Destinations</button>
+            <button onclick="filterCategory('basecamp')" data-cat="basecamp" class="category-tab border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Base Camps</button>
+            <button onclick="filterCategory('cultural')" data-cat="cultural" class="category-tab border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Cultural Circuits</button>
+            <button onclick="filterCategory('hike')" data-cat="hike" class="category-tab border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Short Hikes</button>
+        </div>
+
+        <div id="destinations-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+
+        <div id="empty-state" style="display:none" class="text-center py-20 text-gray-400">
+            <div class="text-5xl mb-4">🏔️</div>
+            <p class="text-sm font-medium">No destinations found in this category.</p>
+        </div>
+    </main>
+
+    <script>
+        var destinations = [
+            { category: 'basecamp', name: 'Everest Base Camp',      badge: 'Most Popular',      badgeStyle: 'bg-[#F5C647] text-[#03231C]', difficulty: 'Hard',     days: '14 Days', season: 'Autumn', img: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=600&q=80' },
+            { category: 'basecamp', name: 'Annapurna Base Camp',    badge: 'Iconic Peak',        badgeStyle: 'bg-white/80 backdrop-blur-sm text-[#03231C]', difficulty: 'Moderate', days: '10 Days', season: 'Spring', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=600&q=80' },
+            { category: 'basecamp', name: 'Manaslu Base Camp',      badge: 'Remote Trek',        badgeStyle: 'bg-white/80 backdrop-blur-sm text-[#03231C]', difficulty: 'Hard',     days: '16 Days', season: 'Autumn', img: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=600&q=80' },
+            { category: 'basecamp', name: 'Dhaulagiri Base Camp',   badge: 'Hidden Gem',         badgeStyle: 'bg-[#F5C647] text-[#03231C]', difficulty: 'Hard',     days: '12 Days', season: 'Spring', img: 'https://images.unsplash.com/photo-1470770903676-69b98201ea1c?auto=format&fit=crop&w=600&q=80' },
+            { category: 'cultural', name: 'Annapurna Circuit',      badge: 'Diverse Landscape',  badgeStyle: 'bg-white/80 backdrop-blur-sm text-[#03231C]', difficulty: 'Moderate', days: '18 Days', season: 'Spring', img: 'https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=600&q=80' },
+            { category: 'cultural', name: 'Langtang Valley',        badge: 'Cultural Experience', badgeStyle: 'bg-white/80 backdrop-blur-sm text-[#03231C]', difficulty: 'Easy',     days: '8 Days',  season: 'Spring', img: 'https://images.unsplash.com/photo-1486915309851-b0cc1f8a0084?auto=format&fit=crop&w=600&q=80' },
+            { category: 'cultural', name: 'Kathmandu Valley Circuit',badge: 'Heritage Trail',     badgeStyle: 'bg-white/80 backdrop-blur-sm text-[#03231C]', difficulty: 'Easy',     days: '5 Days',  season: 'Any',    img: 'https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?auto=format&fit=crop&w=600&q=80' },
+            { category: 'hike',     name: 'Nagarjun Forest Hike',   badge: 'Day Trip',           badgeStyle: 'bg-[#F5C647] text-[#03231C]', difficulty: 'Easy',     days: '1 Day',   season: 'Any',    img: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=600&q=80' },
+            { category: 'hike',     name: 'Shivapuri Peak Trek',    badge: 'Scenic Views',       badgeStyle: 'bg-white/80 backdrop-blur-sm text-[#03231C]', difficulty: 'Easy',     days: '2 Days',  season: 'Any',    img: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=80' },
+            { category: 'hike',     name: 'Champadevi Trail',       badge: 'Family Friendly',    badgeStyle: 'bg-[#F5C647] text-[#03231C]', difficulty: 'Easy',     days: '1 Day',   season: 'Any',    img: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=600&q=80' },
+        ];
+
+        var categoryMeta = {
+            all:      { title: 'Featured Destinations',   subtitle: 'The most iconic paths across the roof of the world.' },
+            basecamp: { title: 'Base Camps',              subtitle: 'Reach the foot of the world\'s greatest peaks.' },
+            cultural: { title: 'Cultural Circuits',       subtitle: 'Immerse yourself in heritage, temples, and local life.' },
+            hike:     { title: 'Short Hikes',             subtitle: 'Quick escapes with big rewards — perfect for a weekend.' },
+        };
+
+        function renderCard(d) {
+            return '<div class="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between">'
+                + '<div>'
+                + '<div class="h-48 bg-gray-200 relative bg-cover bg-center" style="background-image:url(\'' + d.img + '\')">'
+                + '<span class="absolute bottom-3 left-3 ' + d.badgeStyle + ' text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">' + d.badge + '</span>'
+                + '</div>'
+                + '<div class="p-5">'
+                + '<h3 class="font-serif text-xl text-[#03231C] mb-4">' + d.name + '</h3>'
+                + '<div class="grid grid-cols-3 gap-2 text-center border-t border-b border-gray-50 py-3 mb-4 text-[11px] text-gray-500">'
+                + '<div><span class="block mb-0.5">🏔️</span><span class="font-medium text-gray-700">' + d.difficulty + '</span></div>'
+                + '<div class="border-l border-r border-gray-100"><span class="block mb-0.5">⏱️</span><span class="font-medium text-gray-700">' + d.days + '</span></div>'
+                + '<div><span class="block mb-0.5">📅</span><span class="font-medium text-gray-700">' + d.season + '</span></div>'
+                + '</div></div></div>'
+                + '<div class="px-5 pb-5"><button class="w-full bg-[#03231C] hover:bg-emerald-950 text-white text-xs font-semibold py-3 rounded-lg transition">Explore Trail</button></div>'
+                + '</div>';
+        }
+
+        function filterCategory(cat) {
+            // Update tab styles
+            document.querySelectorAll('.category-tab').forEach(function(btn) {
+                var active = btn.getAttribute('data-cat') === cat;
+                btn.className = active
+                    ? 'category-tab bg-[#03231C] text-white px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition'
+                    : 'category-tab border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition';
+            });
+
+            // Update heading
+            var meta = categoryMeta[cat] || categoryMeta.all;
+            document.getElementById('section-title').textContent = meta.title;
+            document.getElementById('section-subtitle').textContent = meta.subtitle;
+
+            // Render matching cards
+            var filtered = cat === 'all' ? destinations : destinations.filter(function(d) { return d.category === cat; });
+            var grid = document.getElementById('destinations-grid');
+            grid.innerHTML = filtered.map(renderCard).join('');
+            document.getElementById('empty-state').style.display = filtered.length === 0 ? 'block' : 'none';
+
+            document.getElementById('destinations-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Render all on page load
+        filterCategory('all');
+    </script>
+
+    <footer class="bg-white border-t border-gray-100 text-gray-600 pt-16 pb-24 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div class="md:col-span-2">
+                <h4 class="font-serif font-bold text-base text-brandGreen mb-3">Ghumna Jam</h4>
+                <p class="text-xs text-gray-500 max-w-sm leading-relaxed">
+                    The Himalayan guide for those who seek the extraordinary. Curating professional treks with integrity and passion.
+                </p>
+            </div>
+            <div>
+                <h5 class="text-[10px] font-bold uppercase tracking-widest text-brandGreen mb-4">Adventure</h5>
+                <ul class="space-y-2 text-xs">
+                    <li><a href="#destinations-section" onclick="filterCategory('all')" class="hover:text-brandGreen">All Destinations</a></li>
+                    <li><a href="#destinations-section" onclick="filterCategory('basecamp')" class="hover:text-brandGreen">Base Camps</a></li>
+                    <li><a href="#destinations-section" onclick="filterCategory('cultural')" class="hover:text-brandGreen">Cultural Circuits</a></li>
+                    <li><a href="#destinations-section" onclick="filterCategory('hike')" class="hover:text-brandGreen">Short Hikes</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-[10px] font-bold uppercase tracking-widest text-brandGreen mb-4">Company</h5>
+                <ul class="space-y-2 text-xs">
+                    <li><a href="{{ url_for('auth.socials') }}" class="hover:text-brandGreen">About Us</a></li>
+                    <li><a href="{{ url_for('auth.socials') }}" class="hover:text-brandGreen">Careers</a></li>
+                    <li><a href="{{ url_for('auth.terms') }}" class="hover:text-brandGreen">Terms of Service</a></li>
+                    <li><a href="{{ url_for('auth.terms') }}" class="hover:text-brandGreen">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-[10px] font-bold uppercase tracking-widest text-brandGreen mb-4">Contact</h5>
+                <p class="text-xs text-gray-500 mb-4">contact@ghumnajam.com</p>
+                <div class="flex space-x-3 text-sm text-gray-400">
+                    <a href="{{ url_for('auth.socials') }}" class="hover:text-brandGreen">🌐</a>
+                    <a href="{{ url_for('auth.socials') }}" class="hover:text-brandGreen">📷</a>
+                    <a href="{{ url_for('auth.socials') }}" class="hover:text-brandGreen">✈️</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-xl">
+        <div class="bg-brandGreen text-white rounded-full shadow-2xl px-4 py-2.5 flex items-center justify-between border border-emerald-950/40">
+            <div class="flex items-center space-x-3">
+                <div class="flex -space-x-2">
+                    <div class="w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=100&q=80');"></div>
+                    <div class="w-7 h-7 rounded-full border border-brandGreen bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=100&q=80');"></div>
+                </div>
+                <span class="text-xs font-medium text-gray-200"><span class="font-bold text-white">2</span> Trails Selected</span>
+            </div>
+            <button class="bg-brandYellow hover:bg-yellow-500 text-brandGreen font-bold text-xs px-5 py-2 rounded-full transition shadow-md">
+                Compare Selected
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>

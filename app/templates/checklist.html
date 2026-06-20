@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block title %}Packing Checklist — Ghumna Jam{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+    <div>
+      <h1 class="font-serif text-3xl font-bold text-brandGreen">Packing Checklist</h1>
+      <p class="text-sm text-gray-500 mt-1">Track everything you need for your trek.</p>
+    </div>
+    <form action="{{ url_for('auth.checklist_reset') }}" method="POST"
+          onsubmit="return confirm('Reset to default items? Your custom items and check marks will be lost.');">
+      <button type="submit"
+              class="text-xs font-semibold text-red-500 border border-red-200 hover:bg-red-50 px-4 py-2 rounded-lg transition">
+        Reset to Defaults
+      </button>
+    </form>
+  </div>
+
+  <!-- Progress bar -->
+  {% set pct = ((packed / total * 100) | int) if total > 0 else 0 %}
+  <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 mb-8">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-sm font-semibold text-gray-700">Packing Progress</span>
+      <span class="text-sm font-bold text-brandGreen">{{ packed }} / {{ total }} packed</span>
+    </div>
+    <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+      <div class="bg-brandGreen h-3 rounded-full transition-all duration-500"
+           style="width: {{ pct }}%"></div>
+    </div>
+    <p class="text-xs text-gray-400 mt-2">
+      {% if pct == 100 %}
+        All packed! You're ready to go.
+      {% elif pct >= 50 %}
+        More than halfway there — keep going!
+      {% else %}
+        {{ 100 - pct }}% left to pack.
+      {% endif %}
+    </p>
+  </div>
+
+  <!-- Add new item form -->
+  <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 mb-8">
+    <h2 class="text-sm font-bold uppercase tracking-widest text-brandGreen mb-4">Add Item</h2>
+    <form action="{{ url_for('auth.checklist_add') }}" method="POST"
+          class="flex flex-col sm:flex-row gap-3">
+      <input type="text" name="name" placeholder="Item name (e.g. Rain cover)"
+             required maxlength="255"
+             class="flex-1 border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brandGreen/30 focus:border-brandGreen transition">
+      <select name="category"
+              class="border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brandGreen/30 focus:border-brandGreen transition bg-white">
+        {% set cats = ['Clothing','Footwear','Equipment','Health & Safety','Documents','Food & Nutrition','Hygiene','Electronics','General'] %}
+        {% for cat in cats %}
+          <option value="{{ cat }}">{{ cat }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit"
+              class="bg-brandGreen text-white text-sm font-semibold px-6 py-2.5 rounded-lg hover:bg-emerald-950 transition whitespace-nowrap">
+        + Add
+      </button>
+    </form>
+  </div>
+
+  <!-- Checklist grouped by category -->
+  {% if categories %}
+    {% for category, items in categories.items() %}
+    <div class="bg-white border border-gray-100 rounded-2xl shadow-sm mb-6 overflow-hidden">
+      <!-- Category header -->
+      <div class="flex items-center justify-between px-6 py-3 bg-gray-50 border-b border-gray-100">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-brandGreen">{{ category }}</h3>
+        <span class="text-xs text-gray-400">
+          {{ items | selectattr('is_checked') | list | length }} / {{ items | length }}
+        </span>
+      </div>
+
+      <ul class="divide-y divide-gray-50">
+        {% for item in items %}
+        <li class="flex items-center gap-3 px-6 py-3 group hover:bg-gray-50/60 transition"
+            id="item-{{ item.id }}">
+
+          <!-- Checkbox toggle -->
+          <form action="{{ url_for('auth.checklist_toggle', item_id=item.id) }}" method="POST" class="flex-shrink-0">
+            <button type="submit"
+                    class="w-5 h-5 rounded border-2 flex items-center justify-center transition
+                           {% if item.is_checked %}bg-brandGreen border-brandGreen text-white{% else %}border-gray-300 hover:border-brandGreen{% endif %}">
+              {% if item.is_checked %}
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                </svg>
+              {% endif %}
+            </button>
+          </form>
+
+          <!-- Item name -->
+          <span class="flex-1 text-sm text-gray-800 {% if item.is_checked %}line-through text-gray-400{% endif %}">
+            {{ item.name }}
+          </span>
+
+          <!-- Action buttons (visible on hover) -->
+          <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+
+            <!-- Edit button triggers modal -->
+            <button type="button"
+                    onclick="openEditModal({{ item.id }}, '{{ item.name | replace("'", "\\'") }}', '{{ item.category | replace("'", "\\'") }}')"
+                    class="text-xs text-gray-400 hover:text-brandGreen px-2 py-1 rounded hover:bg-brandGreen/10 transition">
+              Edit
+            </button>
+
+            <!-- Delete -->
+            <form action="{{ url_for('auth.checklist_delete', item_id=item.id) }}" method="POST"
+                  onsubmit="return confirm('Remove this item?');">
+              <button type="submit"
+                      class="text-xs text-gray-400 hover:text-red-500 px-2 py-1 rounded hover:bg-red-50 transition">
+                Delete
+              </button>
+            </form>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-center text-gray-400 py-16 text-sm">No items yet. Add your first item above.</p>
+  {% endif %}
+
+</div>
+
+<!-- Edit Modal -->
+<div id="edit-modal"
+     class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8">
+    <h2 class="font-serif text-lg font-bold text-brandGreen mb-6">Edit Item</h2>
+    <form id="edit-form" method="POST">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Item Name</label>
+          <input id="edit-name" type="text" name="name" required maxlength="255"
+                 class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brandGreen/30 focus:border-brandGreen transition">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Category</label>
+          <select id="edit-category" name="category"
+                  class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brandGreen/30 focus:border-brandGreen transition bg-white">
+            {% set cats = ['Clothing','Footwear','Equipment','Health & Safety','Documents','Food & Nutrition','Hygiene','Electronics','General'] %}
+            {% for cat in cats %}
+              <option value="{{ cat }}">{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button type="submit"
+                class="flex-1 bg-brandGreen text-white text-sm font-semibold py-2.5 rounded-lg hover:bg-emerald-950 transition">
+          Save Changes
+        </button>
+        <button type="button" onclick="closeEditModal()"
+                class="flex-1 border border-gray-200 text-sm font-semibold py-2.5 rounded-lg hover:bg-gray-50 transition text-gray-600">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const EDIT_URL_TEMPLATE = "{{ url_for('auth.checklist_edit', item_id=0) }}";
+  const CATEGORIES = {{ ['Clothing','Footwear','Equipment','Health & Safety','Documents','Food & Nutrition','Hygiene','Electronics','General'] | tojson }};
+
+  function openEditModal(id, name, category) {
+    document.getElementById('edit-form').action = EDIT_URL_TEMPLATE.replace('/0', '/' + id);
+    document.getElementById('edit-name').value = name;
+    const sel = document.getElementById('edit-category');
+    for (let i = 0; i < sel.options.length; i++) {
+      sel.options[i].selected = sel.options[i].value === category;
+    }
+    document.getElementById('edit-modal').classList.remove('hidden');
+    document.getElementById('edit-name').focus();
+  }
+
+  function closeEditModal() {
+    document.getElementById('edit-modal').classList.add('hidden');
+  }
+
+  document.getElementById('edit-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeEditModal();
+  });
+</script>
+{% endblock %}
