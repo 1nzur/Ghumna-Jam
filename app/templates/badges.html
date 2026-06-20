@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}My Badges — Ghumna Jam{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+    <div>
+      <h1 class="font-serif text-3xl font-bold text-brandGreen">My Achievements</h1>
+      <p class="text-sm text-gray-500 mt-1">Complete treks to unlock badges and track your milestones.</p>
+    </div>
+    <a href="{{ url_for('auth.bookings') }}"
+       class="text-xs font-semibold bg-brandGreen text-white px-5 py-2.5 rounded-lg hover:bg-emerald-950 transition whitespace-nowrap">
+      Go to My Bookings
+    </a>
+  </div>
+
+  <!-- Overall progress -->
+  <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-6">
+      <!-- Ring -->
+      <div class="relative flex-shrink-0 w-24 h-24 mx-auto sm:mx-0">
+        <svg class="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
+          <circle cx="48" cy="48" r="40" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+          <circle cx="48" cy="48" r="40" fill="none" stroke="#03231C" stroke-width="8"
+                  stroke-dasharray="{{ (earned_count / total_badges * 251.2) | round(1) }} 251.2"
+                  stroke-linecap="round"/>
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span class="text-xl font-bold text-brandGreen">{{ earned_count }}</span>
+          <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">/ {{ total_badges }}</span>
+        </div>
+      </div>
+      <div class="flex-1">
+        <p class="text-lg font-bold text-gray-800 mb-1">
+          {% if earned_count == total_badges %}
+            Legendary Explorer — All badges earned!
+          {% elif earned_count >= total_badges * 0.75 %}
+            Elite Trekker — Almost there!
+          {% elif earned_count >= total_badges * 0.5 %}
+            Seasoned Adventurer — Keep trekking!
+          {% elif earned_count > 0 %}
+            Rising Explorer — Good start!
+          {% else %}
+            Aspiring Trekker — Complete your first trek!
+          {% endif %}
+        </p>
+        <p class="text-sm text-gray-500">
+          {{ earned_count }} of {{ total_badges }} badges earned ·
+          {{ stats.total_completed }} trek{{ 's' if stats.total_completed != 1 }} completed ·
+          {{ stats.total_days }} total day{{ 's' if stats.total_days != 1 }} on trail
+        </p>
+        <!-- Overall bar -->
+        <div class="mt-4 w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+          <div class="bg-brandGreen h-2.5 rounded-full transition-all duration-700"
+               style="width: {{ ((earned_count / total_badges) * 100) | int if total_badges else 0 }}%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Badge categories -->
+  {% set categories = ['Milestone', 'Difficulty', 'Endurance', 'Destination'] %}
+  {% for category in categories %}
+    {% set cat_badges = badge_list | selectattr('category', 'equalto', category) | list %}
+    {% if cat_badges %}
+    <div class="mb-8">
+      <h2 class="text-xs font-bold uppercase tracking-widest text-brandGreen mb-4 flex items-center gap-2">
+        <span class="w-6 h-0.5 bg-brandGreen inline-block"></span>
+        {{ category }} Badges
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for badge in cat_badges %}
+        <div class="bg-white border rounded-2xl shadow-sm p-5 flex flex-col gap-3
+                    {% if badge.is_earned %}border-brandGreen/30 ring-1 ring-brandGreen/10{% else %}border-gray-100{% endif %}">
+
+          <!-- Icon + name -->
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 flex-shrink-0 rounded-2xl flex items-center justify-center text-3xl
+                        {% if badge.is_earned %}bg-gradient-to-br from-brandGreen/15 to-emerald-100 border border-brandGreen/20 shadow-sm{% else %}bg-gray-100 border border-gray-200 grayscale opacity-60{% endif %}">
+              {{ badge.icon }}
+            </div>
+            <div class="min-w-0">
+              <p class="font-bold text-sm {% if badge.is_earned %}text-brandGreen{% else %}text-gray-500{% endif %}">
+                {{ badge.name }}
+                {% if badge.is_earned %}
+                  <span class="ml-1 text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Earned</span>
+                {% endif %}
+              </p>
+              <p class="text-xs text-gray-400 mt-0.5 leading-snug">{{ badge.desc }}</p>
+            </div>
+          </div>
+
+          <!-- Progress / earned date -->
+          {% if badge.is_earned %}
+            <p class="text-[10px] text-gray-400">
+              Earned on {{ badge.earned_at.strftime('%b %d, %Y') if badge.earned_at else 'Unknown' }}
+            </p>
+          {% else %}
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[10px] font-semibold text-gray-500">Progress</span>
+                <span class="text-[10px] font-bold text-brandGreen">{{ badge.progress_current }} / {{ badge.progress_target }}</span>
+              </div>
+              <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                <div class="bg-brandGreen h-2 rounded-full transition-all duration-700"
+                     style="width: {{ badge.progress_pct }}%"></div>
+              </div>
+              {% if badge.progress_pct > 0 %}
+              <p class="text-[10px] text-gray-400 mt-1">{{ badge.progress_pct }}% complete</p>
+              {% else %}
+              <p class="text-[10px] text-gray-400 mt-1">Not started yet</p>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  {% endfor %}
+
+</div>
+{% endblock %}

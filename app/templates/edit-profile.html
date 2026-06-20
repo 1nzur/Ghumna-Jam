@@ -43,14 +43,18 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-2 sm:gap-3">
-                    <div class="rounded-2xl bg-white/10 backdrop-blur-sm px-4 py-3.5 text-center min-w-[70px]">
+                <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                    <div class="rounded-2xl bg-white/10 backdrop-blur-sm px-4 py-3.5 text-center min-w-[60px]">
                         <p id="hero-posts" class="text-2xl font-bold tabular-nums">0</p>
                         <p class="text-[9px] uppercase tracking-wider text-white/55 mt-0.5">Posts</p>
                     </div>
-                    <div class="rounded-2xl bg-white/10 backdrop-blur-sm px-4 py-3.5 text-center min-w-[70px]">
+                    <div class="rounded-2xl bg-white/10 backdrop-blur-sm px-4 py-3.5 text-center min-w-[60px]">
                         <p id="hero-followers" class="text-2xl font-bold tabular-nums">0</p>
                         <p class="text-[9px] uppercase tracking-wider text-white/55 mt-0.5">Followers</p>
+                    </div>
+                    <div class="rounded-2xl bg-white/10 backdrop-blur-sm px-4 py-3.5 text-center min-w-[60px]">
+                        <p id="hero-following" class="text-2xl font-bold tabular-nums">0</p>
+                        <p class="text-[9px] uppercase tracking-wider text-white/55 mt-0.5">Following</p>
                     </div>
                 </div>
             </div>
@@ -97,6 +101,47 @@
                     <p id="kpi-views" class="text-3xl font-bold text-brandGreen tabular-nums">0</p>
                     <p class="text-[10px] text-gray-400">impressions</p>
                 </div>
+            </div>
+
+            <!-- Achievements -->
+            <div class="rounded-2xl bg-white border border-gray-100 shadow-sm p-5 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="font-serif text-lg font-semibold text-brandGreen">Achievements</h3>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Badges earned from completed treks</p>
+                    </div>
+                    <a href="{{ url_for('auth.badges') }}"
+                       class="text-[11px] font-bold text-brandGreen hover:underline underline-offset-2">View all →</a>
+                </div>
+                {% set earned = [] %}
+                {% for b in badge_list if b.is_earned %}{% set _ = earned.append(b) %}{% endfor %}
+                {% if earned %}
+                    <div class="flex flex-wrap gap-3 mb-4">
+                        {% for b in earned[:6] %}
+                        <div class="flex flex-col items-center gap-1 w-16 group cursor-default" title="{{ b.desc }}">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brandGreen/10 to-emerald-100 border border-brandGreen/20 flex items-center justify-center text-2xl shadow-sm group-hover:scale-110 transition-transform">
+                                {{ b.icon }}
+                            </div>
+                            <span class="text-[9px] font-bold text-center text-brandGreen leading-tight">{{ b.name }}</span>
+                        </div>
+                        {% endfor %}
+                        {% if earned | length > 6 %}
+                        <div class="flex flex-col items-center gap-1 w-16">
+                            <div class="w-12 h-12 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center text-sm font-bold text-gray-500">
+                                +{{ earned | length - 6 }}
+                            </div>
+                            <span class="text-[9px] font-bold text-center text-gray-400 leading-tight">more</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs text-gray-500">{{ earned | length }} of {{ badge_list | length }} badges earned</p>
+                {% else %}
+                    <div class="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-5 text-center">
+                        <p class="text-2xl mb-2">🏔️</p>
+                        <p class="text-xs text-gray-500">No badges yet. Complete a trek to earn your first badge!</p>
+                        <a href="{{ url_for('auth.bookings') }}" class="inline-block mt-3 text-xs font-bold text-brandGreen hover:underline">Go to My Bookings →</a>
+                    </div>
+                {% endif %}
             </div>
 
             <!-- Monthly followers + Trail affinity -->
@@ -322,8 +367,11 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('kpi-views').textContent           = fmt(totals.views);
 
         // Hero stats
+        let followedList = [];
+        try { followedList = JSON.parse(localStorage.getItem('ghumna_jam_followed_trekkers') || '[]'); } catch {}
         document.getElementById('hero-posts').textContent     = own.length;
         document.getElementById('hero-followers').textContent = fmt(followers[profileName] || 0);
+        document.getElementById('hero-following').textContent = fmt(followedList.length);
 
         // Monthly followers chart
         let followerEvents = [];

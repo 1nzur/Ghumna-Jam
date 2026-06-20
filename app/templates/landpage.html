@@ -3,15 +3,21 @@
 {% block title %}Ghumna Jam - Discover Himalayan Trails{% endblock %}
 
 {% block content %}
-    <!-- Hero Banner -->
+    <!-- Hero Banner — title/subtitle/image editable from Admin › Homepage Content -->
+    {% set hero_image = hero.body if hero.body else 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80' %}
+    {% set hero_title = hero.title if hero.title else 'Discover the Spirit of the Himalayas' %}
+    {% set hero_subtitle = hero.subtitle if hero.subtitle else '' %}
     <section class="relative bg-brandGreen text-white py-24 sm:py-32 overflow-hidden">
-        <div class="absolute inset-0 z-0 opacity-50 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');"></div>
+        <div class="absolute inset-0 z-0 opacity-50 bg-cover bg-center" style="background-image: url('{{ hero_image }}');"></div>
         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-brandGreen/40 z-0"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal max-w-2xl leading-tight">
-                Discover the Spirit of the Himalayas
+                {{ hero_title }}
             </h1>
+            {% if hero_subtitle %}
+            <p class="mt-4 text-lg text-white/80 max-w-xl leading-relaxed">{{ hero_subtitle }}</p>
+            {% endif %}
         </div>
     </section>
 
@@ -51,34 +57,39 @@
         </div>
     </section>
 
-    <!-- Suggested filters tags -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-wrap items-center gap-2 text-xs">
-        <span class="text-gray-500 font-medium mr-2">Suggested:</span>
-        <button onclick="setSuggestionFilter('all')" class="bg-brandGreen text-white px-4 py-1.5 rounded-full font-medium">All Trails</button>
-        <button onclick="setSuggestionFilter('high-altitude')" class="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-1.5 rounded-full transition">High Altitude</button>
-        <button onclick="setSuggestionFilter('easy')" class="border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-1.5 rounded-full transition">Beginner Friendly</button>
-    </section>
-
     <!-- Dynamic featured destinations grid -->
     <main id="destinations" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 scroll-mt-24">
-        <div class="flex justify-between items-end mb-8">
+        <div class="flex justify-between items-end mb-6">
             <div>
-                <h2 class="font-serif text-2xl sm:text-3xl text-brandGreen font-semibold">Featured Destinations</h2>
-                <p class="text-xs text-gray-500 mt-1">The most iconic paths across the roof of the world.</p>
+                <h2 id="section-title" class="font-serif text-2xl sm:text-3xl text-brandGreen font-semibold">Featured Destinations</h2>
+                <p id="section-subtitle" class="text-xs text-gray-500 mt-1">The most iconic paths across the roof of the world.</p>
             </div>
+        </div>
+
+        <!-- Category + Suggestion Tabs -->
+        <div class="flex gap-2 mb-8 border-b border-gray-100 pb-4 overflow-x-auto">
+            <button onclick="filterCategory('all')" data-cat="all" class="category-tab bg-brandGreen text-white px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">All Destinations</button>
+            <button onclick="filterCategory('basecamp')" data-cat="basecamp" class="category-tab border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Base Camps</button>
+            <button onclick="filterCategory('cultural')" data-cat="cultural" class="category-tab border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Cultural Circuits</button>
+            <button onclick="filterCategory('hike')" data-cat="hike" class="category-tab border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Short Hikes</button>
+            <div class="w-px bg-gray-200 mx-1 self-stretch"></div>
+            <button onclick="filterCategory('high-altitude')" data-cat="high-altitude" class="category-tab border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">High Altitude</button>
+            <button onclick="filterCategory('beginner')" data-cat="beginner" class="category-tab border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition">Beginner Friendly</button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="destinations-grid">
             {% for dest in destinations %}
-            <div class="destination-card bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between hover:shadow-md transition duration-200"
+            <div class="destination-card bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between hover:shadow-md transition duration-200 cursor-pointer"
                  data-name="{{ dest.name | lower }}"
                  data-difficulty="{{ dest.difficulty | lower }}"
-                 data-season="{{ dest.season | lower }}">
+                 data-season="{{ dest.season | lower }}"
+                 data-category="{{ dest.category | default('all') }}"
+                 onclick="window.location='{{ url_for('auth.destination_detail', dest_id=dest.id) }}'">
                 <div>
                     <div class="h-48 bg-gray-200 relative bg-cover bg-center" style="background-image: url('{{ dest.image_url }}');">
                         <!-- Compare Checkbox -->
                         <div class="absolute top-3 right-3 z-10">
-                            <label class="relative flex items-center justify-center w-6 h-6 rounded-full bg-white/80 hover:bg-white backdrop-blur-sm shadow cursor-pointer transition select-none group border border-gray-100/50">
+                            <label class="relative flex items-center justify-center w-6 h-6 rounded-full bg-white/80 hover:bg-white backdrop-blur-sm shadow cursor-pointer transition select-none group border border-gray-100/50" onclick="event.stopPropagation()">
                                 <input type="checkbox"
                                        class="compare-checkbox sr-only"
                                        data-id="{{ dest.id }}"
@@ -158,11 +169,22 @@
                     <span class="font-bold text-white" id="compare-count">0</span> Trails Selected
                 </span>
             </div>
-            <a href="#" id="compare-button" class="bg-brandYellow hover:bg-yellow-500 text-brandGreen font-bold text-xs px-5 py-2 rounded-full transition shadow-md">
+            <a href="{{ url_for('auth.compare_treks') }}" id="compare-button" class="bg-brandYellow hover:bg-yellow-500 text-brandGreen font-bold text-xs px-5 py-2 rounded-full transition shadow-md">
                 Compare Selected
             </a>
         </div>
     </div>
+
+    <!-- Auto-apply category filter from URL ?cat= parameter (used by footer links) -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const cat = new URLSearchParams(window.location.search).get('cat');
+        if (cat) {
+            filterCategory(cat);
+            document.getElementById('destinations').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+    </script>
 
     <!-- Client-side filter functionality -->
     <script>
@@ -190,25 +212,42 @@
             });
         }
 
-        function setSuggestionFilter(tag) {
-            const difficultySelect = document.getElementById('difficulty-select');
-            const searchInput = document.getElementById('search-input');
-            const seasonSelect = document.getElementById('season-select');
+        const categoryMeta = {
+            all:           { title: 'Featured Destinations',  subtitle: 'The most iconic paths across the roof of the world.' },
+            basecamp:      { title: 'Base Camps',             subtitle: 'Reach the foot of the world\'s greatest peaks.' },
+            cultural:      { title: 'Cultural Circuits',      subtitle: 'Immerse yourself in heritage, temples, and local life.' },
+            hike:          { title: 'Short Hikes',            subtitle: 'Quick escapes with big rewards — perfect for a weekend.' },
+            'high-altitude': { title: 'High Altitude Treks', subtitle: 'Challenging routes above 5,000m for experienced trekkers.' },
+            beginner:      { title: 'Beginner Friendly',      subtitle: 'Easy trails perfect for first-time trekkers.' },
+        };
 
-            if (tag === 'all') {
-                difficultySelect.value = 'all';
-                searchInput.value = '';
-                seasonSelect.value = 'all';
-            } else if (tag === 'high-altitude') {
-                difficultySelect.value = 'challenging';
-                searchInput.value = '';
-                seasonSelect.value = 'all';
-            } else if (tag === 'easy') {
-                difficultySelect.value = 'easy';
-                searchInput.value = '';
-                seasonSelect.value = 'all';
-            }
-            filterTrails();
+        function filterCategory(cat) {
+            document.querySelectorAll('.category-tab').forEach(btn => {
+                const active = btn.getAttribute('data-cat') === cat;
+                btn.className = active
+                    ? 'category-tab bg-brandGreen text-white px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition'
+                    : 'category-tab border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition';
+            });
+
+            const meta = categoryMeta[cat] || categoryMeta.all;
+            document.getElementById('section-title').textContent = meta.title;
+            document.getElementById('section-subtitle').textContent = meta.subtitle;
+
+            document.querySelectorAll('.destination-card').forEach(card => {
+                let match;
+                if (cat === 'all') {
+                    match = true;
+                } else if (cat === 'high-altitude') {
+                    match = card.getAttribute('data-difficulty') === 'challenging';
+                } else if (cat === 'beginner') {
+                    match = card.getAttribute('data-difficulty') === 'easy';
+                } else {
+                    match = card.getAttribute('data-category') === cat;
+                }
+                card.style.display = match ? 'flex' : 'none';
+            });
+
+            document.getElementById('destinations').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         let selectedTreks = [];
@@ -278,4 +317,232 @@
     </script>
 
     <script src="{{ url_for('static', filename='js/weather-forecast.js') }}?v=1"></script>
+
+    <!-- Following Feed -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" id="following-feed-section">
+        <div class="flex items-end justify-between mb-6">
+            <div>
+                <h2 class="font-serif text-2xl sm:text-3xl text-brandGreen font-semibold">Following Feed</h2>
+                <p class="text-xs text-gray-500 mt-1">Latest reviews, photos and posts from trekkers you follow.</p>
+            </div>
+            <a href="{{ url_for('auth.socials') }}" class="text-xs font-bold text-brandGreen hover:underline underline-offset-2">Explore Socials →</a>
+        </div>
+        <div id="following-feed-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </section>
+
+    <script>
+    (function () {
+        const followKey  = 'ghumna_jam_followed_trekkers';
+        const storageKey = 'ghumna_jam_social_posts';
+
+        function timeAgo(ts) {
+            const m = Math.max(1, Math.round((Date.now() - ts) / 60000));
+            if (m < 60) return m + 'm ago';
+            const h = Math.round(m / 60);
+            if (h < 24) return h + 'h ago';
+            return Math.round(h / 24) + 'd ago';
+        }
+
+        function esc(v) {
+            return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+        }
+
+        function render() {
+            const followed = JSON.parse(localStorage.getItem(followKey) || '[]');
+            const container = document.getElementById('following-feed-list');
+            if (!container) return;
+
+            if (followed.length === 0) {
+                container.innerHTML = `
+                    <div class="md:col-span-2 lg:col-span-3 bg-gray-50 border border-dashed border-gray-200 rounded-2xl p-10 text-center">
+                        <p class="text-2xl mb-2">🏔️</p>
+                        <p class="font-semibold text-brandGreen mb-1">You're not following anyone yet</p>
+                        <p class="text-sm text-gray-400 mb-4">Follow trekkers on the Socials page to see their posts here.</p>
+                        <a href="{{ url_for('auth.socials') }}" class="inline-block bg-brandGreen text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-emerald-950 transition">Go to Socials</a>
+                    </div>`;
+                return;
+            }
+
+            let posts = [];
+            try { posts = JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch {}
+
+            const feed = posts
+                .filter(p => followed.includes(p.author))
+                .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0))
+                .slice(0, 9);
+
+            if (feed.length === 0) {
+                container.innerHTML = `
+                    <div class="md:col-span-2 lg:col-span-3 bg-gray-50 border border-dashed border-gray-200 rounded-2xl p-10 text-center">
+                        <p class="font-semibold text-brandGreen mb-1">Nothing to show yet</p>
+                        <p class="text-sm text-gray-400">Trekkers you follow haven't posted anything yet.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = feed.map(p => `
+                <article class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                    ${p.image ? `<img src="${esc(p.image)}" alt="" class="w-full h-44 object-cover bg-gray-100">` : ''}
+                    <div class="p-4 flex flex-col gap-2 flex-1">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full ${p.avatarColor || 'bg-brandGreen'} text-white flex items-center justify-center text-xs font-bold flex-shrink-0">${esc(p.initials || '?')}</div>
+                            <div class="min-w-0">
+                                <p class="text-xs font-bold text-brandGreen truncate">${esc(p.author)}</p>
+                                <p class="text-[10px] text-gray-400">${timeAgo(p.createdAt)}</p>
+                            </div>
+                            <span class="ml-auto text-[9px] font-bold uppercase tracking-wider bg-brandYellow/20 text-brandGreen px-2 py-0.5 rounded-full">${esc(p.tag)}</span>
+                        </div>
+                        <p class="text-xs text-gray-700 leading-relaxed line-clamp-3">${esc(p.caption)}</p>
+                        <div class="flex gap-3 text-[10px] font-bold text-brandGreen/70 mt-auto pt-2 border-t border-gray-50">
+                            <span>♥ ${Number(p.likes||0)}</span>
+                            <span>💬 ${(p.comments||[]).length}</span>
+                            <span>⭐ ${Number(p.recommendations||0)}</span>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        render();
+        window.addEventListener('storage', e => {
+            if (e.key === storageKey || e.key === followKey) render();
+        });
+    })();
+    </script>
+
+    {# ── About Section — shown only when admin has filled in the "about" key ── #}
+    {% if about and (about.title or about.body) %}
+    {# ── Who We Are ── #}
+    <section class="bg-white border-t border-gray-100 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+                {% if about.subtitle %}
+                <p class="text-brandYellow font-semibold text-xs uppercase tracking-widest mb-3">{{ about.subtitle }}</p>
+                {% else %}
+                <p class="text-brandYellow font-semibold text-xs uppercase tracking-widest mb-3">About Us</p>
+                {% endif %}
+                <h2 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold mb-4 leading-snug">
+                    {{ about.title or 'Who We Are' }}
+                </h2>
+                <p class="text-gray-500 text-sm leading-relaxed mb-6">
+                    {{ about.body or 'Ghumna Jam connects adventurers with the most breathtaking trekking routes across Nepal and the Himalayas. From beginner-friendly day hikes to advanced base camp expeditions, we are your trusted guide to the mountains.' }}
+                </p>
+                <div class="flex gap-8 text-center">
+                    <div>
+                        <p class="font-serif text-2xl font-bold text-brandGreen">16+</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Curated Routes</p>
+                    </div>
+                    <div class="border-l border-gray-100 pl-8">
+                        <p class="font-serif text-2xl font-bold text-brandGreen">5000m+</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Highest Altitude</p>
+                    </div>
+                    <div class="border-l border-gray-100 pl-8">
+                        <p class="font-serif text-2xl font-bold text-brandGreen">4</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Trek Categories</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Photo collage -->
+            <div class="grid grid-cols-2 gap-3 h-80">
+                <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=400&q=80"
+                     alt="Himalayan trekkers"
+                     class="rounded-2xl object-cover w-full h-full row-span-2"
+                     loading="lazy">
+                <img src="https://images.unsplash.com/photo-1570458436416-b8fcccfe883f?w=400&q=80"
+                     alt="Mountain camp"
+                     class="rounded-2xl object-cover w-full h-36"
+                     loading="lazy">
+                <img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80"
+                     alt="Nepal valley"
+                     class="rounded-2xl object-cover w-full h-36"
+                     loading="lazy">
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {# ── Why Trek With Us ── #}
+    {% if features and (features.title or features.body) %}
+    <section class="bg-[#F8F9FA] py-16 border-t border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                {% if features.subtitle %}
+                <p class="text-brandYellow font-semibold text-xs uppercase tracking-widest mb-3">{{ features.subtitle }}</p>
+                {% else %}
+                <p class="text-brandYellow font-semibold text-xs uppercase tracking-widest mb-3">Our Advantage</p>
+                {% endif %}
+                <h2 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold mb-3">
+                    {{ features.title or 'Why Trek With Us' }}
+                </h2>
+                {% if features.body %}
+                <p class="text-gray-500 text-sm max-w-xl mx-auto leading-relaxed">{{ features.body }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Feature cards with photos -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group">
+                    <div class="h-44 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80"
+                             alt="Expert guides"
+                             class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                             loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-serif text-lg text-brandGreen font-semibold mb-2">Expert Local Guides</h3>
+                        <p class="text-xs text-gray-500 leading-relaxed">Our certified guides know every trail, altitude risk, and hidden viewpoint. Your safety is always first.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group">
+                    <div class="h-44 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&q=80"
+                             alt="All difficulty levels"
+                             class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                             loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-serif text-lg text-brandGreen font-semibold mb-2">All Difficulty Levels</h3>
+                        <p class="text-xs text-gray-500 leading-relaxed">From easy weekend walks to demanding high-altitude expeditions — we have a route matched to your fitness.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group">
+                    <div class="h-44 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=600&q=80"
+                             alt="Real reviews"
+                             class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                             loading="lazy">
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-serif text-lg text-brandGreen font-semibold mb-2">Verified Trekker Reviews</h3>
+                        <p class="text-xs text-gray-500 leading-relaxed">Every review comes from a trekker who completed the route. Real experiences, honest ratings.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {# ── CTA Banner — shown only when admin has filled in the "cta" key ── #}
+    {% if cta and (cta.title or cta.body) %}
+    <section class="bg-brandGreen text-white py-16">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            {% if cta.title %}
+            <h2 class="font-serif text-3xl sm:text-4xl font-semibold mb-3">{{ cta.title }}</h2>
+            {% endif %}
+            {% if cta.subtitle %}
+            <p class="text-white/75 text-sm mb-6">{{ cta.subtitle }}</p>
+            {% endif %}
+            {% if cta.body %}
+            <p class="text-white/80 text-sm leading-relaxed mb-8">{{ cta.body }}</p>
+            {% endif %}
+            <a href="{{ url_for('auth.home') }}"
+               class="inline-block bg-brandYellow text-brandGreen font-bold text-sm px-8 py-3 rounded-full hover:bg-yellow-400 transition shadow-lg">
+                Explore All Trails
+            </a>
+        </div>
+    </section>
+    {% endif %}
+
 {% endblock %}

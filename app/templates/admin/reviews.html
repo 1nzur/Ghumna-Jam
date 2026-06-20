@@ -1,0 +1,66 @@
+{% extends "admin/base.html" %}
+{% block title %}Reviews{% endblock %}
+{% block header %}Review Moderation{% endblock %}
+
+{% block content %}
+
+<div class="flex items-center justify-between mb-5">
+  <p class="text-sm text-slate-500">{{ reviews|length }} review(s) total</p>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-slate-50 border-b border-slate-200">
+          <th class="text-left px-5 py-3 font-semibold text-slate-600">User</th>
+          <th class="text-left px-4 py-3 font-semibold text-slate-600">Destination ID</th>
+          <th class="text-center px-4 py-3 font-semibold text-slate-600">Rating</th>
+          <th class="text-left px-4 py-3 font-semibold text-slate-600">Comment</th>
+          <th class="text-left px-4 py-3 font-semibold text-slate-600">Posted</th>
+          <th class="text-right px-5 py-3 font-semibold text-slate-600">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for r in reviews %}
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="px-5 py-3">
+            <p class="font-medium text-slate-800">{{ r.user_name }}</p>
+            <p class="text-xs text-slate-400">{{ r.user_email }}</p>
+          </td>
+          <td class="px-4 py-3 text-slate-500">#{{ r.dest_id }}</td>
+          <td class="px-4 py-3 text-center">
+            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold
+              {% if r.rating >= 4 %}bg-green-100 text-green-700
+              {% elif r.rating == 3 %}bg-yellow-100 text-yellow-700
+              {% else %}bg-red-100 text-red-700{% endif %}">
+              {{ "★" * r.rating }}{{ "☆" * (5 - r.rating) }}
+            </span>
+          </td>
+          <td class="px-4 py-3 max-w-xs">
+            <p class="text-slate-700 truncate" title="{{ r.comment }}">{{ r.comment }}</p>
+          </td>
+          <td class="px-4 py-3 text-xs text-slate-400 whitespace-nowrap">
+            {{ r.created_at.strftime("%d %b %Y") if r.created_at else "—" }}
+          </td>
+          <td class="px-5 py-3 text-right">
+            <form method="POST" action="{{ url_for('admin.review_delete', review_id=r.id) }}"
+                  onsubmit="return confirm('Delete this review by {{ r.user_name }}?')">
+              <button type="submit"
+                      class="px-3 py-1.5 text-xs font-medium bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition-colors">
+                Remove
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="px-5 py-12 text-center text-slate-400">No reviews yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

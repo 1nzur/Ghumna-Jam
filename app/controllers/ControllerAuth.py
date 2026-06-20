@@ -37,191 +37,26 @@ class AuthController:
         return BaseModel.get_user_by_reset_token(token)
 
     def _sample_destination(self, dest_id=1):
-        return {
-            "id": dest_id,
-            "name": "Everest Base Camp",
-            "image_url": "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=80",
-            "difficulty": "Moderate",
-            "duration_days": 14,
-            "season": "Mar-May, Sep-Nov",
-            "description": "A classic Himalayan trek through Sherpa villages, alpine valleys, and dramatic views of the world's highest peaks.",
-            "price_per_person": 1299.00 * self.EXCHANGE_RATE,
-            "altitude_meters": 5364,
-            "highlights": "Sherpa culture, Kala Patthar viewpoint, historic base camp",
-        }
+        """Fallback single destination used when the DB row cannot be found."""
+        dests = self._sample_destinations()
+        match = next((d for d in dests if d["id"] == dest_id), None)
+        return match or dests[0]
 
     def _sample_destinations(self):
-        return [
-            self._sample_destination(1),
-            {
-                "id": 2,
-                "name": "Annapurna Circuit",
-                "image_url": "https://images.unsplash.com/photo-1517021897933-0e0319cfbc28?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Challenging",
-                "duration_days": 12,
-                "season": "Oct-Nov",
-                "description": "A sweeping circuit through river valleys, high passes, and traditional mountain settlements.",
-                "price_per_person": 999.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 5416,
-                "highlights": "Thorong La Pass, Kali Gandaki Gorge, diverse landscapes",
-            },
-            {
-                "id": 3,
-                "name": "Langtang Valley",
-                "image_url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Moderate",
-                "duration_days": 8,
-                "season": "Mar-May",
-                "description": "A beautiful alpine route with glacier views, yak pastures, and rich Tamang culture.",
-                "price_per_person": 649.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 3870,
-                "highlights": "Kyanjin Gompa, Yak pastures, panoramic glaciers",
-            },
-            {
-                "id": 4,
-                "name": "Manaslu Circuit",
-                "image_url": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Challenging",
-                "duration_days": 14,
-                "season": "Oct-Nov",
-                "description": "A remote, spectacular loop around the world's eighth-highest mountain, featuring the challenging Larkya La Pass.",
-                "price_per_person": 1099.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 5106,
-                "highlights": "Larkya La Pass, Buddhist monasteries, border region cultures",
-            },
-            {
-                "id": 5,
-                "name": "Upper Mustang",
-                "image_url": "https://images.unsplash.com/photo-1548565431-7e8c312521f7?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Moderate",
-                "duration_days": 10,
-                "season": "May-Oct",
-                "description": "Explore the ancient, dry kingdom of Lo Manthang, characterized by red cliffs, cave dwellings, and Tibetan culture.",
-                "price_per_person": 1899.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 3840,
-                "highlights": "Lo Manthang walled city, sky caves, Tibetan-style palace",
-            },
-            {
-                "id": 6,
-                "name": "Gokyo Lakes & Ri",
-                "image_url": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Moderate",
-                "duration_days": 12,
-                "season": "Mar-May, Sep-Nov",
-                "description": "Trek to the turquoise glacial lakes of the Gokyo Valley and climb Gokyo Ri for premium views of Everest and Lhotse.",
-                "price_per_person": 1249.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 5357,
-                "highlights": "Turquoise lakes, Ngozumpa Glacier, views of four 8,000m peaks",
-            },
-            {
-                "id": 7,
-                "name": "Kanchenjunga Base Camp",
-                "image_url": "https://images.unsplash.com/photo-1533240332313-0db49b459ad6?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Challenging",
-                "duration_days": 20,
-                "season": "Oct-Nov, Mar-May",
-                "description": "A long journey to the far eastern border of Nepal to reach the base camp of Kanchenjunga, the world's third highest peak.",
-                "price_per_person": 2199.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 5143,
-                "highlights": "Remote wilderness, Limbu culture, views of Yalung glacier",
-            },
-            {
-                "id": 8,
-                "name": "Mardi Himal",
-                "image_url": "https://images.unsplash.com/photo-1491555180598-88ee14744f4f?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Easy",
-                "duration_days": 6,
-                "season": "Mar-May, Sep-Nov",
-                "description": "A short, beautiful trek offering up-close views of Mount Machapuchare (Fishtail) and the Annapurna range.",
-                "price_per_person": 449.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 4500,
-                "highlights": "Machapuchare views, forest trails, quiet teahouses",
-            },
-            {
-                "id": 9,
-                "name": "Poon Hill Trek",
-                "image_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Easy",
-                "duration_days": 5,
-                "season": "Sep-May",
-                "description": "A classic short trek in the Annapurna foothills, famous for its panoramic sunrise views over Dhaulagiri and Annapurna.",
-                "price_per_person": 299.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 3210,
-                "highlights": "Sunrise over Annapurna, rhododendron forests, Gurung heritage",
-            },
-            {
-                "id": 10,
-                "name": "Gosaikunda Lake",
-                "image_url": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Moderate",
-                "duration_days": 7,
-                "season": "May-Oct",
-                "description": "A holy alpine lake trek in the Langtang region, sacred to both Hindus and Buddhists.",
-                "price_per_person": 499.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 4380,
-                "highlights": "Sacred alpine lakes, Laurebina Pass, views of Ganesh Himal",
-            },
-            {
-                "id": 11,
-                "name": "Rara Lake Wilderness",
-                "image_url": "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Moderate",
-                "duration_days": 9,
-                "season": "Mar-May, Sep-Nov",
-                "description": "Trek through the untouched forests of western Nepal to the largest and deepest freshwater lake in the country.",
-                "price_per_person": 1499.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 2990,
-                "highlights": "Pristine pine forests, bird watching, boating on Rara Lake",
-            },
-            {
-                "id": 12,
-                "name": "Makalu Base Camp",
-                "image_url": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Challenging",
-                "duration_days": 18,
-                "season": "Sep-Nov, Mar-May",
-                "description": "A challenging journey through the Makalu Barun National Park to the base of the world's fifth-highest peak.",
-                "price_per_person": 2099.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 4870,
-                "highlights": "Barun river valley, hanging glaciers, granite cliffs",
-            },
-            {
-                "id": 13,
-                "name": "Upper Dolpo Wilderness",
-                "image_url": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Challenging",
-                "duration_days": 21,
-                "season": "Jun-Sep",
-                "description": "A high-altitude, trans-Himalayan trek in the isolated Shey Phoksundo National Park, featuring Bon Buddhist heritage.",
-                "price_per_person": 3499.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 5130,
-                "highlights": "Phoksundo Lake, Shey Gompa, snow leopard habitats",
-            },
-            {
-                "id": 14,
-                "name": "Nar Phu Valley hidden villages",
-                "image_url": "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Challenging",
-                "duration_days": 11,
-                "season": "Sep-Nov, Mar-May",
-                "description": "Explore the hidden Tibetan valleys of Nar and Phu, with ancient stone villages and high pass crossings.",
-                "price_per_person": 749.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 5320,
-                "highlights": "Kang La Pass, ancient fortified villages, unique monasteries",
-            },
-            {
-                "id": 15,
-                "name": "Everest Three Passes",
-                "image_url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-                "difficulty": "Challenging",
-                "duration_days": 19,
-                "season": "Mar-May, Sep-Nov",
-                "description": "The ultimate Khumbu adventure crossing three high passes: Renjo La, Cho La, and Kongma La.",
-                "price_per_person": 1999.00 * self.EXCHANGE_RATE,
-                "altitude_meters": 5535,
-                "highlights": "Kongma La, Cho La, Renjo La, Gokyo lakes, Everest Base Camp",
-            },
-        ]
+        """
+        Return destinations from the database.
+        Falls back to an empty list on DB error (startup race condition guard).
+        """
+        try:
+            from app.models.admin_model import AdminModel
+            rows = AdminModel.get_active_destinations()
+            if rows:
+                # Ensure price_per_person is a plain float for template arithmetic
+                return [dict(r, price_per_person=float(r["price_per_person"])) for r in rows]
+        except Exception:
+            pass
+        # Empty list; the DB hasn't been seeded yet or connection failed
+        return []
 
     def _hotel_options(self, dest_id):
         hotels_by_destination = {
@@ -343,6 +178,11 @@ class AuthController:
             session["user_id"] = user["id"]
             session["user_name"] = user["full_name"]
             session["profile_picture_url"] = user.get("profile_picture_url")
+            # Persist admin flag so admin_required decorator works after login
+            if user.get("is_admin"):
+                session["is_admin"] = True
+                session["admin_id"] = user["id"]
+                session["admin_name"] = user["full_name"]
             flash("Logged in successfully.", "success")
             next_url = request.args.get("next")
             return redirect(next_url or url_for("auth.home"))
@@ -387,10 +227,34 @@ class AuthController:
 
     @login_required
     def home(self):
+        from app.models.admin_model import AdminModel
+
+        def _section(key):
+            """Fetch one homepage section dict, or empty dict if not set yet."""
+            try:
+                row = AdminModel.get_homepage_section(key)
+                return row or {}
+            except Exception:
+                return {}
+
+        def _photos(section):
+            try:
+                return AdminModel.get_active_photos_by_section(section)
+            except Exception:
+                return []
+
         return render_template(
             "landpage.html",
             destinations=self._sample_destinations(),
             user_name=session.get("user_name"),
+            # Homepage content sections from DB (admins edit these)
+            hero=_section("hero"),
+            about=_section("about"),
+            features=_section("features"),
+            cta=_section("cta"),
+            # Photos from DB grouped by their section name
+            gallery_photos=_photos("gallery"),
+            hero_photos=_photos("hero"),
         )
 
     @login_required
@@ -504,10 +368,42 @@ class AuthController:
             (dest for dest in self._sample_destinations() if dest["id"] == dest_id),
             self._sample_destination(dest_id),
         )
+        init_db(current_app)
+        already_logged = False
+        average_rating = 0.0
+        review_count = 0
+        favorite_ids = []
+        can_review = False
+        user_review = None
+        reviews = []
+        try:
+            avg, cnt = BaseModel.get_destination_rating(dest_id)
+            average_rating = avg
+            review_count = cnt
+            reviews = BaseModel.get_reviews_for_destination(dest_id)
+        except Exception:
+            pass
+        if session.get("user_id"):
+            uid = session["user_id"]
+            try:
+                already_logged = BaseModel.has_logged_trek(uid, destination["name"])
+                can_review = BaseModel.can_review_destination(uid, destination["name"])
+                user_review = BaseModel.get_user_review_for_dest(uid, dest_id)
+                favorite_ids = BaseModel.get_favorite_destination_ids(uid)
+            except Exception:
+                pass
         return render_template(
             "destination_detail.html",
             destination=destination,
             hotel_options=self._hotel_options(dest_id),
+            already_logged=already_logged,
+            average_rating=average_rating,
+            review_count=review_count,
+            favorite_ids=favorite_ids,
+            can_review=can_review,
+            user_review=user_review,
+            reviews=reviews,
+            now=datetime.utcnow(),
         )
 
     @login_required
@@ -598,7 +494,26 @@ class AuthController:
             flash("Profile updated successfully.", "success")
             return redirect(url_for("auth.edit_profile"))
 
-        return render_template("edit-profile.html", user=user, name_changed_from=name_changed_from)
+        try:
+            init_db(current_app)
+            earned_rows = BaseModel.get_user_badges(session["user_id"])
+            earned_map = {row["badge_slug"]: row["earned_at"] for row in earned_rows}
+            stats = BaseModel.get_completed_trek_stats(session["user_id"])
+            badge_list = []
+            for badge in BaseModel.BADGE_DEFINITIONS:
+                slug = badge["slug"]
+                current, target = BaseModel.badge_progress(slug, stats)
+                badge_list.append({
+                    **badge,
+                    "is_earned": slug in earned_map,
+                    "earned_at": earned_map.get(slug),
+                    "progress_current": current,
+                    "progress_target": target,
+                    "progress_pct": int(current / target * 100) if target else 0,
+                })
+        except Exception:
+            badge_list = []
+        return render_template("edit-profile.html", user=user, name_changed_from=name_changed_from, badge_list=badge_list)
 
     def logout(self):
         session.clear()
@@ -614,23 +529,193 @@ class AuthController:
         return render_template("socials.html")
 
     @login_required
+    def log_completion(self, dest_id):
+        init_db(current_app)
+        user_id = session["user_id"]
+        destination = next(
+            (d for d in self._sample_destinations() if d["id"] == dest_id),
+            self._sample_destination(dest_id),
+        )
+        if BaseModel.has_logged_trek(user_id, destination["name"]):
+            flash("You have already logged this trek as completed.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+        BaseModel.log_trek_completion(
+            user_id,
+            destination["name"],
+            destination["difficulty"],
+            destination["duration_days"],
+        )
+        new_badges = BaseModel.check_and_award_new_badges(user_id)
+        for badge in new_badges:
+            BaseModel.add_notification(
+                user_id,
+                f"You earned the \"{badge['name']}\" badge {badge['icon']}! {badge['desc']}."
+            )
+        if new_badges:
+            names = ", ".join(b["name"] for b in new_badges)
+            flash(f"Trek logged! New badge(s) unlocked: {names} — check your Badges page!", "success")
+        else:
+            flash("Trek logged as completed. Keep going for more badges!", "success")
+        return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+
+    @login_required
+    def badges(self):
+        init_db(current_app)
+        user_id = session["user_id"]
+        earned_rows = BaseModel.get_user_badges(user_id)
+        earned_map = {row["badge_slug"]: row["earned_at"] for row in earned_rows}
+        stats = BaseModel.get_completed_trek_stats(user_id)
+        badge_list = []
+        for badge in BaseModel.BADGE_DEFINITIONS:
+            slug = badge["slug"]
+            current, target = BaseModel.badge_progress(slug, stats)
+            badge_list.append({
+                **badge,
+                "is_earned": slug in earned_map,
+                "earned_at": earned_map.get(slug),
+                "progress_current": current,
+                "progress_target": target,
+                "progress_pct": int(current / target * 100) if target else 0,
+            })
+        earned_count = sum(1 for b in badge_list if b["is_earned"])
+        return render_template(
+            "badges.html",
+            badge_list=badge_list,
+            earned_count=earned_count,
+            total_badges=len(badge_list),
+            stats=stats,
+        )
+
+    @login_required
+    def notifications_read(self):
+        init_db(current_app)
+        BaseModel.mark_all_notifications_read(session["user_id"])
+        return redirect(request.referrer or url_for("auth.home"))
+
+    @login_required
+    def checklist(self):
+        init_db(current_app)
+        user_id = session["user_id"]
+        items = BaseModel.get_checklist(user_id)
+        categories = {}
+        for item in items:
+            categories.setdefault(item["category"], []).append(item)
+        total = len(items)
+        packed = sum(1 for i in items if i["is_checked"])
+        return render_template("checklist.html", categories=categories, total=total, packed=packed)
+
+    @login_required
+    def checklist_add(self):
+        init_db(current_app)
+        name = request.form.get("name", "").strip()
+        category = request.form.get("category", "General").strip()
+        if name:
+            BaseModel.add_checklist_item(session["user_id"], name, category)
+            flash(f'"{name}" added to your checklist.', "success")
+        else:
+            flash("Item name cannot be empty.", "error")
+        return redirect(url_for("auth.checklist"))
+
+    @login_required
+    def checklist_toggle(self, item_id):
+        init_db(current_app)
+        BaseModel.toggle_checklist_item(session["user_id"], item_id)
+        return redirect(url_for("auth.checklist"))
+
+    @login_required
+    def checklist_edit(self, item_id):
+        init_db(current_app)
+        name = request.form.get("name", "").strip()
+        category = request.form.get("category", "General").strip()
+        if name:
+            BaseModel.update_checklist_item(session["user_id"], item_id, name, category)
+            flash("Item updated.", "success")
+        else:
+            flash("Item name cannot be empty.", "error")
+        return redirect(url_for("auth.checklist"))
+
+    @login_required
+    def checklist_delete(self, item_id):
+        init_db(current_app)
+        BaseModel.delete_checklist_item(session["user_id"], item_id)
+        flash("Item removed.", "success")
+        return redirect(url_for("auth.checklist"))
+
+    @login_required
+    def checklist_reset(self):
+        init_db(current_app)
+        BaseModel.reset_checklist(session["user_id"])
+        flash("Checklist reset to defaults.", "success")
+        return redirect(url_for("auth.checklist"))
+
+    @login_required
     def submit_review(self, dest_id):
-        rating = request.form.get("rating", "0")
-        comment = request.form.get("comment", "").strip()
+        init_db(current_app)
+        user_id = session["user_id"]
+        destination = next(
+            (d for d in self._sample_destinations() if d["id"] == dest_id),
+            self._sample_destination(dest_id),
+        )
+        if not BaseModel.can_review_destination(user_id, destination["name"]):
+            flash("You can only review treks you have completed.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+        if BaseModel.get_user_review_for_dest(user_id, dest_id):
+            flash("You have already reviewed this trek.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
         try:
-            rating_value = int(rating)
+            rating = int(request.form.get("rating", 0))
         except ValueError:
-            rating_value = 0
-        if rating_value < 1 or rating_value > 5:
-            flash("Please provide a rating between 1 and 5.", "error")
+            rating = 0
+        comment = request.form.get("comment", "").strip()
+        if rating < 1 or rating > 5:
+            flash("Please select a star rating.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+        if len(comment) < 10:
+            flash("Your review must be at least 10 characters.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+        if len(comment) > 2000:
+            flash("Your review cannot exceed 2000 characters.", "error")
             return redirect(url_for("auth.destination_detail", dest_id=dest_id))
         try:
-            init_db(current_app)
-            BaseModel.add_destination_review(session["user_id"], dest_id, rating_value, comment)
+            BaseModel.add_destination_review(user_id, dest_id, rating, comment)
         except Exception:
-            flash("We could not save your review right now.", "error")
+            flash("Could not save your review right now.", "error")
             return redirect(url_for("auth.destination_detail", dest_id=dest_id))
-        flash("Thank you for your review!", "success")
+        flash("Your review has been posted!", "success")
+        return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+
+    @login_required
+    def edit_review(self, dest_id, review_id):
+        init_db(current_app)
+        user_id = session["user_id"]
+        existing = BaseModel.get_user_review_for_dest(user_id, dest_id)
+        if not existing or existing["id"] != review_id:
+            flash("Review not found.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+        elapsed = (datetime.utcnow() - existing["created_at"]).total_seconds()
+        if elapsed > 600:
+            flash("The 10-minute edit window has passed.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+        try:
+            rating = int(request.form.get("rating", 0))
+        except ValueError:
+            rating = 0
+        comment = request.form.get("comment", "").strip()
+        if rating < 1 or rating > 5:
+            flash("Please select a star rating.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+        if len(comment) < 10:
+            flash("Your review must be at least 10 characters.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+        if len(comment) > 2000:
+            flash("Your review cannot exceed 2000 characters.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+        try:
+            BaseModel.update_destination_review(user_id, review_id, rating, comment)
+        except Exception:
+            flash("Could not update your review right now.", "error")
+            return redirect(url_for("auth.destination_detail", dest_id=dest_id))
+        flash("Your review has been updated!", "success")
         return redirect(url_for("auth.destination_detail", dest_id=dest_id))
 
     @login_required

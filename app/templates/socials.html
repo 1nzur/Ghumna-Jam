@@ -82,6 +82,19 @@
                     </div>
                 </form>
 
+                <!-- Feed tabs -->
+                <div class="flex gap-2 border-b border-gray-100 pb-1">
+                    <button id="tab-all" onclick="switchTab('all')"
+                            class="tab-btn px-4 py-2 text-sm font-bold text-white bg-brandGreen rounded-xl transition">
+                        All Posts
+                    </button>
+                    <button id="tab-following" onclick="switchTab('following')"
+                            class="tab-btn px-4 py-2 text-sm font-bold text-gray-500 hover:text-brandGreen rounded-xl transition">
+                        Following
+                        <span id="following-count-badge" class="ml-1 text-[10px] bg-brandGreen/10 text-brandGreen px-1.5 py-0.5 rounded-full font-bold">0</span>
+                    </button>
+                </div>
+
                 <div id="feed" class="space-y-6"></div>
             </main>
 
@@ -184,6 +197,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let posts = loadPosts();
     let followedTrekkers = JSON.parse(localStorage.getItem(followKey) || '[]');
     let followerCounts = JSON.parse(localStorage.getItem(followersKey) || '{}');
+    let activeTab = 'all';
+
+    function switchTab(tab) {
+        activeTab = tab;
+        document.getElementById('tab-all').className = tab === 'all'
+            ? 'tab-btn px-4 py-2 text-sm font-bold text-white bg-brandGreen rounded-xl transition'
+            : 'tab-btn px-4 py-2 text-sm font-bold text-gray-500 hover:text-brandGreen rounded-xl transition';
+        document.getElementById('tab-following').className = tab === 'following'
+            ? 'tab-btn px-4 py-2 text-sm font-bold text-white bg-brandGreen rounded-xl transition'
+            : 'tab-btn px-4 py-2 text-sm font-bold text-gray-500 hover:text-brandGreen rounded-xl transition';
+        renderFeed();
+    }
+    window.switchTab = switchTab;
 
     function loadPosts() {
         const stored = localStorage.getItem(storageKey);
@@ -218,6 +244,26 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(followersKey, JSON.stringify(followerCounts));
     }
 
+    function toggleFollow(author) {
+        const isFollowing = followedTrekkers.includes(author);
+        if (isFollowing) {
+            followedTrekkers = followedTrekkers.filter(t => t !== author);
+            followerCounts[author] = Math.max(0, Number(followerCounts[author] || 0) - 1);
+        } else {
+            followedTrekkers = [...followedTrekkers, author];
+            followerCounts[author] = Number(followerCounts[author] || 0) + 1;
+            try {
+                const evKey = 'ghumna_jam_follower_events';
+                const evs = JSON.parse(localStorage.getItem(evKey) || '[]');
+                evs.push({ target: author, ts: Date.now() });
+                localStorage.setItem(evKey, JSON.stringify(evs));
+            } catch {}
+        }
+        saveFollows();
+        saveFollowerCounts();
+        renderFeed();
+    }
+
     function timeAgo(timestamp) {
         const minutes = Math.max(1, Math.round((Date.now() - timestamp) / 60000));
         if (minutes < 60) return `${minutes}m ago`;
@@ -240,14 +286,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderFeed() {
-        const visiblePosts = posts.filter(postMatchesFilter);
+        // Update following badge count
+        const badge = document.getElementById('following-count-badge');
+        if (badge) badge.textContent = followedTrekkers.length;
+
+        let visiblePosts = posts.filter(postMatchesFilter);
+        if (activeTab === 'following') {
+            visiblePosts = visiblePosts.filter(p => followedTrekkers.includes(p.author));
+        }
+
         recordPostViews(visiblePosts);
-        feed.innerHTML = visiblePosts.map(renderPost).join('') || `
-            <div class="bg-white border border-gray-100 rounded-2xl p-8 text-center text-gray-500">
-                <p class="font-semibold text-brandGreen">No posts in this trail circle yet.</p>
-                <p class="text-sm mt-1">Share the first photo from this route.</p>
-            </div>
-        `;
+
+        if (visiblePosts.length === 0) {
+            feed.innerHTML = activeTab === 'following'
+                ? `<div class="bg-white border border-dashed border-gray-200 rounded-2xl p-10 text-center">
+                       <p class="text-2xl mb-2">🏔️</p>
+                       <p class="font-semibold text-brandGreen mb-1">Your feed is empty</p>
+                       <p class="text-sm text-gray-400">Follow trekkers from "Trekkers To Follow" or click Follow on any post to see their content here.</p>
+                   </div>`
+                : `<div class="bg-white border border-gray-100 rounded-2xl p-8 text-center text-gray-500">
+                       <p class="font-semibold text-brandGreen">No posts in this trail circle yet.</p>
+                       <p class="text-sm mt-1">Share the first photo from this route.</p>
+                   </div>`;
+        } else {
+            feed.innerHTML = visiblePosts.map(renderPost).join('');
+        }
+
         renderRecommendations();
         bindPostActions();
     }
@@ -273,9 +337,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderPost(post) {
+        const isOwn = post.author === currentUser.name;
+        const isFollowing = followedTrekkers.includes(post.author);
+        const followBtn = isOwn ? '' : isFollowing
+            ? `<button class="follow-post-btn flex-shrink-0 text-[11px] font-bold bg-brandGreen text-white px-3 py-1.5 rounded-full flex items-center gap-1 transition" data-author="${escapeHtml(post.author)}">
+                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                   Following
+               </button>`
+            : `<button class="follow-post-btn flex-shrink-0 text-[11px] font-bold border border-brandGreen text-brandGreen px-3 py-1.5 rounded-full hover:bg-brandGreen hover:text-white transition" data-author="${escapeHtml(post.author)}">
+                   + Follow
+               </button>`;
+
         return `
             <article class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden" data-post-id="${post.id}">
-                <header class="p-5 flex items-center justify-between gap-4">
+                <header class="p-5 flex items-center justify-between gap-3">
                     <div class="flex items-center gap-3 min-w-0">
                         <div class="w-11 h-11 rounded-full ${post.avatarColor || 'bg-brandGreen'} text-white flex items-center justify-center font-bold flex-none">${escapeHtml(post.initials)}</div>
                         <div class="min-w-0">
@@ -283,7 +358,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             <p class="text-xs text-gray-400 truncate">${escapeHtml(post.location || post.tag)} · ${timeAgo(post.createdAt)}</p>
                         </div>
                     </div>
-                    <span class="rounded-full bg-brandYellow/20 text-brandGreen px-3 py-1 text-[10px] font-bold uppercase tracking-wider">${escapeHtml(post.tag)}</span>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        ${followBtn}
+                        <span class="rounded-full bg-brandYellow/20 text-brandGreen px-3 py-1 text-[10px] font-bold uppercase tracking-wider">${escapeHtml(post.tag)}</span>
+                    </div>
                 </header>
 
                 ${post.image ? `<img src="${post.image}" alt="${escapeHtml(post.caption)}" class="w-full max-h-[640px] object-cover bg-gray-100">` : ''}
@@ -363,23 +441,27 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
 
         const trekkers = [...new Map(posts.filter(post => post.author !== currentUser.name).map(post => [post.author, post])).values()].slice(0, 4);
-        trekkersToFollow.innerHTML = trekkers.map(post => {
+        trekkersToFollow.innerHTML = trekkers.length ? trekkers.map(post => {
             const isFollowing = followedTrekkers.includes(post.author);
             return `
                 <div class="flex items-center justify-between gap-3">
                     <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-9 h-9 rounded-full ${post.avatarColor || 'bg-brandGreen'} text-white flex items-center justify-center text-xs font-bold">${escapeHtml(post.initials)}</div>
+                        <div class="w-9 h-9 rounded-full ${post.avatarColor || 'bg-brandGreen'} text-white flex items-center justify-center text-xs font-bold flex-shrink-0">${escapeHtml(post.initials)}</div>
                         <div class="min-w-0">
                             <p class="text-xs font-bold text-brandGreen truncate">${escapeHtml(post.author)}</p>
                             <p class="text-[11px] text-gray-400 truncate">${escapeHtml(post.tag)} trekker</p>
                         </div>
                     </div>
-                    <button class="follow-trekker text-[11px] font-bold ${isFollowing ? 'text-gray-400' : 'text-brandGreen'}" data-author="${escapeHtml(post.author)}" type="button">
-                        ${isFollowing ? 'Following' : 'Follow'}
+                    <button class="follow-trekker flex-shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-full transition
+                        ${isFollowing
+                            ? 'bg-brandGreen text-white'
+                            : 'border border-brandGreen text-brandGreen hover:bg-brandGreen hover:text-white'}"
+                        data-author="${escapeHtml(post.author)}" type="button">
+                        ${isFollowing ? '✓ Following' : '+ Follow'}
                     </button>
                 </div>
             `;
-        }).join('');
+        }).join('') : '<p class="text-xs text-gray-400">No other trekkers yet.</p>';
     }
 
     function bindPostActions() {
@@ -447,26 +529,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // Follow buttons on posts
+        document.querySelectorAll('.follow-post-btn').forEach(button => {
+            button.addEventListener('click', () => toggleFollow(button.dataset.author));
+        });
+
+        // Follow buttons in sidebar
         document.querySelectorAll('.follow-trekker').forEach(button => {
-            button.addEventListener('click', () => {
-                const author = button.dataset.author;
-                const isFollowing = followedTrekkers.includes(author);
-                followedTrekkers = isFollowing
-                    ? followedTrekkers.filter(item => item !== author)
-                    : [...followedTrekkers, author];
-                followerCounts[author] = Math.max(0, Number(followerCounts[author] || 0) + (isFollowing ? -1 : 1));
-                if (!isFollowing) {
-                    try {
-                        const evKey = 'ghumna_jam_follower_events';
-                        const evs = JSON.parse(localStorage.getItem(evKey) || '[]');
-                        evs.push({ target: author, ts: Date.now() });
-                        localStorage.setItem(evKey, JSON.stringify(evs));
-                    } catch {}
-                }
-                saveFollows();
-                saveFollowerCounts();
-                renderRecommendations();
-            });
+            button.addEventListener('click', () => toggleFollow(button.dataset.author));
         });
     }
 

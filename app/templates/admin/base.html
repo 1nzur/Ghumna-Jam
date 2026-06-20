@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Admin{% endblock %} — Ghumna Jam</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .sidebar-link { @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors; }
+    .sidebar-link.active { @apply bg-yellow-400/20 text-yellow-300; }
+    /* Thin scrollbar for sidebar */
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: #ffffff22; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+  <aside class="sidebar w-64 min-h-screen bg-[#1f2a27] flex flex-col fixed top-0 left-0 overflow-y-auto z-30 shadow-xl">
+
+    <!-- Logo -->
+    <div class="px-6 py-5 border-b border-white/10">
+      <a href="{{ url_for('admin.dashboard') }}" class="flex items-center gap-2">
+        <span class="text-yellow-400 text-xl font-bold">⛰</span>
+        <div>
+          <p class="text-white font-semibold leading-tight">Ghumna Jam</p>
+          <p class="text-slate-400 text-xs">Admin Panel</p>
+        </div>
+      </a>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 px-3 py-4 space-y-1">
+
+      <p class="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Overview</p>
+      <a href="{{ url_for('admin.dashboard') }}"
+         class="sidebar-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </a>
+
+      <p class="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mt-4 mb-2">Content</p>
+      <a href="{{ url_for('admin.destinations') }}"
+         class="sidebar-link {% if 'destination' in request.endpoint %}active{% endif %}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Trek Routes
+      </a>
+      <a href="{{ url_for('admin.photos') }}"
+         class="sidebar-link {% if request.endpoint == 'admin.photos' %}active{% endif %}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Photos
+      </a>
+      <a href="{{ url_for('admin.homepage_content') }}"
+         class="sidebar-link {% if request.endpoint == 'admin.homepage_content' %}active{% endif %}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        Homepage Content
+      </a>
+      <a href="{{ url_for('admin.announcements') }}"
+         class="sidebar-link {% if 'announcement' in request.endpoint %}active{% endif %}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+        Announcements
+      </a>
+
+      <p class="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mt-4 mb-2">People</p>
+      <a href="{{ url_for('admin.users') }}"
+         class="sidebar-link {% if request.endpoint == 'admin.users' %}active{% endif %}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        Users
+      </a>
+      <a href="{{ url_for('admin.reviews') }}"
+         class="sidebar-link {% if request.endpoint == 'admin.reviews' %}active{% endif %}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+        Reviews
+      </a>
+    </nav>
+
+    <!-- Admin user info -->
+    <div class="px-4 py-4 border-t border-white/10">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center text-[#1f2a27] font-bold text-sm">
+          {{ session.get('admin_name', 'A')[0].upper() }}
+        </div>
+        <div class="min-w-0">
+          <p class="text-white text-sm font-medium truncate">{{ session.get('admin_name', 'Admin') }}</p>
+          <p class="text-slate-400 text-xs">Administrator</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <a href="{{ url_for('auth.home') }}" target="_blank"
+           class="flex-1 text-center text-xs text-slate-400 hover:text-white py-1.5 rounded bg-white/5 hover:bg-white/10 transition-colors">
+          View Site
+        </a>
+        <a href="{{ url_for('admin.logout') }}"
+           class="flex-1 text-center text-xs text-red-400 hover:text-red-300 py-1.5 rounded bg-white/5 hover:bg-white/10 transition-colors">
+          Logout
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main content ─────────────────────────────────────────────────────── -->
+  <div class="ml-64 flex-1 flex flex-col min-h-screen">
+
+    <!-- Top bar -->
+    <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20 shadow-sm">
+      <h1 class="text-slate-700 font-semibold text-lg">{% block header %}Dashboard{% endblock %}</h1>
+      <div class="text-xs text-slate-400">
+        Logged in as <span class="font-medium text-slate-600">{{ session.get('admin_name', '') }}</span>
+      </div>
+    </header>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="px-6 pt-4 space-y-2">
+          {% for category, message in messages %}
+            {% set color = 'green' if category == 'success' else ('yellow' if category == 'info' else 'red') %}
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-{{ color }}-50 border border-{{ color }}-200 text-{{ color }}-800 text-sm">
+              <span class="mt-0.5">{% if category == 'success' %}✓{% elif category == 'info' %}ℹ{% else %}⚠{% endif %}</span>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Page content -->
+    <main class="flex-1 p-6">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="px-6 py-3 border-t border-slate-200 text-xs text-slate-400 text-center">
+      Ghumna Jam Admin Panel &mdash; Internal use only
+    </footer>
+  </div>
+
+</body>
+</html>
