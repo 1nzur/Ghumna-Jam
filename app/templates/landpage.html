@@ -140,8 +140,6 @@
                             <span>{{ dest.review_count or 0 }} reviews</span>
                         </div>
 
-                        {% include "partials/weather-forecast-card.html" %}
-                        
                         <div class="flex justify-between items-center pt-2">
                             <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400">Price</span>
                             <span class="text-base font-bold text-brandGreen">Rs. {{ "{:,.2f}".format(dest.price_per_person) }} <span class="text-[10px] text-gray-500 font-medium">/ explorer</span></span>
