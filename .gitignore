@@ -1,6 +1,0 @@
-# Ignore Python cache
-__pycache__/
-*.pyc
-
-# Ignore the virtual environment (very important, venv is huge!)
-venv/
