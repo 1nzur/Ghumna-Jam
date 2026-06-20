@@ -17,7 +17,6 @@ class AdminRoutes:
         # Auth
         bp.route("/login",  methods=["GET", "POST"])(ctrl.login)
         bp.route("/logout")(ctrl.logout)
-        bp.route("/setup",  methods=["GET", "POST"])(ctrl.setup)
 
         # Dashboard
         bp.route("/dashboard")(ctrl.dashboard)
