@@ -119,6 +119,19 @@ def init_db(app):
                 if col not in booking_cols:
                     cursor.execute(stmt)
 
+            # Fix legacy NOT NULL columns that block new bookings
+            legacy_fixes = [
+                "ALTER TABLE bookings MODIFY full_name VARCHAR(120) NOT NULL DEFAULT ''",
+                "ALTER TABLE bookings MODIFY email VARCHAR(160) NOT NULL DEFAULT ''",
+                "ALTER TABLE bookings MODIFY trek VARCHAR(80) NOT NULL DEFAULT ''",
+                "ALTER TABLE bookings MODIFY preferred_date DATE NULL DEFAULT NULL",
+                "ALTER TABLE bookings MODIFY people INT NULL DEFAULT 1",
+            ]
+            for stmt in legacy_fixes:
+                col = stmt.split("MODIFY ")[1].split(" ")[0]
+                if col in booking_cols:
+                    cursor.execute(stmt)
+
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS checklist_items (
