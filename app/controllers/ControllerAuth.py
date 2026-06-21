@@ -676,7 +676,57 @@ class AuthController:
                 flash("Please enter your email address.", "error")
                 return render_template("forgot_password.html", email=email), 400
             submitted_email = email
-            flash("If that email exists, reset instructions will be sent.", "success")
+
+            import secrets
+            import smtplib
+            from email.mime.multipart import MIMEMultipart
+            from email.mime.text import MIMEText
+
+            smtp_user = current_app.config.get("MAIL_USERNAME", "")
+            smtp_pass = current_app.config.get("MAIL_PASSWORD", "")
+
+            if not smtp_user or not smtp_pass or smtp_pass == "your-gmail-app-password-here":
+                flash("Email service is not configured. Please contact the administrator.", "error")
+                return render_template("forgot_password.html", email=email, submitted_email=submitted_email)
+
+            init_db(current_app)
+            user = BaseModel.get_user_by_email(email)
+            if not user:
+                flash("No account found with that email address.", "error")
+                return render_template("forgot_password.html", email=email, submitted_email=submitted_email)
+
+            try:
+                token = secrets.token_urlsafe(32)
+                BaseModel.save_reset_token(email, token)
+
+                reset_url = url_for("auth.reset_password", token=token, _external=True)
+
+                msg = MIMEMultipart("alternative")
+                msg["Subject"] = "Ghumna Jam — Password Reset"
+                msg["From"] = smtp_user
+                msg["To"] = email
+
+                html_body = f"""
+                <p>Hello {user['full_name']},</p>
+                <p>Click the link below to reset your Ghumna Jam password. This link expires in <strong>1 hour</strong>.</p>
+                <p><a href="{reset_url}" style="background:#03231C;color:#F5C647;padding:10px 20px;text-decoration:none;border-radius:6px;font-weight:bold;">Reset My Password</a></p>
+                <p>Or copy this URL:<br><code>{reset_url}</code></p>
+                <p>If you did not request this, ignore this email.</p>
+                <p>— Ghumna Jam Team</p>
+                """
+                msg.attach(MIMEText(html_body, "html"))
+
+                with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                    server.login(smtp_user, smtp_pass)
+                    server.sendmail(smtp_user, email, msg.as_string())
+
+                flash("Password reset link sent! Check your inbox (and spam folder).", "success")
+
+            except smtplib.SMTPAuthenticationError:
+                flash("Email authentication failed. Check MAIL_PASSWORD in config.", "error")
+            except Exception as e:
+                current_app.logger.error(f"Password reset email error: {e}")
+                flash("Could not send reset email. Please try again later.", "error")
         return render_template(
             "forgot_password.html",
             email=email,

@@ -1,5 +1,5 @@
 import pymysql
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.models.database import get_db
@@ -181,6 +181,22 @@ class BaseModel:
             if expires is None or expires < datetime.utcnow():
                 return None
             return user
+
+    @staticmethod
+    def save_reset_token(email, token):
+        db = get_db()
+        expires = datetime.utcnow() + timedelta(hours=1)
+        with db.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE users
+                SET reset_token = %s, reset_token_expires = %s
+                WHERE email = %s
+                """,
+                (token, expires, email),
+            )
+        db.commit()
+        return cursor.rowcount > 0
 
     @staticmethod
     def update_password(user_id, password):
