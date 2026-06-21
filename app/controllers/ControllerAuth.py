@@ -873,10 +873,10 @@ class AuthController:
         # price_per_person IS the grand total — all fees included, nothing added on top.
         # Allocate proportionally from the remaining budget after permits (real from DB).
         remaining      = price - permit_cost
-        guide_cost     = round(remaining * 0.25)
-        accom_cost     = round(remaining * 0.30)
-        transport_cost = round(remaining * 0.20)
-        equip_cost     = round(remaining * 0.10)
+        guide_cost     = round(remaining * 0.18)
+        accom_cost     = round(remaining * 0.18)
+        transport_cost = round(remaining * 0.10)
+        equip_cost     = round(remaining * 0.05)
         # Base service absorbs rounding so components sum exactly to price
         base_trek_cost = round(price - permit_cost - guide_cost - accom_cost - transport_cost - equip_cost)
         grand_total    = round(price)
