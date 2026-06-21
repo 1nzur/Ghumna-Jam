@@ -194,51 +194,42 @@
                     </svg>
                   </button>
 
-                  <!-- Breakdown rows — all items are included in the trek package price -->
+                  <!-- Breakdown of what is included in the trek package price -->
                   <div id="breakdown-panel" class="px-4 pb-4 pt-2 space-y-1 bg-white">
 
-                    <!-- Trek Package total (= price_per_person × travelers) -->
-                    <div class="flex justify-between items-center text-xs py-2 border-b border-gray-100 mb-1">
-                      <div>
-                        <span class="font-semibold text-brandGreen">🏔️ Trek Package</span>
-                        <span class="block text-[10px] text-gray-400">All-inclusive · <span class="bd-count">1</span> explorer(s) × Rs. {{ "{:,.0f}".format(destination.price_per_person) }}/person</span>
-                      </div>
-                      <span class="font-bold text-brandGreen" id="bd-trek">Rs. {{ "{:,.0f}".format(destination.price_per_person) }}</span>
-                    </div>
-
-                    <p class="text-[10px] uppercase tracking-wider font-bold text-gray-400 pt-1 pb-0.5">What's included in the package</p>
+                    <p class="text-[10px] uppercase tracking-wider font-bold text-gray-400 pb-1">What's included</p>
 
                     <!-- Base Trek Service Fee -->
                     <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50">
                       <span class="text-gray-600">⛺ Base Trek &amp; Service Fee</span>
-                      <span class="text-gray-700" id="bd-base">Rs. {{ "{:,.0f}".format(base_trek_cost) }}</span>
+                      <span class="text-gray-700">Rs. {{ "{:,.0f}".format(base_trek_cost) }}</span>
                     </div>
 
                     <!-- Guide Fee -->
                     <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50">
                       <div>
-                        <span class="text-gray-600">🧭 Guide Fee</span>
-                        <span class="block text-[10px] text-gray-400">Rs. 2,500/day × {{ destination.duration_days }} days</span>
+                        <span class="text-gray-600">🧭 Guide &amp; Porter</span>
+                        <span class="block text-[10px] text-gray-400">{{ destination.duration_days }} days</span>
                       </div>
-                      <span class="text-gray-700" id="bd-guide">Rs. {{ "{:,.0f}".format(guide_cost) }}</span>
+                      <span class="text-gray-700">Rs. {{ "{:,.0f}".format(guide_cost) }}</span>
                     </div>
 
                     <!-- Accommodation -->
                     <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50">
                       <div>
-                        <span class="text-gray-600">🏨 Standard Accommodation</span>
+                        <span class="text-gray-600">🏨 Accommodation</span>
                         <span class="block text-[10px] text-gray-400">{{ destination.duration_days - 1 }} nights (teahouse/lodge)</span>
                       </div>
-                      <span class="text-gray-700" id="bd-accom">Rs. {{ "{:,.0f}".format(accom_cost) }}</span>
+                      <span class="text-gray-700">Rs. {{ "{:,.0f}".format(accom_cost) }}</span>
                     </div>
 
                     <!-- Permits -->
                     <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50">
                       <div>
-                        <span class="text-gray-600">📋 Permits &amp; Entry</span>
+                        <span class="text-gray-600">📋 Permits &amp; Entry Fees</span>
                         <span class="block text-[10px] text-gray-400">{{ permit_names | join(' + ') if permit_names else 'TIMS Card' }}</span>
                       </div>
-                      <span class="text-gray-700" id="bd-permit">Rs. {{ "{:,.0f}".format(permit_cost) }}</span>
+                      <span class="text-gray-700">Rs. {{ "{:,.0f}".format(permit_cost) }}</span>
                     </div>
 
                     <!-- Transportation -->
@@ -247,34 +238,23 @@
                         <span class="text-gray-600">🚌 Transportation</span>
                         <span class="block text-[10px] text-gray-400">KTM ↔ trailhead (bus/flight)</span>
                       </div>
-                      <span class="text-gray-700" id="bd-transport">Rs. {{ "{:,.0f}".format(transport_cost) }}</span>
+                      <span class="text-gray-700">Rs. {{ "{:,.0f}".format(transport_cost) }}</span>
                     </div>
 
                     <!-- Equipment -->
                     <div class="flex justify-between items-center text-xs py-1 border-b border-gray-100">
                       <div>
-                        <span class="text-gray-600">🎒 Equipment Rental</span>
-                        <span class="block text-[10px] text-gray-400">Gear, sleeping bag, poles</span>
+                        <span class="text-gray-600">🎒 Equipment &amp; Gear</span>
+                        <span class="block text-[10px] text-gray-400">Sleeping bag, poles, safety kit</span>
                       </div>
-                      <span class="text-gray-700" id="bd-equip">Rs. {{ "{:,.0f}".format(equip_cost) }}</span>
+                      <span class="text-gray-700">Rs. {{ "{:,.0f}".format(equip_cost) }}</span>
                     </div>
-
-                    <!-- Optional hotel upgrade -->
-                    {% if hotel_options %}
-                    <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50">
-                      <div>
-                        <span class="text-gray-600">🏩 Hotel Upgrade (optional)</span>
-                        <span class="block text-[10px] text-gray-400" id="bd-hotel-nights">Select a hotel above to add</span>
-                      </div>
-                      <span class="text-gray-700" id="bd-hotel">—</span>
-                    </div>
-                    {% endif %}
 
                     <!-- Grand Total -->
                     <div class="flex justify-between items-center pt-3 mt-1 border-t-2 border-brandGreen/20">
                       <div>
                         <span class="text-sm font-bold text-brandGreen">Grand Total</span>
-                        <span class="block text-[10px] text-gray-400"><span class="bd-count">1</span> explorer(s) + hotel upgrade</span>
+                        <span class="block text-[10px] text-gray-400"><span class="bd-count">1</span> explorer(s) — everything included</span>
                       </div>
                       <span class="text-base font-bold text-brandGreen" id="total_price_val">Rs. {{ "{:,.0f}".format(grand_total) }}</span>
                     </div>
@@ -501,75 +481,37 @@ document.addEventListener("DOMContentLoaded", function() {
     var travelersInput = document.getElementById('travelers_count');
     var totalPriceVal  = document.getElementById('total_price_val');
     var heroTotal      = document.getElementById('hero-total');
-    var bdTrek         = document.getElementById('bd-trek');
-    var bdHotel        = document.getElementById('bd-hotel');
     var bdCounts       = document.querySelectorAll('.bd-count');
 
-    // price_per_person IS the all-inclusive package price per person
+    // price_per_person is the all-inclusive grand total per person — nothing added on top
     var pricePerPerson = {{ destination.price_per_person | float }};
-    var nights         = {{ destination.duration_days }} - 1;
-    var hotelPerNight  = 0;
 
     function fmt(n) {
         return 'Rs. ' + Math.round(n).toLocaleString('en-IN');
     }
 
     function updateBreakdown() {
-        var count      = parseInt(travelersInput.value) || 1;
-        var trekTotal  = pricePerPerson * count;          // package scales with travelers
-        var hotelTotal = hotelPerNight * nights * count;  // hotel upgrade also scales
-        var grand      = trekTotal + hotelTotal;
+        var count = parseInt(travelersInput.value) || 1;
+        var grand = pricePerPerson * count;
 
-        // Trek package row (scales with travelers)
-        if (bdTrek) bdTrek.textContent = fmt(trekTotal);
-        // Hotel upgrade row
-        if (bdHotel) {
-            bdHotel.textContent = hotelPerNight > 0 ? fmt(hotelTotal) : '—';
-        }
-        // Grand total
         if (totalPriceVal) totalPriceVal.textContent = fmt(grand);
         if (heroTotal)     heroTotal.textContent     = fmt(grand);
-        // Sub-breakdown labels showing traveler count
         bdCounts.forEach(function(el) { el.textContent = count; });
     }
 
-    // Clamp travelers
     function clampTravelers() {
         var v = parseInt(travelersInput.value);
         if (isNaN(v) || v < 1) travelersInput.value = 1;
         else if (v > 12) travelersInput.value = 12;
     }
-    travelersInput.addEventListener('input', function() { clampTravelers(); updateBreakdown(); });
+    travelersInput.addEventListener('input',  function() { clampTravelers(); updateBreakdown(); });
     travelersInput.addEventListener('change', function() { clampTravelers(); updateBreakdown(); });
-
-    // Hotel selection — listen for change on radio buttons
-    document.querySelectorAll('input[name="selected_hotel"]').forEach(function(radio) {
-        radio.addEventListener('change', function() {
-            var priceAttr = radio.getAttribute('data-price');
-            hotelPerNight = priceAttr ? parseFloat(priceAttr) : 0;
-            var bdHotelNights = document.getElementById('bd-hotel-nights');
-            if (bdHotelNights) bdHotelNights.textContent = nights + ' nights @ Rs. ' + Math.round(hotelPerNight).toLocaleString('en-IN') + '/night';
-            updateBreakdown();
-        });
-    });
 
     // Set min date to tomorrow
     var tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    var minDate = tomorrow.toISOString().split('T')[0];
     var dateInput = document.getElementById('departure_date');
-    if (dateInput) dateInput.min = minDate;
-
-    // Pre-load the initially-checked hotel price
-    var checkedHotel = document.querySelector('input[name="selected_hotel"]:checked');
-    if (checkedHotel) {
-        var initPrice = checkedHotel.getAttribute('data-price');
-        hotelPerNight = initPrice ? parseFloat(initPrice) : 0;
-        var bdHotelNights = document.getElementById('bd-hotel-nights');
-        if (bdHotelNights && hotelPerNight > 0) {
-            bdHotelNights.textContent = nights + ' nights @ Rs. ' + Math.round(hotelPerNight).toLocaleString('en-IN') + '/night';
-        }
-    }
+    if (dateInput) dateInput.min = tomorrow.toISOString().split('T')[0];
 
     updateBreakdown();
 });

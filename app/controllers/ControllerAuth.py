@@ -870,15 +870,16 @@ class AuthController:
             permit_cost = 2000
             permit_names = ["TIMS Card"]
 
-        # price_per_person IS the grand total (all-inclusive package price).
-        # Break it down into components that sum to price_per_person.
-        guide_cost     = round(2500 * duration)
-        transport_cost = round(price * 0.15)   # ~15% of package for transport
-        equip_cost     = round(price * 0.08)   # ~8% for equipment
-        accom_cost     = round(price * 0.20)   # ~20% for standard accommodation
-        # Base service/trek fee is whatever's left after deducting known costs
-        base_trek_cost = max(0, round(price - guide_cost - permit_cost - transport_cost - equip_cost - accom_cost))
-        grand_total    = round(price)           # price_per_person is the grand total
+        # price_per_person IS the grand total — all fees included, nothing added on top.
+        # Allocate proportionally from the remaining budget after permits (real from DB).
+        remaining      = price - permit_cost
+        guide_cost     = round(remaining * 0.25)
+        accom_cost     = round(remaining * 0.30)
+        transport_cost = round(remaining * 0.20)
+        equip_cost     = round(remaining * 0.10)
+        # Base service absorbs rounding so components sum exactly to price
+        base_trek_cost = round(price - permit_cost - guide_cost - accom_cost - transport_cost - equip_cost)
+        grand_total    = round(price)
 
         return render_template(
             "destination_detail.html",
