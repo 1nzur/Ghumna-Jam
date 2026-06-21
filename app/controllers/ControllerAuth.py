@@ -851,12 +851,26 @@ class AuthController:
         price = float(destination.get("price_per_person", 0))
         duration = int(destination.get("duration_days", 1))
 
-        # Per-destination permit costs
-        permit_map = {
-            1: 7500, 2: 4500, 3: 3500, 4: 9000, 5: 50000,
-            6: 7500, 7: 12000, 8: 3000, 9: 3000, 10: 3500,
-            11: 15000, 12: 12000, 13: 60000, 14: 10000, 15: 8000, 16: 4000,
-        }
+        # Real permit costs from DB
+        permit_cost = 0
+        permit_names = []
+        try:
+            db = get_db()
+            with db.cursor() as cur:
+                cur.execute(
+                    """SELECT p.name, p.cost_npr FROM permits p
+                       JOIN destination_permits dp ON dp.permit_id = p.id
+                       WHERE dp.destination_id = %s""",
+                    (dest_id,),
+                )
+                permit_rows = cur.fetchall()
+                permit_cost = int(sum(float(r["cost_npr"]) for r in permit_rows))
+                permit_names = [r["name"] for r in permit_rows]
+        except Exception:
+            permit_cost = 2000
+            permit_names = ["TIMS Card"]
+
+        # Transport and equipment are estimated (no per-destination DB table)
         transport_map = {
             1: 18000, 2: 8000, 3: 6000, 4: 12000, 5: 15000,
             6: 18000, 7: 25000, 8: 5000, 9: 5000, 10: 6000,
@@ -867,7 +881,6 @@ class AuthController:
             6: 8000, 7: 10000, 8: 3000, 9: 3000, 10: 4000,
             11: 5000, 12: 9000, 13: 10000, 14: 7000, 15: 8000, 16: 3000,
         }
-        permit_cost   = permit_map.get(dest_id, 4000)
         transport_cost = transport_map.get(dest_id, 6000)
         equip_cost    = equip_map.get(dest_id, 4000)
         guide_cost    = 2500 * duration
@@ -887,6 +900,7 @@ class AuthController:
             reviews=reviews,
             now=datetime.utcnow(),
             permit_cost=permit_cost,
+            permit_names=permit_names,
             transport_cost=transport_cost,
             equip_cost=equip_cost,
             guide_cost=guide_cost,

@@ -97,9 +97,10 @@
         <!-- Right: Booking Form Card (takes 1 col) -->
         <div class="bg-white border border-gray-100 rounded-2xl shadow-lg p-6 sm:p-8 space-y-6 sticky top-24">
             <div>
-                <span class="block text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-1">Price Per Explorer</span>
-                <span class="text-3xl font-bold text-brandGreen">Rs. {{ "{:,.2f}".format(destination.price_per_person) }}</span>
+                <span class="block text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-1">Grand Total (per explorer)</span>
+                <span class="text-3xl font-bold text-brandGreen" id="hero-total">Rs. {{ "{:,.0f}".format(grand_total) }}</span>
                 <span class="text-xs text-gray-500 font-medium"> NPR</span>
+                <span class="block text-[10px] text-gray-400 mt-0.5">Trek package + guide + permits + transport + gear + VAT</span>
             </div>
 
             {% if session.get('user_id') %}
@@ -227,7 +228,7 @@
                     <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-50">
                       <div>
                         <span class="font-medium text-gray-700">📋 Permits & Entry</span>
-                        <span class="block text-[10px] text-gray-400" id="bd-permit-note">TIMS + National Park fee</span>
+                        <span class="block text-[10px] text-gray-400" id="bd-permit-note">{{ permit_names | join(' + ') if permit_names else 'TIMS Card' }}</span>
                       </div>
                       <span class="font-semibold text-gray-800" id="bd-permit">Rs. {{ "{:,.0f}".format(permit_cost) }}</span>
                     </div>
@@ -486,6 +487,7 @@
 document.addEventListener("DOMContentLoaded", function() {
     var travelersInput = document.getElementById('travelers_count');
     var totalPriceVal  = document.getElementById('total_price_val');
+    var heroTotal      = document.getElementById('hero-total');
     var bdTrek         = document.getElementById('bd-trek');
     var bdGuide        = document.getElementById('bd-guide');
     var bdHotel        = document.getElementById('bd-hotel');
@@ -524,6 +526,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (bdEquip)     bdEquip.textContent     = fmt(equipCost);
         if (bdTax)       bdTax.textContent       = fmt(tax);
         if (totalPriceVal) totalPriceVal.textContent = fmt(grand);
+        if (heroTotal) heroTotal.textContent = fmt(grand);
         bdCounts.forEach(function(el) { el.textContent = count; });
     }
 
