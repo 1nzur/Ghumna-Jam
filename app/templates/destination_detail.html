@@ -250,16 +250,27 @@
                       <span class="text-gray-700">Rs. {{ "{:,.0f}".format(equip_cost) }}</span>
                     </div>
 
+                    {% if hotel_options %}
+                    <!-- Hotel (add-on — updates live when hotel is selected above) -->
+                    <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50">
+                      <div>
+                        <span class="text-gray-600">🏩 Hotel Stay</span>
+                        <span class="block text-[10px] text-gray-400" id="bd-hotel-label">Select a hotel above</span>
+                      </div>
+                      <span class="text-gray-700" id="bd-hotel">—</span>
+                    </div>
+                    {% endif %}
+
                     <!-- Grand Total -->
                     <div class="flex justify-between items-center pt-3 mt-1 border-t-2 border-brandGreen/20">
                       <div>
                         <span class="text-sm font-bold text-brandGreen">Grand Total</span>
-                        <span class="block text-[10px] text-gray-400"><span class="bd-count">1</span> explorer(s) — everything included</span>
+                        <span class="block text-[10px] text-gray-400"><span class="bd-count">1</span> explorer(s)</span>
                       </div>
                       <span class="text-base font-bold text-brandGreen" id="total_price_val">Rs. {{ "{:,.0f}".format(grand_total) }}</span>
                     </div>
 
-                    <p class="text-[10px] text-gray-400 pt-1">All prices in NPR. Hotel upgrade added on top of package.</p>
+                    <p class="text-[10px] text-gray-400 pt-1">All prices in NPR.</p>
                   </div>
                 </div>
 
@@ -483,17 +494,32 @@ document.addEventListener("DOMContentLoaded", function() {
     var heroTotal      = document.getElementById('hero-total');
     var bdCounts       = document.querySelectorAll('.bd-count');
 
-    // price_per_person is the all-inclusive grand total per person — nothing added on top
     var pricePerPerson = {{ destination.price_per_person | float }};
+    var nights         = {{ destination.duration_days - 1 }};
+    var hotelPerNight  = 0;
+    var hotelName      = '';
+
+    var bdHotel      = document.getElementById('bd-hotel');
+    var bdHotelLabel = document.getElementById('bd-hotel-label');
 
     function fmt(n) {
         return 'Rs. ' + Math.round(n).toLocaleString('en-IN');
     }
 
     function updateBreakdown() {
-        var count = parseInt(travelersInput.value) || 1;
-        var grand = pricePerPerson * count;
+        var count      = parseInt(travelersInput.value) || 1;
+        var trekTotal  = pricePerPerson * count;
+        var hotelTotal = hotelPerNight * nights * count;
+        var grand      = trekTotal + hotelTotal;
 
+        if (bdHotel) {
+            bdHotel.textContent = hotelTotal > 0 ? fmt(hotelTotal) : '—';
+        }
+        if (bdHotelLabel && hotelTotal > 0) {
+            bdHotelLabel.textContent = hotelName + ' · ' + nights + ' nights × ' + count + ' person(s)';
+        } else if (bdHotelLabel) {
+            bdHotelLabel.textContent = 'Select a hotel above';
+        }
         if (totalPriceVal) totalPriceVal.textContent = fmt(grand);
         if (heroTotal)     heroTotal.textContent     = fmt(grand);
         bdCounts.forEach(function(el) { el.textContent = count; });
@@ -506,6 +532,14 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     travelersInput.addEventListener('input',  function() { clampTravelers(); updateBreakdown(); });
     travelersInput.addEventListener('change', function() { clampTravelers(); updateBreakdown(); });
+
+    document.querySelectorAll('input[name="selected_hotel"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            hotelPerNight = parseFloat(radio.getAttribute('data-price') || 0);
+            hotelName     = radio.value;
+            updateBreakdown();
+        });
+    });
 
     // Set min date to tomorrow
     var tomorrow = new Date();
