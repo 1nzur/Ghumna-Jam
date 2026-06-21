@@ -6,7 +6,7 @@ from functools import wraps
 from flask import current_app, flash, redirect, render_template, request, session, url_for
 
 from app.models.base_model import BaseModel
-from app.models.database import init_db
+from app.models.database import init_db, get_db
 
 
 def login_required(view):
@@ -978,7 +978,95 @@ class AuthController:
 
     @login_required
     def tracking(self):
-        return render_template("tracking.html")
+        import json as _json
+        user_id = session["user_id"]
+
+        if request.method == "POST":
+            title       = request.form.get("title", "").strip()
+            description = request.form.get("description", "").strip()
+            log_data    = request.form.get("log_data", "")
+
+            if title and log_data:
+                try:
+                    points = _json.loads(log_data)
+                    if not isinstance(points, list) or len(points) == 0:
+                        raise ValueError("empty")
+
+                    # Compute stats
+                    total_dist = 0.0
+                    for i in range(1, len(points)):
+                        p1, p2 = points[i-1], points[i]
+                        import math
+                        R = 6371
+                        dLat = math.radians(p2["lat"] - p1["lat"])
+                        dLon = math.radians(p2["lng"] - p1["lng"])
+                        a = math.sin(dLat/2)**2 + math.cos(math.radians(p1["lat"])) * math.cos(math.radians(p2["lat"])) * math.sin(dLon/2)**2
+                        total_dist += R * 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+
+                    max_alt = max((p.get("alt") or 0) for p in points)
+                    speeds  = [p.get("speed") or 0 for p in points if p.get("speed")]
+                    avg_spd = (sum(speeds) / len(speeds) * 3.6) if speeds else 0
+
+                    t_start = points[0].get("timestamp", 0) / 1000
+                    t_end   = points[-1].get("timestamp", 0) / 1000
+                    duration = int(t_end - t_start) if t_end > t_start else 0
+
+                    init_db(current_app)
+                    db = get_db()
+                    with db.cursor() as cur:
+                        cur.execute("""
+                            INSERT INTO trek_tracking_sessions
+                              (user_id, title, total_distance_km, total_duration_seconds,
+                               max_altitude_meters, avg_speed_kmh)
+                            VALUES (%s, %s, %s, %s, %s, %s)
+                        """, (user_id, title, round(total_dist, 3), duration,
+                              int(max_alt), round(avg_spd, 2)))
+                        session_id = cur.lastrowid
+
+                        # Save individual GPS points
+                        if hasattr(BaseModel, '_get_db'):
+                            try:
+                                for p in points:
+                                    cur.execute("""
+                                        INSERT INTO gps_route_points (session_id, latitude, longitude, altitude, speed, recorded_at)
+                                        VALUES (%s, %s, %s, %s, %s, FROM_UNIXTIME(%s))
+                                    """, (session_id, p["lat"], p["lng"],
+                                          p.get("alt"), p.get("speed"),
+                                          p.get("timestamp", 0) / 1000))
+                            except Exception:
+                                pass  # gps_route_points columns may differ
+                    db.commit()
+                    flash("Trail saved successfully!", "success")
+                except Exception as exc:
+                    current_app.logger.error(f"Trail save error: {exc}")
+                    flash("Could not save trail. Please try again.", "error")
+            else:
+                flash("Please enter a title and record some trail points first.", "error")
+
+            return redirect(url_for("auth.tracking"))
+
+        # GET — load history
+        init_db(current_app)
+        history = []
+        bookings = []
+        try:
+            db = get_db()
+            with db.cursor() as cur:
+                cur.execute("""
+                    SELECT id, title, total_distance_km, total_duration_seconds,
+                           max_altitude_meters, avg_speed_kmh, created_at
+                    FROM trek_tracking_sessions
+                    WHERE user_id = %s
+                    ORDER BY created_at DESC
+                    LIMIT 20
+                """, (user_id,))
+                history = cur.fetchall()
+
+            bookings = BaseModel.get_bookings_by_user(user_id) or []
+        except Exception as exc:
+            current_app.logger.error(f"Tracking history load error: {exc}")
+
+        return render_template("tracking.html", history=history, bookings=bookings)
 
     @login_required
     def socials(self):

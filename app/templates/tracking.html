@@ -1,547 +1,446 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
-{% block title %}Ghumna Jam - Offline Trek Tracker{% endblock %}
+{% block title %}Ghumna Jam - Trek Tracker{% endblock %}
 
 {% block content %}
-<!-- Leaflet CSS for mapping -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-<!-- Leaflet JS for mapping -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="space-y-2">
+        {% for cat, msg in messages %}
+          <div class="px-4 py-3 rounded-xl text-sm font-medium {% if cat == 'success' %}bg-emerald-50 text-emerald-800 border border-emerald-200{% else %}bg-red-50 text-red-800 border border-red-200{% endif %}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- HEADER -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold">Trek Tracker</h1>
+      <p class="text-xs sm:text-sm text-gray-500 mt-1">Record your trail, track GPS stats, and save your trek history.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-2 shadow-sm">
+        <span class="text-xs font-semibold text-gray-500">Mode:</span>
+        <button id="btn-mode-toggle" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none" style="background-color:#10b981;" role="switch" aria-checked="true">
+          <span id="mode-knob" class="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform" style="transform:translateX(1.5rem)"></span>
+        </button>
+        <span id="mode-label" class="text-xs font-bold text-emerald-700">Online</span>
+      </div>
+      <span id="gps-status" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-200">GPS Offline</span>
+    </div>
+  </div>
+
+  <!-- TRACKER GRID -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+
+    <!-- Map + Controls -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden p-2">
+        <div id="map" class="h-[450px] w-full rounded-xl z-0"></div>
+        <div id="map-fallback" class="hidden h-[450px] w-full bg-gray-50 rounded-xl flex-col items-center justify-center p-8 text-center text-gray-500">
+          <span class="text-4xl mb-3">📡</span>
+          <h3 class="font-serif text-lg text-brandGreen font-semibold mb-1">Offline Map Mode</h3>
+          <p class="text-xs text-gray-400 max-w-sm">Map tiles unavailable offline. GPS path is still being logged locally.</p>
+        </div>
+      </div>
+      <div class="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm flex flex-wrap gap-4 items-center justify-between">
+        <div class="flex flex-wrap gap-2">
+          <button id="btn-toggle-tracking" class="bg-brandGreen hover:bg-emerald-950 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span><span>Start Tracking</span>
+          </button>
+          <button id="btn-clear-log" class="border border-gray-200 hover:bg-red-50 hover:text-red-700 text-gray-600 font-semibold text-xs px-5 py-3 rounded-xl transition">Clear Path</button>
+          <button id="btn-sos" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2">
+            <span>🚨</span><span>SOS</span>
+          </button>
+        </div>
+        <button id="btn-export-data" class="bg-brandYellow hover:bg-yellow-500 text-brandGreen font-bold text-xs px-6 py-3 rounded-xl transition shadow-sm">Export Trail (JSON)</button>
+      </div>
+    </div>
+
+    <!-- Stats + Save -->
+    <div class="space-y-6">
+      <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 space-y-6">
         <div>
-            <h1 class="font-serif text-3xl sm:text-4xl text-brandGreen font-semibold">Offline Trail Tracker</h1>
-            <p class="text-xs sm:text-sm text-gray-500 mt-1">
-                Record your real-time path, distance, and coordinates. Operates without an active internet connection.
-            </p>
+          <h3 class="font-serif text-lg text-brandGreen font-semibold">Trek Metrics</h3>
+          <p class="text-[10px] text-gray-400 mt-0.5">Real-time GPS telemetry</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-            <!-- Connection Status Badge -->
-            <span id="connection-status" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-100 flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span>
-                <span>Online</span>
-            </span>
-            <!-- GPS Status Badge -->
-            <span id="gps-status" class="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-200">
-                GPS Offline
-            </span>
+        <hr class="border-gray-100">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-gray-50 p-4 rounded-xl">
+            <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Distance</span>
+            <span class="font-serif text-2xl font-bold text-brandGreen mt-1 block" id="stat-distance">0.00 km</span>
+          </div>
+          <div class="bg-gray-50 p-4 rounded-xl">
+            <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Points</span>
+            <span class="font-serif text-2xl font-bold text-brandGreen mt-1 block" id="stat-logs-count">0 pts</span>
+          </div>
         </div>
+        <div class="space-y-3 pt-1">
+          <div class="flex justify-between text-xs py-2 border-b border-gray-50"><span class="text-gray-400">Latitude</span><span class="font-semibold text-gray-700" id="coord-latitude">--</span></div>
+          <div class="flex justify-between text-xs py-2 border-b border-gray-50"><span class="text-gray-400">Longitude</span><span class="font-semibold text-gray-700" id="coord-longitude">--</span></div>
+          <div class="flex justify-between text-xs py-2 border-b border-gray-50"><span class="text-gray-400">Altitude</span><span class="font-semibold text-gray-700" id="coord-altitude">--</span></div>
+          <div class="flex justify-between text-xs py-2 border-b border-gray-50"><span class="text-gray-400">Speed</span><span class="font-semibold text-gray-700" id="coord-speed">--</span></div>
+          <div class="flex justify-between text-xs py-2"><span class="text-gray-400">GPS Accuracy</span><span class="font-semibold text-gray-700" id="coord-accuracy">--</span></div>
+        </div>
+      </div>
+
+      <!-- Save Trail Form -->
+      <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 space-y-4">
+        <div>
+          <h3 class="font-serif text-lg text-brandGreen font-semibold">Save Trail Log</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Store your recorded path to your account.</p>
+        </div>
+        <form id="trail-save-form" method="POST" action="{{ url_for('auth.tracking') }}" class="space-y-4">
+          <div>
+            <label class="block text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-2">Trail Title</label>
+            <input id="trail_title" name="title" type="text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen" placeholder="e.g. Annapurna Base Camp" required>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-2">Description</label>
+            <textarea name="description" rows="2" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen" placeholder="Notes about your trail..."></textarea>
+          </div>
+          <input id="trail_log_data" type="hidden" name="log_data" value="">
+          <button type="submit" class="w-full bg-brandGreen hover:bg-emerald-950 text-white font-bold py-3 rounded-xl transition">Save Trail Log</button>
+        </form>
+      </div>
+
+      <!-- Offline Guide -->
+      <div class="bg-brandGreen text-white rounded-2xl shadow-sm p-6 space-y-4">
+        <h4 class="font-serif text-base font-semibold text-brandYellow">Offline Operations Guide</h4>
+        <ul class="space-y-2.5 text-xs text-gray-300 leading-relaxed">
+          <li class="flex items-start gap-2"><span class="text-brandYellow">✦</span><span>Keep this page open while walking. Your device GPS keeps logging even without mobile data.</span></li>
+          <li class="flex items-start gap-2"><span class="text-brandYellow">✦</span><span>Path is saved to local memory automatically so your trek data is safe if the browser restarts.</span></li>
+          <li class="flex items-start gap-2"><span class="text-brandYellow">✦</span><span>Export as JSON to load on external maps or share with your guide.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TREKKING HISTORY -->
+  <div class="space-y-6">
+    <div class="flex items-center justify-between">
+      <h2 class="font-serif text-2xl text-brandGreen font-semibold">Trekking History</h2>
+      <span class="text-xs text-gray-400">Your saved trails &amp; bookings</span>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        
-        <!-- Left: Map Container (takes 2 cols on desktop) -->
-        <div class="lg:col-span-2 space-y-6">
-            <!-- Map Card -->
-            <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden p-2">
-                <div id="map" class="h-[450px] w-full rounded-xl z-0"></div>
-                <div id="map-fallback" class="hidden h-[450px] w-full bg-gray-50 rounded-xl flex-col items-center justify-center p-8 text-center text-gray-500">
-                    <span class="text-4xl mb-3">📡</span>
-                    <h3 class="font-serif text-lg text-brandGreen font-semibold mb-1">Offline Map Mode</h3>
-                    <p class="text-xs text-gray-400 max-w-sm">
-                        Map tiles could not load because you are offline. However, your GPS coordinates and trail paths are still being tracked and logged locally.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Controls Panel -->
-            <div class="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm flex flex-wrap gap-4 items-center justify-between">
-                <div class="flex flex-wrap gap-2">
-                    <button id="btn-toggle-tracking" class="bg-brandGreen hover:bg-emerald-950 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                        <span>Start Tracking</span>
-                    </button>
-                    <button id="btn-clear-log" class="border border-gray-200 hover:bg-red-50 hover:text-red-700 text-gray-600 font-semibold text-xs px-5 py-3 rounded-xl transition">
-                        Clear Path
-                    </button>
-                    <button id="btn-sos" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2">
-                        <span>🚨</span>
-                        <span>SOS Trigger</span>
-                    </button>
-                </div>
-                <button id="btn-export-data" class="bg-brandYellow hover:bg-yellow-500 text-brandGreen font-bold text-xs px-6 py-3 rounded-xl transition shadow-sm">
-                    Export Trail (JSON)
-                </button>
-            </div>
-        </div>
-
-        <!-- Right: Location Metadata Info (takes 1 col) -->
-        <div class="space-y-6">
-            <!-- Coordinates Tracker Card -->
-            <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
-                <div>
-                    <h3 class="font-serif text-lg text-brandGreen font-semibold">Trek Metrics</h3>
-                    <p class="text-[10px] text-gray-400 mt-0.5">Real-time GPS telemetry from your device</p>
-                </div>
-                
-                <hr class="border-gray-100">
-
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gray-50 p-4 rounded-xl">
-                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Distance</span>
-                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-distance">0.00 km</span>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded-xl">
-                        <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400">Recorded Logs</span>
-                        <span class="font-serif text-xl sm:text-2xl font-bold text-brandGreen mt-1 block" id="stat-logs-count">0 pts</span>
-                    </div>
-                </div>
-
-                <!-- Live Coordinate Specs -->
-                <div class="space-y-4 pt-2">
-                    <div class="flex justify-between text-xs py-2.5 border-b border-gray-50">
-                        <span class="text-gray-400">Latitude</span>
-                        <span class="font-semibold text-gray-700" id="coord-latitude">--</span>
-                    </div>
-                    <div class="flex justify-between text-xs py-2.5 border-b border-gray-50">
-                        <span class="text-gray-400">Longitude</span>
-                        <span class="font-semibold text-gray-700" id="coord-longitude">--</span>
-                    </div>
-                    <div class="flex justify-between text-xs py-2.5 border-b border-gray-50">
-                        <span class="text-gray-400">Altitude</span>
-                        <span class="font-semibold text-gray-700" id="coord-altitude">--</span>
-                    </div>
-                    <div class="flex justify-between text-xs py-2.5 border-b border-gray-50">
-                        <span class="text-gray-400">Speed</span>
-                        <span class="font-semibold text-gray-700" id="coord-speed">--</span>
-                    </div>
-                    <div class="flex justify-between text-xs py-2.5">
-                        <span class="text-gray-400">GPS Accuracy</span>
-                        <span class="font-semibold text-gray-700" id="coord-accuracy">--</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Save Trail Log Card -->
-            <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
-                <div>
-                    <h3 class="font-serif text-lg text-brandGreen font-semibold">Save Trail Log</h3>
-                    <p class="text-xs text-gray-500 mt-0.5">Store your recorded path and notes to your account.</p>
-                </div>
-
-                <form id="trail-save-form" method="POST" class="space-y-4">
-                    <div>
-                        <label for="trail_title" class="block text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-2">Trail Title</label>
-                        <input id="trail_title" name="title" type="text" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen" placeholder="Example: Annapurna Ridge Run" required>
-                    </div>
-                    <div>
-                        <label for="trail_description" class="block text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-2">Description</label>
-                        <textarea id="trail_description" name="description" rows="3" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-brandGreen" placeholder="Write a few notes about your trail."></textarea>
-                    </div>
-                    <input id="trail_log_data" type="hidden" name="log_data" value="">
-                    <button type="submit" class="w-full bg-brandGreen hover:bg-emerald-950 text-white font-bold py-3 rounded-xl transition">Save Trail Log</button>
-                </form>
-            </div>
-
-            <!-- Offline Guide Instructions Card -->
-            <div class="bg-brandGreen text-white rounded-2xl shadow-sm p-6 sm:p-8 space-y-4">
-                <h4 class="font-serif text-base font-semibold text-brandYellow">Offline Operations Guide</h4>
-                <ul class="space-y-2.5 text-xs text-gray-300 leading-relaxed">
-                    <li class="flex items-start gap-2">
-                        <span class="text-brandYellow">✦</span>
-                        <span>Keep this page open while walking. Your device's hardware GPS keeps logging locations even without mobile data.</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <span class="text-brandYellow">✦</span>
-                        <span>Your path is serialized to local memory on-the-fly, ensuring that your trek data remains safe if the browser restarts.</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <span class="text-brandYellow">✦</span>
-                        <span>Export your path as a JSON log to load and overlay it on external maps or share with your guide.</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
+    <div class="flex gap-2 border-b border-gray-100">
+      <button id="tab-trails" onclick="switchTab('trails')" class="px-5 py-2.5 text-sm font-semibold text-brandGreen border-b-2 border-brandGreen">Saved Trails</button>
+      <button id="tab-bookings" onclick="switchTab('bookings')" class="px-5 py-2.5 text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-brandGreen">Trek Bookings</button>
     </div>
+
+    <!-- Saved Trails Panel -->
+    <div id="panel-trails">
+      {% if history %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {% for t in history %}
+          <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-5 space-y-4 hover:shadow-md transition">
+            <div class="flex items-start justify-between gap-2">
+              <h4 class="font-semibold text-brandGreen text-sm">{{ t.title }}</h4>
+              <span class="text-[10px] text-gray-400 whitespace-nowrap">{{ t.created_at.strftime('%d %b %Y') if t.created_at else '' }}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-gray-50 rounded-xl p-3 text-center">
+                <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400 mb-1">Distance</span>
+                <span class="font-bold text-brandGreen text-base">{{ "%.2f"|format(t.total_distance_km or 0) }} km</span>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 text-center">
+                <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400 mb-1">Duration</span>
+                <span class="font-bold text-brandGreen text-base">
+                  {% set secs = t.total_duration_seconds or 0 %}
+                  {% if secs >= 3600 %}{{ secs // 3600 }}h {{ (secs % 3600) // 60 }}m
+                  {% elif secs >= 60 %}{{ secs // 60 }}m
+                  {% else %}{{ secs }}s{% endif %}
+                </span>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 text-center">
+                <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400 mb-1">Max Altitude</span>
+                <span class="font-bold text-brandGreen text-base">{{ t.max_altitude_meters or '--' }} m</span>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 text-center">
+                <span class="block text-[9px] uppercase tracking-wider font-semibold text-gray-400 mb-1">Avg Speed</span>
+                <span class="font-bold text-brandGreen text-base">{{ "%.1f"|format(t.avg_speed_kmh or 0) }} km/h</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="bg-white border border-gray-100 rounded-2xl p-12 text-center text-gray-400">
+          <span class="text-4xl block mb-3">🗺️</span>
+          <p class="font-semibold text-gray-500">No saved trails yet</p>
+          <p class="text-xs mt-1">Start tracking above and save your trail to see history here.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Bookings Panel -->
+    <div id="panel-bookings" class="hidden">
+      {% if bookings %}
+        <div class="space-y-3">
+          {% for b in bookings %}
+          <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+            {% if b.dest_image %}
+            <img src="{{ b.dest_image }}" alt="{{ b.dest_name }}" class="w-16 h-16 rounded-xl object-cover flex-shrink-0">
+            {% else %}
+            <div class="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-2xl flex-shrink-0">🏔️</div>
+            {% endif %}
+            <div class="flex-1 min-w-0">
+              <h4 class="font-semibold text-brandGreen text-sm truncate">{{ b.dest_name or b.trek or 'Trek' }}</h4>
+              <p class="text-xs text-gray-400 mt-0.5">
+                {{ b.departure_date or b.preferred_date or '' }}
+                {% if b.travelers_count %} · {{ b.travelers_count }} traveler(s){% endif %}
+                {% if b.duration_days %} · {{ b.duration_days }} days{% endif %}
+              </p>
+              {% if b.selected_hotel %}<p class="text-xs text-gray-400">🏨 {{ b.selected_hotel }}</p>{% endif %}
+            </div>
+            <div class="flex flex-col items-end gap-1 flex-shrink-0">
+              <span class="px-3 py-1 rounded-full text-xs font-bold
+                {% if b.status == 'Confirmed' %}bg-emerald-50 text-emerald-700 border border-emerald-200
+                {% elif b.status == 'Completed' %}bg-blue-50 text-blue-700 border border-blue-200
+                {% elif b.status == 'Cancelled' %}bg-red-50 text-red-700 border border-red-200
+                {% else %}bg-yellow-50 text-yellow-700 border border-yellow-200{% endif %}">
+                {{ b.status or 'Pending' }}
+              </span>
+              {% if b.total_price %}
+              <span class="text-xs font-bold text-brandGreen">Rs. {{ "{:,.0f}".format(b.total_price) }}</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="bg-white border border-gray-100 rounded-2xl p-12 text-center text-gray-400">
+          <span class="text-4xl block mb-3">🎒</span>
+          <p class="font-semibold text-gray-500">No trek bookings yet</p>
+          <p class="text-xs mt-1">Book a trek from the home page to see it here.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
 </section>
 
-<!-- SOS Modal Overlay -->
-<div id="sos-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300">
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-2xl p-6 sm:p-8 max-w-md w-full transform scale-95 opacity-0 transition-all duration-300 flex flex-col items-center text-center space-y-4" id="sos-modal-content">
-        <div class="w-16 h-16 rounded-full bg-red-50 border border-red-100 flex items-center justify-center text-3xl animate-bounce">
-            🚨
-        </div>
-        <h3 class="font-serif text-2xl text-red-600 font-bold">Emergency Signal Broadcasted</h3>
-        <p class="text-sm text-gray-600 leading-relaxed font-sans">
-            Your current coordinates and profile data have been sent to our alpine response center. Local rescue authorities and guides in your region have been notified.
-        </p>
-        <div class="bg-red-50 border border-red-100/60 p-4 rounded-xl w-full text-xs text-red-800 font-medium font-sans">
-            Help is on the way. Please remain at your location.
-        </div>
-        <button id="btn-close-sos" class="w-full bg-brandGreen hover:bg-emerald-950 text-white font-bold text-xs py-3 rounded-xl transition">
-            Acknowledge & Close
-        </button>
-    </div>
+<!-- SOS Modal -->
+<div id="sos-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl border border-gray-100 shadow-2xl p-8 max-w-md w-full flex flex-col items-center text-center space-y-4">
+    <div class="w-16 h-16 rounded-full bg-red-50 border border-red-100 flex items-center justify-center text-3xl animate-bounce">🚨</div>
+    <h3 class="font-serif text-2xl text-red-600 font-bold">Emergency Signal Sent</h3>
+    <p class="text-sm text-gray-600 leading-relaxed">Your coordinates and profile have been flagged. Local rescue and guides have been notified.</p>
+    <div class="bg-red-50 border border-red-100 p-4 rounded-xl w-full text-xs text-red-800 font-medium">Help is on the way. Please remain at your location.</div>
+    <button id="btn-close-sos" class="w-full bg-brandGreen hover:bg-emerald-950 text-white font-bold text-xs py-3 rounded-xl transition">Acknowledge &amp; Close</button>
+  </div>
 </div>
 
-<!-- Client side Offline GPS Tracking System -->
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        let isTracking = false;
-        let watchId = null;
-        let trailPoints = []; // Stores Array of [lat, lng, alt, speed, timestamp]
-        let map = null;
-        let pathLine = null;
-        let currentMarker = null;
+document.addEventListener("DOMContentLoaded", function() {
+  var isTracking = false, isOnline = navigator.onLine;
+  var watchId = null, trailPoints = [];
+  var map = null, pathLine = null, currentMarker = null;
 
-        // DOM elements
-        const connectionStatus = document.getElementById('connection-status');
-        const gpsStatus = document.getElementById('gps-status');
-        const btnToggleTracking = document.getElementById('btn-toggle-tracking');
-        const btnClearLog = document.getElementById('btn-clear-log');
-        const btnExportData = document.getElementById('btn-export-data');
+  var btnModeToggle = document.getElementById('btn-mode-toggle');
+  var modeKnob      = document.getElementById('mode-knob');
+  var modeLabel     = document.getElementById('mode-label');
+  var gpsStatus     = document.getElementById('gps-status');
+  var btnToggle     = document.getElementById('btn-toggle-tracking');
+  var btnClear      = document.getElementById('btn-clear-log');
+  var btnExport     = document.getElementById('btn-export-data');
+  var btnSos        = document.getElementById('btn-sos');
+  var sosModal      = document.getElementById('sos-modal');
+  var btnCloseSos   = document.getElementById('btn-close-sos');
+  var statDistance  = document.getElementById('stat-distance');
+  var statLogs      = document.getElementById('stat-logs-count');
+  var coordLat      = document.getElementById('coord-latitude');
+  var coordLng      = document.getElementById('coord-longitude');
+  var coordAlt      = document.getElementById('coord-altitude');
+  var coordSpd      = document.getElementById('coord-speed');
+  var coordAcc      = document.getElementById('coord-accuracy');
+  var mapDiv        = document.getElementById('map');
+  var mapFallback   = document.getElementById('map-fallback');
+  var trailForm     = document.getElementById('trail-save-form');
+  var trailInput    = document.getElementById('trail_log_data');
 
-        const statDistance = document.getElementById('stat-distance');
-        const statLogsCount = document.getElementById('stat-logs-count');
+  // ── Online/Offline toggle ──────────────────────────────────────
+  function applyMode(online) {
+    isOnline = online;
+    if (online) {
+      btnModeToggle.style.backgroundColor = '#10b981';
+      btnModeToggle.setAttribute('aria-checked', 'true');
+      modeKnob.style.transform = 'translateX(1.5rem)';
+      modeLabel.textContent = 'Online';
+      modeLabel.className = 'text-xs font-bold text-emerald-700';
+      mapDiv.classList.remove('hidden');
+      mapFallback.classList.add('hidden');
+      mapFallback.classList.remove('flex');
+    } else {
+      btnModeToggle.style.backgroundColor = '#9ca3af';
+      btnModeToggle.setAttribute('aria-checked', 'false');
+      modeKnob.style.transform = 'translateX(0.25rem)';
+      modeLabel.textContent = 'Offline';
+      modeLabel.className = 'text-xs font-bold text-amber-600';
+      if (typeof L === 'undefined') {
+        mapDiv.classList.add('hidden');
+        mapFallback.classList.remove('hidden');
+        mapFallback.classList.add('flex');
+      }
+    }
+  }
 
-        const coordLatitude = document.getElementById('coord-latitude');
-        const coordLongitude = document.getElementById('coord-longitude');
-        const coordAltitude = document.getElementById('coord-altitude');
-        const coordSpeed = document.getElementById('coord-speed');
-        const coordAccuracy = document.getElementById('coord-accuracy');
+  btnModeToggle.addEventListener('click', function() { applyMode(!isOnline); });
+  window.addEventListener('online',  function() { applyMode(true); });
+  window.addEventListener('offline', function() { applyMode(false); });
+  applyMode(isOnline);
 
-        const mapContainer = document.getElementById('map');
-        const mapFallback = document.getElementById('map-fallback');
-
-        // Check Leaflet load status and connectivity
-        const hasLeaflet = (typeof L !== 'undefined');
-
-        // 1. Connection Status Updater
-        function updateConnectionState() {
-            if (navigator.onLine) {
-                connectionStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-100 flex items-center gap-1.5";
-                connectionStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span><span>Online</span>';
-                if (mapFallback) mapFallback.classList.add('hidden');
-                if (mapContainer) mapContainer.classList.remove('hidden');
-            } else {
-                connectionStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-100 flex items-center gap-1.5";
-                connectionStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span><span>Offline</span>';
-                // If offline and tiles won't render, show fallback guide but keep leaflet map active for local path rendering if loaded
-                if (!hasLeaflet) {
-                    if (mapContainer) mapContainer.classList.add('hidden');
-                    if (mapFallback) mapFallback.classList.remove('flex');
-                    if (mapFallback) mapFallback.classList.add('flex');
-                }
-            }
-        }
-        window.addEventListener('online', updateConnectionState);
-        window.addEventListener('offline', updateConnectionState);
-        updateConnectionState();
-
-        // 2. Initialize Leaflet Map
-        function initMap() {
-            if (!hasLeaflet) {
-                if (mapContainer) mapContainer.classList.add('hidden');
-                if (mapFallback) mapFallback.classList.remove('hidden');
-                return;
-            }
-
-            try {
-                // Default map focus: Kathmandu coordinates
-                map = L.map('map', { zoomControl: false }).setView([27.7172, 85.3240], 13);
-                
-                L.control.zoom({
-                    position: 'bottomright'
-                }).addTo(map);
-
-                // Add OpenStreetMap tiles
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(map);
-
-                // Draw path line
-                pathLine = L.polyline([], {
-                    color: '#F5C647', // brandYellow
-                    weight: 5,
-                    opacity: 0.85,
-                    lineJoin: 'round'
-                }).addTo(map);
-
-                // Current location marker (styled circular indicator)
-                const locationIcon = L.divIcon({
-                    className: 'relative flex items-center justify-center',
-                    html: '<span class="absolute inline-flex h-4 w-4 rounded-full bg-brandYellow/40 animate-ping"></span><span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-brandYellow border border-white shadow"></span>',
-                    iconSize: [16, 16],
-                    iconAnchor: [8, 8]
-                });
-                currentMarker = L.marker([27.7172, 85.3240], { icon: locationIcon }).addTo(map);
-
-            } catch (err) {
-                console.error("Map load failed", err);
-                if (mapContainer) mapContainer.classList.add('hidden');
-                if (mapFallback) mapFallback.classList.remove('hidden');
-            }
-        }
-        initMap();
-
-        // 3. Load stored logs from localStorage
-        function loadSavedTrail() {
-            const stored = localStorage.getItem('ghumna_jam_trail_log');
-            if (stored) {
-                try {
-                    trailPoints = JSON.parse(stored);
-                    updateStats();
-                    renderStoredTrail();
-                } catch (e) {
-                    console.error("Could not parse saved trail log", e);
-                }
-            }
-        }
-
-        // 4. Render Saved Path Points on Map
-        function renderStoredTrail() {
-            if (trailPoints.length === 0) return;
-
-            const latlngs = trailPoints.map(p => [p.lat, p.lng]);
-            
-            if (pathLine) {
-                pathLine.setLatLngs(latlngs);
-            }
-
-            const lastPoint = trailPoints[trailPoints.length - 1];
-            if (currentMarker && map) {
-                currentMarker.setLatLng([lastPoint.lat, lastPoint.lng]);
-                map.setView([lastPoint.lat, lastPoint.lng], 15);
-            }
-
-            // Update details UI
-            coordLatitude.textContent = lastPoint.lat.toFixed(5) + '°';
-            coordLongitude.textContent = lastPoint.lng.toFixed(5) + '°';
-            coordAltitude.textContent = lastPoint.alt ? lastPoint.alt.toFixed(0) + ' m' : 'N/A';
-            coordSpeed.textContent = lastPoint.speed ? (lastPoint.speed * 3.6).toFixed(1) + ' km/h' : '0.0 km/h';
-            coordAccuracy.textContent = lastPoint.acc ? '± ' + lastPoint.acc.toFixed(0) + ' m' : 'N/A';
-        }
-
-        // 5. Harvesine formula for cumulative distance
-        function calculateCumulativeDistance() {
-            if (trailPoints.length < 2) return 0;
-            let dist = 0;
-
-            for (let i = 1; i < trailPoints.length; i++) {
-                dist += getHaversineDistance(
-                    trailPoints[i-1].lat, trailPoints[i-1].lng,
-                    trailPoints[i].lat, trailPoints[i].lng
-                );
-            }
-            return dist;
-        }
-
-        function getHaversineDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // earth radius in km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-
-        // 6. Update stats layout
-        function updateStats() {
-            statLogsCount.textContent = trailPoints.length + ' pts';
-            const dist = calculateCumulativeDistance();
-            statDistance.textContent = dist.toFixed(2) + ' km';
-        }
-
-        // 7. Geolocation Callbacks
-        function onLocationSuccess(position) {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            const alt = position.coords.altitude; // might be null
-            const speed = position.coords.speed; // might be null
-            const acc = position.coords.accuracy;
-            const timestamp = position.timestamp;
-
-            // Update GPS badge
-            gpsStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-brandYellow text-brandGreen border border-brandYellow flex items-center gap-1.5 shadow-sm";
-            gpsStatus.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-brandGreen"></span><span>GPS Connected</span>';
-
-            // Show telemetry on screen
-            coordLatitude.textContent = lat.toFixed(5) + '°';
-            coordLongitude.textContent = lng.toFixed(5) + '°';
-            coordAltitude.textContent = alt ? alt.toFixed(0) + ' m' : 'N/A';
-            coordSpeed.textContent = speed && speed > 0 ? (speed * 3.6).toFixed(1) + ' km/h' : '0.0 km/h';
-            coordAccuracy.textContent = '± ' + acc.toFixed(0) + ' m';
-
-            if (isTracking) {
-                // Throttle identical coords to reduce noise
-                if (trailPoints.length > 0) {
-                    const last = trailPoints[trailPoints.length - 1];
-                    const diff = getHaversineDistance(last.lat, last.lng, lat, lng);
-                    if (diff < 0.002) return; // Ignore movements under 2 meters
-                }
-
-                const point = { lat, lng, alt, speed, acc, timestamp };
-                trailPoints.push(point);
-                localStorage.setItem('ghumna_jam_trail_log', JSON.stringify(trailPoints));
-
-                // Update Stats
-                updateStats();
-
-                // Draw live polyline update
-                if (pathLine) {
-                    pathLine.addLatLng([lat, lng]);
-                }
-            }
-
-            // Move Marker and fit bounds
-            if (currentMarker) {
-                currentMarker.setLatLng([lat, lng]);
-            }
-            if (map && isTracking) {
-                map.panTo([lat, lng]);
-            }
-        }
-
-        function onLocationError(error) {
-            console.error("GPS location error:", error);
-            gpsStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-50 text-red-800 border border-red-100 flex items-center gap-1.5";
-            
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    gpsStatus.textContent = "GPS Access Blocked";
-                    alert("Location access permission was denied. Please unlock permission in your browser settings to track trails.");
-                    pauseTracking();
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    gpsStatus.textContent = "Signal Lost";
-                    break;
-                case error.TIMEOUT:
-                    gpsStatus.textContent = "GPS Timeout";
-                    break;
-                default:
-                    gpsStatus.textContent = "GPS Failure";
-            }
-        }
-
-        // 8. Toggle Tracking Logic
-        function startTracking() {
-            if (!navigator.geolocation) {
-                alert("Geolocation is not supported by your browser.");
-                return;
-            }
-
-            isTracking = true;
-            btnToggleTracking.className = "bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2";
-            btnToggleTracking.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-white animate-pulse"></span><span>Pause Tracking</span>';
-
-            const options = {
-                enableHighAccuracy: true,
-                timeout: 15000,
-                maximumAge: 0
-            };
-            
-            watchId = navigator.geolocation.watchPosition(onLocationSuccess, onLocationError, options);
-        }
-
-        function pauseTracking() {
-            isTracking = false;
-            btnToggleTracking.className = "bg-brandGreen hover:bg-emerald-950 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2";
-            btnToggleTracking.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span><span>Start Tracking</span>';
-
-            if (watchId !== null) {
-                navigator.geolocation.clearWatch(watchId);
-                watchId = null;
-            }
-            
-            gpsStatus.className = "px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-200";
-            gpsStatus.textContent = "GPS Paused";
-        }
-
-        btnToggleTracking.addEventListener('click', () => {
-            if (isTracking) {
-                pauseTracking();
-            } else {
-                startTracking();
-            }
-        });
-
-        // 9. Clear Trail Logic
-        btnClearLog.addEventListener('click', () => {
-            if (confirm("Are you sure you want to delete your current path? This action cannot be undone.")) {
-                localStorage.removeItem('ghumna_jam_trail_log');
-                trailPoints = [];
-                updateStats();
-                
-                if (pathLine) {
-                    pathLine.setLatLngs([]);
-                }
-                
-                coordLatitude.textContent = '--';
-                coordLongitude.textContent = '--';
-                coordAltitude.textContent = '--';
-                coordSpeed.textContent = '--';
-                coordAccuracy.textContent = '--';
-            }
-        });
-
-        // 10. Trail save form integration
-        const trailSaveForm = document.getElementById('trail-save-form');
-        const trailLogDataInput = document.getElementById('trail_log_data');
-
-        if (trailSaveForm) {
-            trailSaveForm.addEventListener('submit', (event) => {
-                if (trailPoints.length === 0) {
-                    event.preventDefault();
-                    alert('No trail points have been recorded. Start tracking before saving.');
-                    return;
-                }
-
-                trailLogDataInput.value = JSON.stringify(trailPoints);
-            });
-        }
-
-        // 11. Export Trail data (JSON)
-        btnExportData.addEventListener('click', () => {
-            if (trailPoints.length === 0) {
-                alert("No recorded logs available to export.");
-                return;
-            }
-
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trailPoints, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `ghumna_jam_trail_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        });
-
-        // 12. SOS Modal Event Listeners
-        const btnSos = document.getElementById('btn-sos');
-        const sosModal = document.getElementById('sos-modal');
-        const sosModalContent = document.getElementById('sos-modal-content');
-        const btnCloseSos = document.getElementById('btn-close-sos');
-
-        if (btnSos) {
-            btnSos.addEventListener('click', () => {
-                sosModal.classList.remove('hidden');
-                sosModal.classList.add('flex');
-                setTimeout(() => {
-                    sosModalContent.classList.remove('scale-95', 'opacity-0');
-                    sosModalContent.classList.add('scale-100', 'opacity-100');
-                }, 10);
-            });
-        }
-
-        if (btnCloseSos) {
-            btnCloseSos.addEventListener('click', () => {
-                sosModalContent.classList.remove('scale-100', 'opacity-100');
-                sosModalContent.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => {
-                    sosModal.classList.remove('flex');
-                    sosModal.classList.add('hidden');
-                }, 300);
-            });
-        }
-
-        // Load saved state on start
-        loadSavedTrail();
+  // ── Leaflet map ────────────────────────────────────────────────
+  if (typeof L !== 'undefined') {
+    map = L.map('map', { zoomControl: false }).setView([27.7172, 85.3240], 13);
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19, attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    pathLine = L.polyline([], { color: '#F5C647', weight: 5, opacity: 0.85 }).addTo(map);
+    var icon = L.divIcon({
+      html: '<span style="display:inline-flex;width:14px;height:14px;border-radius:50%;background:#F5C647;border:2px solid white;box-shadow:0 0 4px rgba(0,0,0,.3)"></span>',
+      iconSize: [14,14], iconAnchor: [7,7]
     });
+    currentMarker = L.marker([27.7172, 85.3240], { icon: icon }).addTo(map);
+  } else {
+    mapDiv.classList.add('hidden');
+    mapFallback.classList.remove('hidden');
+    mapFallback.classList.add('flex');
+  }
+
+  // ── Haversine distance ─────────────────────────────────────────
+  function haversine(la1,lo1,la2,lo2) {
+    var R=6371, r=Math.PI/180;
+    var dL=(la2-la1)*r, dO=(lo2-lo1)*r;
+    var a=Math.sin(dL/2)*Math.sin(dL/2)+Math.cos(la1*r)*Math.cos(la2*r)*Math.sin(dO/2)*Math.sin(dO/2);
+    return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  }
+  function calcDist() {
+    var d=0;
+    for(var i=1;i<trailPoints.length;i++)
+      d+=haversine(trailPoints[i-1].lat,trailPoints[i-1].lng,trailPoints[i].lat,trailPoints[i].lng);
+    return d;
+  }
+  function updateStats() {
+    statLogs.textContent = trailPoints.length + ' pts';
+    statDistance.textContent = calcDist().toFixed(2) + ' km';
+  }
+
+  // ── Load saved trail ───────────────────────────────────────────
+  try {
+    var stored = localStorage.getItem('ghumna_jam_trail_log');
+    if (stored) {
+      trailPoints = JSON.parse(stored);
+      updateStats();
+      if (trailPoints.length > 0 && pathLine) {
+        pathLine.setLatLngs(trailPoints.map(function(p){return [p.lat,p.lng];}));
+        var last = trailPoints[trailPoints.length-1];
+        if (currentMarker) currentMarker.setLatLng([last.lat, last.lng]);
+        if (map) map.setView([last.lat, last.lng], 15);
+        coordLat.textContent = last.lat.toFixed(5)+'°';
+        coordLng.textContent = last.lng.toFixed(5)+'°';
+        coordAlt.textContent = last.alt ? last.alt.toFixed(0)+' m' : 'N/A';
+        coordSpd.textContent = last.speed ? (last.speed*3.6).toFixed(1)+' km/h' : '0.0 km/h';
+        coordAcc.textContent = last.acc ? '± '+last.acc.toFixed(0)+' m' : 'N/A';
+      }
+    }
+  } catch(e) {}
+
+  // ── GPS callbacks ──────────────────────────────────────────────
+  function onGPS(pos) {
+    var lat=pos.coords.latitude, lng=pos.coords.longitude;
+    var alt=pos.coords.altitude, speed=pos.coords.speed, acc=pos.coords.accuracy;
+    gpsStatus.className = 'px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-yellow-50 text-green-800 border border-yellow-300 flex items-center gap-1.5';
+    gpsStatus.innerHTML = '<span style="width:10px;height:10px;border-radius:50%;background:#166534;display:inline-block;margin-right:4px"></span>GPS Active';
+    coordLat.textContent = lat.toFixed(5)+'°';
+    coordLng.textContent = lng.toFixed(5)+'°';
+    coordAlt.textContent = alt ? alt.toFixed(0)+' m' : 'N/A';
+    coordSpd.textContent = (speed && speed>0) ? (speed*3.6).toFixed(1)+' km/h' : '0.0 km/h';
+    coordAcc.textContent = '± '+acc.toFixed(0)+' m';
+    if (currentMarker) currentMarker.setLatLng([lat,lng]);
+    if (map && isTracking) map.panTo([lat,lng]);
+    if (isTracking) {
+      if (trailPoints.length > 0) {
+        var l=trailPoints[trailPoints.length-1];
+        if (haversine(l.lat,l.lng,lat,lng) < 0.002) return;
+      }
+      var pt = {lat:lat, lng:lng, alt:alt, speed:speed, acc:acc, timestamp:pos.timestamp};
+      trailPoints.push(pt);
+      localStorage.setItem('ghumna_jam_trail_log', JSON.stringify(trailPoints));
+      updateStats();
+      if (pathLine) pathLine.addLatLng([lat,lng]);
+    }
+  }
+
+  function onGPSError(err) {
+    var msgs = {1:'GPS Blocked', 2:'Signal Lost', 3:'GPS Timeout'};
+    gpsStatus.className = 'px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-50 text-red-800 border border-red-100';
+    gpsStatus.textContent = msgs[err.code] || 'GPS Error';
+    if (err.code===1) { pauseTracking(); alert('Location permission denied. Enable it in browser settings.'); }
+  }
+
+  function startTracking() {
+    if (!navigator.geolocation) { alert('Geolocation not supported by your browser.'); return; }
+    isTracking = true;
+    btnToggle.className = 'bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2';
+    btnToggle.innerHTML = '<span style="width:10px;height:10px;border-radius:50%;background:white;display:inline-block"></span><span>Pause Tracking</span>';
+    watchId = navigator.geolocation.watchPosition(onGPS, onGPSError, {enableHighAccuracy:true, timeout:15000, maximumAge:0});
+  }
+
+  function pauseTracking() {
+    isTracking = false;
+    btnToggle.className = 'bg-brandGreen hover:bg-emerald-950 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2';
+    btnToggle.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span><span>Start Tracking</span>';
+    if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+    gpsStatus.className = 'px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-200';
+    gpsStatus.textContent = 'GPS Paused';
+  }
+
+  btnToggle.addEventListener('click', function() { isTracking ? pauseTracking() : startTracking(); });
+
+  btnClear.addEventListener('click', function() {
+    if (!confirm('Delete your current path? Cannot be undone.')) return;
+    localStorage.removeItem('ghumna_jam_trail_log');
+    trailPoints = []; updateStats();
+    if (pathLine) pathLine.setLatLngs([]);
+    [coordLat,coordLng,coordAlt,coordSpd,coordAcc].forEach(function(el){el.textContent='--';});
+  });
+
+  btnExport.addEventListener('click', function() {
+    if (!trailPoints.length) { alert('No trail points to export.'); return; }
+    var a = document.createElement('a');
+    a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(trailPoints,null,2));
+    a.download = 'ghumna_jam_trail_' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  trailForm.addEventListener('submit', function(e) {
+    if (!trailPoints.length) { e.preventDefault(); alert('No trail points recorded. Start tracking first.'); return; }
+    trailInput.value = JSON.stringify(trailPoints);
+  });
+
+  // ── SOS Modal ─────────────────────────────────────────────────
+  btnSos.addEventListener('click', function() { sosModal.classList.remove('hidden'); sosModal.classList.add('flex'); });
+  btnCloseSos.addEventListener('click', function() { sosModal.classList.add('hidden'); sosModal.classList.remove('flex'); });
+  sosModal.addEventListener('click', function(e) { if(e.target===sosModal){sosModal.classList.add('hidden');sosModal.classList.remove('flex');} });
+});
+
+function switchTab(tab) {
+  document.getElementById('panel-trails').classList.toggle('hidden', tab !== 'trails');
+  document.getElementById('panel-bookings').classList.toggle('hidden', tab !== 'bookings');
+  ['trails','bookings'].forEach(function(t) {
+    var b = document.getElementById('tab-'+t);
+    b.className = (t===tab)
+      ? 'px-5 py-2.5 text-sm font-semibold text-brandGreen border-b-2 border-brandGreen'
+      : 'px-5 py-2.5 text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-brandGreen';
+  });
+}
 </script>
 {% endblock %}
