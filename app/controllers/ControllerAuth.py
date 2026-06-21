@@ -848,6 +848,32 @@ class AuthController:
                 favorite_ids = BaseModel.get_favorite_destination_ids(uid)
             except Exception:
                 pass
+        price = float(destination.get("price_per_person", 0))
+        duration = int(destination.get("duration_days", 1))
+
+        # Per-destination permit costs
+        permit_map = {
+            1: 7500, 2: 4500, 3: 3500, 4: 9000, 5: 50000,
+            6: 7500, 7: 12000, 8: 3000, 9: 3000, 10: 3500,
+            11: 15000, 12: 12000, 13: 60000, 14: 10000, 15: 8000, 16: 4000,
+        }
+        transport_map = {
+            1: 18000, 2: 8000, 3: 6000, 4: 12000, 5: 15000,
+            6: 18000, 7: 25000, 8: 5000, 9: 5000, 10: 6000,
+            11: 22000, 12: 28000, 13: 30000, 14: 20000, 15: 18000, 16: 5000,
+        }
+        equip_map = {
+            1: 8000, 2: 6000, 3: 4000, 4: 8000, 5: 6000,
+            6: 8000, 7: 10000, 8: 3000, 9: 3000, 10: 4000,
+            11: 5000, 12: 9000, 13: 10000, 14: 7000, 15: 8000, 16: 3000,
+        }
+        permit_cost   = permit_map.get(dest_id, 4000)
+        transport_cost = transport_map.get(dest_id, 6000)
+        equip_cost    = equip_map.get(dest_id, 4000)
+        guide_cost    = 2500 * duration
+        tax           = round(price * 0.13)
+        grand_total   = round(price + guide_cost + permit_cost + transport_cost + equip_cost + tax)
+
         return render_template(
             "destination_detail.html",
             destination=destination,
@@ -860,6 +886,11 @@ class AuthController:
             user_review=user_review,
             reviews=reviews,
             now=datetime.utcnow(),
+            permit_cost=permit_cost,
+            transport_cost=transport_cost,
+            equip_cost=equip_cost,
+            guide_cost=guide_cost,
+            grand_total=grand_total,
         )
 
     @login_required

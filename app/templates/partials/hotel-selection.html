@@ -15,6 +15,7 @@
                 <input type="radio"
                        name="selected_hotel"
                        value="{{ hotel.name }}"
+                       data-price="{{ hotel.price_per_night }}"
                        class="peer sr-only"
                        {% if loop.first %}checked{% endif %}>
                 <span class="block rounded-xl border border-gray-200 bg-gray-50 p-4 transition peer-checked:border-brandGreen peer-checked:bg-brandGreen/5 peer-checked:shadow-sm group-hover:border-brandGreen/30">

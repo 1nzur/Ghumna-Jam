@@ -181,16 +181,92 @@
 
                 {% include "partials/hotel-selection.html" %}
 
-                <!-- Price summary -->
-                <div class="bg-gray-50 p-4 rounded-xl space-y-2">
-                    <div class="flex justify-between text-xs text-gray-500">
-                        <span>Subtotal</span>
-                        <span>Rs. {{ "{:,.2f}".format(destination.price_per_person) }} × <span id="summary_count">1</span></span>
+                <!-- Cost Breakdown -->
+                <div class="rounded-2xl border border-gray-100 overflow-hidden">
+                  <!-- Toggle header -->
+                  <button type="button" id="breakdown-toggle"
+                    class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition text-left"
+                    onclick="toggleBreakdown()">
+                    <span class="text-xs font-bold text-brandGreen uppercase tracking-wider">Cost Breakdown</span>
+                    <svg id="breakdown-chevron" class="w-4 h-4 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </button>
+
+                  <!-- Breakdown rows -->
+                  <div id="breakdown-panel" class="px-4 pb-4 pt-2 space-y-2 bg-white">
+
+                    <!-- Trek Package -->
+                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-50">
+                      <div>
+                        <span class="font-medium text-gray-700">🏔️ Trek Package</span>
+                        <span class="block text-[10px] text-gray-400">Base rate × <span class="bd-count">1</span> explorer(s)</span>
+                      </div>
+                      <span class="font-semibold text-gray-800" id="bd-trek">Rs. {{ "{:,.0f}".format(destination.price_per_person) }}</span>
                     </div>
-                    <div class="flex justify-between text-sm font-bold text-brandGreen border-t border-gray-200/50 pt-2">
-                        <span>Total Cost</span>
-                        <span id="total_price_val">Rs. {{ "{:,.2f}".format(destination.price_per_person) }}</span>
+
+                    <!-- Guide Fee -->
+                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-50">
+                      <div>
+                        <span class="font-medium text-gray-700">🧭 Guide Fee</span>
+                        <span class="block text-[10px] text-gray-400">Rs. 2,500/day × {{ destination.duration_days }} days</span>
+                      </div>
+                      <span class="font-semibold text-gray-800" id="bd-guide">Rs. {{ "{:,.0f}".format(2500 * destination.duration_days) }}</span>
                     </div>
+
+                    <!-- Hotel -->
+                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-50">
+                      <div>
+                        <span class="font-medium text-gray-700">🏨 Hotel/Lodge</span>
+                        <span class="block text-[10px] text-gray-400" id="bd-hotel-nights">{{ destination.duration_days - 1 }} nights (selected hotel)</span>
+                      </div>
+                      <span class="font-semibold text-gray-800" id="bd-hotel">Rs. 0</span>
+                    </div>
+
+                    <!-- Permits -->
+                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-50">
+                      <div>
+                        <span class="font-medium text-gray-700">📋 Permits & Entry</span>
+                        <span class="block text-[10px] text-gray-400" id="bd-permit-note">TIMS + National Park fee</span>
+                      </div>
+                      <span class="font-semibold text-gray-800" id="bd-permit">Rs. {{ "{:,.0f}".format(permit_cost) }}</span>
+                    </div>
+
+                    <!-- Transportation -->
+                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-50">
+                      <div>
+                        <span class="font-medium text-gray-700">🚌 Transportation</span>
+                        <span class="block text-[10px] text-gray-400">KTM ↔ trailhead (bus/flight)</span>
+                      </div>
+                      <span class="font-semibold text-gray-800" id="bd-transport">Rs. {{ "{:,.0f}".format(transport_cost) }}</span>
+                    </div>
+
+                    <!-- Equipment Rental -->
+                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-50">
+                      <div>
+                        <span class="font-medium text-gray-700">🎒 Equipment Rental</span>
+                        <span class="block text-[10px] text-gray-400">Gear, sleeping bag, poles</span>
+                      </div>
+                      <span class="font-semibold text-gray-800" id="bd-equip">Rs. {{ "{:,.0f}".format(equip_cost) }}</span>
+                    </div>
+
+                    <!-- Taxes -->
+                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-100">
+                      <div>
+                        <span class="font-medium text-gray-700">🧾 Tax (13% VAT)</span>
+                        <span class="block text-[10px] text-gray-400">Applied on trek package</span>
+                      </div>
+                      <span class="font-semibold text-gray-800" id="bd-tax">Rs. {{ "{:,.0f}".format(destination.price_per_person * 0.13) }}</span>
+                    </div>
+
+                    <!-- Total -->
+                    <div class="flex justify-between items-center pt-2">
+                      <span class="text-sm font-bold text-brandGreen">Grand Total</span>
+                      <span class="text-base font-bold text-brandGreen" id="total_price_val">Rs. {{ "{:,.0f}".format(grand_total) }}</span>
+                    </div>
+
+                    <p class="text-[10px] text-gray-400 pt-1">* Hotel cost updates when you select a hotel above. All prices in NPR.</p>
+                  </div>
                 </div>
 
                 <!-- Book Button -->
@@ -405,40 +481,99 @@
     </div>
 </section>
 
-<!-- Live Price Calculation Script -->
+<!-- Live Cost Breakdown Script -->
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const travelersInput = document.getElementById('travelers_count');
-        const summaryCount = document.getElementById('summary_count');
-        const totalPriceVal = document.getElementById('total_price_val');
-        const pricePerPerson = parseFloat('{{ destination.price_per_person }}');
-        
-        // Clamp value on both input (while typing) and change (on blur/arrows)
-        function clampTravelers() {
-            let v = parseInt(travelersInput.value);
-            if (isNaN(v) || v < 1) travelersInput.value = 1;
-            else if (v > 12) travelersInput.value = 12;
-        }
-        travelersInput.addEventListener('input', clampTravelers);
-        travelersInput.addEventListener('change', clampTravelers);
+document.addEventListener("DOMContentLoaded", function() {
+    var travelersInput = document.getElementById('travelers_count');
+    var totalPriceVal  = document.getElementById('total_price_val');
+    var bdTrek         = document.getElementById('bd-trek');
+    var bdGuide        = document.getElementById('bd-guide');
+    var bdHotel        = document.getElementById('bd-hotel');
+    var bdPermit       = document.getElementById('bd-permit');
+    var bdTransport    = document.getElementById('bd-transport');
+    var bdEquip        = document.getElementById('bd-equip');
+    var bdTax          = document.getElementById('bd-tax');
+    var bdCounts       = document.querySelectorAll('.bd-count');
 
-        // Set min date selection to tomorrow
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const yyyy = tomorrow.getFullYear();
-        const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
-        const dd = String(tomorrow.getDate()).padStart(2, '0');
-        document.getElementById('departure_date').min = `${yyyy}-${mm}-${dd}`;
+    // Values from server
+    var pricePerPerson  = {{ destination.price_per_person | float }};
+    var guideCostTotal  = {{ guide_cost }};
+    var permitCost      = {{ permit_cost }};
+    var transportCost   = {{ transport_cost }};
+    var equipCost       = {{ equip_cost }};
+    var duration        = {{ destination.duration_days }};
+    var nights          = duration - 1;
+    var hotelPerNight   = 0;
 
-        function updatePrice() {
-            const count = parseInt(travelersInput.value) || 1;
-            const total = count * pricePerPerson;
-            summaryCount.textContent = count;
-            totalPriceVal.textContent = 'Rs. ' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
+    function fmt(n) {
+        return 'Rs. ' + Math.round(n).toLocaleString('en-IN');
+    }
 
-        travelersInput.addEventListener('input', updatePrice);
+    function updateBreakdown() {
+        var count      = parseInt(travelersInput.value) || 1;
+        var trekTotal  = pricePerPerson * count;
+        var hotelTotal = hotelPerNight * nights;
+        var tax        = Math.round(trekTotal * 0.13);
+        var grand      = trekTotal + guideCostTotal + hotelTotal + permitCost + transportCost + equipCost + tax;
+
+        if (bdTrek)      bdTrek.textContent      = fmt(trekTotal);
+        if (bdGuide)     bdGuide.textContent     = fmt(guideCostTotal);
+        if (bdHotel)     bdHotel.textContent     = hotelPerNight > 0 ? fmt(hotelTotal) : 'Select hotel';
+        if (bdPermit)    bdPermit.textContent    = fmt(permitCost);
+        if (bdTransport) bdTransport.textContent = fmt(transportCost);
+        if (bdEquip)     bdEquip.textContent     = fmt(equipCost);
+        if (bdTax)       bdTax.textContent       = fmt(tax);
+        if (totalPriceVal) totalPriceVal.textContent = fmt(grand);
+        bdCounts.forEach(function(el) { el.textContent = count; });
+    }
+
+    // Clamp travelers
+    function clampTravelers() {
+        var v = parseInt(travelersInput.value);
+        if (isNaN(v) || v < 1) travelersInput.value = 1;
+        else if (v > 12) travelersInput.value = 12;
+    }
+    travelersInput.addEventListener('input', function() { clampTravelers(); updateBreakdown(); });
+    travelersInput.addEventListener('change', function() { clampTravelers(); updateBreakdown(); });
+
+    // Hotel selection — listen for change on radio buttons
+    document.querySelectorAll('input[name="selected_hotel"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            var priceAttr = radio.getAttribute('data-price');
+            hotelPerNight = priceAttr ? parseFloat(priceAttr) : 0;
+            var bdHotelNights = document.getElementById('bd-hotel-nights');
+            if (bdHotelNights) bdHotelNights.textContent = nights + ' nights @ Rs. ' + Math.round(hotelPerNight).toLocaleString('en-IN') + '/night';
+            updateBreakdown();
+        });
     });
+
+    // Set min date to tomorrow
+    var tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    var minDate = tomorrow.toISOString().split('T')[0];
+    var dateInput = document.getElementById('departure_date');
+    if (dateInput) dateInput.min = minDate;
+
+    // Pre-load the initially-checked hotel price
+    var checkedHotel = document.querySelector('input[name="selected_hotel"]:checked');
+    if (checkedHotel) {
+        var initPrice = checkedHotel.getAttribute('data-price');
+        hotelPerNight = initPrice ? parseFloat(initPrice) : 0;
+        var bdHotelNights = document.getElementById('bd-hotel-nights');
+        if (bdHotelNights && hotelPerNight > 0) {
+            bdHotelNights.textContent = nights + ' nights @ Rs. ' + Math.round(hotelPerNight).toLocaleString('en-IN') + '/night';
+        }
+    }
+
+    updateBreakdown();
+});
+
+function toggleBreakdown() {
+    var panel   = document.getElementById('breakdown-panel');
+    var chevron = document.getElementById('breakdown-chevron');
+    var hidden  = panel.classList.toggle('hidden');
+    chevron.style.transform = hidden ? 'rotate(0deg)' : 'rotate(180deg)';
+}
 </script>
 
 <script src="{{ url_for('static', filename='js/weather-forecast.js') }}?v=1"></script>
