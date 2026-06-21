@@ -194,79 +194,92 @@
                     </svg>
                   </button>
 
-                  <!-- Breakdown rows -->
-                  <div id="breakdown-panel" class="px-4 pb-4 pt-2 space-y-2 bg-white">
+                  <!-- Breakdown rows — all items are included in the trek package price -->
+                  <div id="breakdown-panel" class="px-4 pb-4 pt-2 space-y-1 bg-white">
 
-                    <!-- Trek Package -->
-                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-50">
+                    <!-- Trek Package total (= price_per_person × travelers) -->
+                    <div class="flex justify-between items-center text-xs py-2 border-b border-gray-100 mb-1">
                       <div>
-                        <span class="font-medium text-gray-700">🏔️ Trek Package</span>
-                        <span class="block text-[10px] text-gray-400">Base rate × <span class="bd-count">1</span> explorer(s)</span>
+                        <span class="font-semibold text-brandGreen">🏔️ Trek Package</span>
+                        <span class="block text-[10px] text-gray-400">All-inclusive · <span class="bd-count">1</span> explorer(s) × Rs. {{ "{:,.0f}".format(destination.price_per_person) }}/person</span>
                       </div>
-                      <span class="font-semibold text-gray-800" id="bd-trek">Rs. {{ "{:,.0f}".format(destination.price_per_person) }}</span>
+                      <span class="font-bold text-brandGreen" id="bd-trek">Rs. {{ "{:,.0f}".format(destination.price_per_person) }}</span>
+                    </div>
+
+                    <p class="text-[10px] uppercase tracking-wider font-bold text-gray-400 pt-1 pb-0.5">What's included in the package</p>
+
+                    <!-- Base Trek Service Fee -->
+                    <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50">
+                      <span class="text-gray-600">⛺ Base Trek &amp; Service Fee</span>
+                      <span class="text-gray-700" id="bd-base">Rs. {{ "{:,.0f}".format(base_trek_cost) }}</span>
                     </div>
 
                     <!-- Guide Fee -->
-                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-50">
+                    <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50">
                       <div>
-                        <span class="font-medium text-gray-700">🧭 Guide Fee</span>
+                        <span class="text-gray-600">🧭 Guide Fee</span>
                         <span class="block text-[10px] text-gray-400">Rs. 2,500/day × {{ destination.duration_days }} days</span>
                       </div>
-                      <span class="font-semibold text-gray-800" id="bd-guide">Rs. {{ "{:,.0f}".format(2500 * destination.duration_days) }}</span>
+                      <span class="text-gray-700" id="bd-guide">Rs. {{ "{:,.0f}".format(guide_cost) }}</span>
                     </div>
 
-                    <!-- Hotel -->
-                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-50">
+                    <!-- Accommodation -->
+                    <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50">
                       <div>
-                        <span class="font-medium text-gray-700">🏨 Hotel/Lodge</span>
-                        <span class="block text-[10px] text-gray-400" id="bd-hotel-nights">{{ destination.duration_days - 1 }} nights (selected hotel)</span>
+                        <span class="text-gray-600">🏨 Standard Accommodation</span>
+                        <span class="block text-[10px] text-gray-400">{{ destination.duration_days - 1 }} nights (teahouse/lodge)</span>
                       </div>
-                      <span class="font-semibold text-gray-800" id="bd-hotel">Rs. 0</span>
+                      <span class="text-gray-700" id="bd-accom">Rs. {{ "{:,.0f}".format(accom_cost) }}</span>
                     </div>
 
                     <!-- Permits -->
-                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-50">
+                    <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50">
                       <div>
-                        <span class="font-medium text-gray-700">📋 Permits & Entry</span>
-                        <span class="block text-[10px] text-gray-400" id="bd-permit-note">{{ permit_names | join(' + ') if permit_names else 'TIMS Card' }}</span>
+                        <span class="text-gray-600">📋 Permits &amp; Entry</span>
+                        <span class="block text-[10px] text-gray-400">{{ permit_names | join(' + ') if permit_names else 'TIMS Card' }}</span>
                       </div>
-                      <span class="font-semibold text-gray-800" id="bd-permit">Rs. {{ "{:,.0f}".format(permit_cost) }}</span>
+                      <span class="text-gray-700" id="bd-permit">Rs. {{ "{:,.0f}".format(permit_cost) }}</span>
                     </div>
 
                     <!-- Transportation -->
-                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-50">
+                    <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50">
                       <div>
-                        <span class="font-medium text-gray-700">🚌 Transportation</span>
+                        <span class="text-gray-600">🚌 Transportation</span>
                         <span class="block text-[10px] text-gray-400">KTM ↔ trailhead (bus/flight)</span>
                       </div>
-                      <span class="font-semibold text-gray-800" id="bd-transport">Rs. {{ "{:,.0f}".format(transport_cost) }}</span>
+                      <span class="text-gray-700" id="bd-transport">Rs. {{ "{:,.0f}".format(transport_cost) }}</span>
                     </div>
 
-                    <!-- Equipment Rental -->
-                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-50">
+                    <!-- Equipment -->
+                    <div class="flex justify-between items-center text-xs py-1 border-b border-gray-100">
                       <div>
-                        <span class="font-medium text-gray-700">🎒 Equipment Rental</span>
+                        <span class="text-gray-600">🎒 Equipment Rental</span>
                         <span class="block text-[10px] text-gray-400">Gear, sleeping bag, poles</span>
                       </div>
-                      <span class="font-semibold text-gray-800" id="bd-equip">Rs. {{ "{:,.0f}".format(equip_cost) }}</span>
+                      <span class="text-gray-700" id="bd-equip">Rs. {{ "{:,.0f}".format(equip_cost) }}</span>
                     </div>
 
-                    <!-- Taxes -->
-                    <div class="flex justify-between items-center text-xs py-1.5 border-b border-gray-100">
+                    <!-- Optional hotel upgrade -->
+                    {% if hotel_options %}
+                    <div class="flex justify-between items-center text-xs py-1 border-b border-gray-50">
                       <div>
-                        <span class="font-medium text-gray-700">🧾 Tax (13% VAT)</span>
-                        <span class="block text-[10px] text-gray-400">Applied on trek package</span>
+                        <span class="text-gray-600">🏩 Hotel Upgrade (optional)</span>
+                        <span class="block text-[10px] text-gray-400" id="bd-hotel-nights">Select a hotel above to add</span>
                       </div>
-                      <span class="font-semibold text-gray-800" id="bd-tax">Rs. {{ "{:,.0f}".format(destination.price_per_person * 0.13) }}</span>
+                      <span class="text-gray-700" id="bd-hotel">—</span>
                     </div>
+                    {% endif %}
 
-                    <!-- Total -->
-                    <div class="flex justify-between items-center pt-2">
-                      <span class="text-sm font-bold text-brandGreen">Grand Total</span>
+                    <!-- Grand Total -->
+                    <div class="flex justify-between items-center pt-3 mt-1 border-t-2 border-brandGreen/20">
+                      <div>
+                        <span class="text-sm font-bold text-brandGreen">Grand Total</span>
+                        <span class="block text-[10px] text-gray-400"><span class="bd-count">1</span> explorer(s) + hotel upgrade</span>
+                      </div>
                       <span class="text-base font-bold text-brandGreen" id="total_price_val">Rs. {{ "{:,.0f}".format(grand_total) }}</span>
                     </div>
 
-                    <p class="text-[10px] text-gray-400 pt-1">* Hotel cost updates when you select a hotel above. All prices in NPR.</p>
+                    <p class="text-[10px] text-gray-400 pt-1">All prices in NPR. Hotel upgrade added on top of package.</p>
                   </div>
                 </div>
 
@@ -489,23 +502,13 @@ document.addEventListener("DOMContentLoaded", function() {
     var totalPriceVal  = document.getElementById('total_price_val');
     var heroTotal      = document.getElementById('hero-total');
     var bdTrek         = document.getElementById('bd-trek');
-    var bdGuide        = document.getElementById('bd-guide');
     var bdHotel        = document.getElementById('bd-hotel');
-    var bdPermit       = document.getElementById('bd-permit');
-    var bdTransport    = document.getElementById('bd-transport');
-    var bdEquip        = document.getElementById('bd-equip');
-    var bdTax          = document.getElementById('bd-tax');
     var bdCounts       = document.querySelectorAll('.bd-count');
 
-    // Values from server
-    var pricePerPerson  = {{ destination.price_per_person | float }};
-    var guideCostTotal  = {{ guide_cost }};
-    var permitCost      = {{ permit_cost }};
-    var transportCost   = {{ transport_cost }};
-    var equipCost       = {{ equip_cost }};
-    var duration        = {{ destination.duration_days }};
-    var nights          = duration - 1;
-    var hotelPerNight   = 0;
+    // price_per_person IS the all-inclusive package price per person
+    var pricePerPerson = {{ destination.price_per_person | float }};
+    var nights         = {{ destination.duration_days }} - 1;
+    var hotelPerNight  = 0;
 
     function fmt(n) {
         return 'Rs. ' + Math.round(n).toLocaleString('en-IN');
@@ -513,20 +516,20 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function updateBreakdown() {
         var count      = parseInt(travelersInput.value) || 1;
-        var trekTotal  = pricePerPerson * count;
-        var hotelTotal = hotelPerNight * nights;
-        var tax        = Math.round(trekTotal * 0.13);
-        var grand      = trekTotal + guideCostTotal + hotelTotal + permitCost + transportCost + equipCost + tax;
+        var trekTotal  = pricePerPerson * count;          // package scales with travelers
+        var hotelTotal = hotelPerNight * nights * count;  // hotel upgrade also scales
+        var grand      = trekTotal + hotelTotal;
 
-        if (bdTrek)      bdTrek.textContent      = fmt(trekTotal);
-        if (bdGuide)     bdGuide.textContent     = fmt(guideCostTotal);
-        if (bdHotel)     bdHotel.textContent     = hotelPerNight > 0 ? fmt(hotelTotal) : 'Select hotel';
-        if (bdPermit)    bdPermit.textContent    = fmt(permitCost);
-        if (bdTransport) bdTransport.textContent = fmt(transportCost);
-        if (bdEquip)     bdEquip.textContent     = fmt(equipCost);
-        if (bdTax)       bdTax.textContent       = fmt(tax);
+        // Trek package row (scales with travelers)
+        if (bdTrek) bdTrek.textContent = fmt(trekTotal);
+        // Hotel upgrade row
+        if (bdHotel) {
+            bdHotel.textContent = hotelPerNight > 0 ? fmt(hotelTotal) : '—';
+        }
+        // Grand total
         if (totalPriceVal) totalPriceVal.textContent = fmt(grand);
-        if (heroTotal) heroTotal.textContent = fmt(grand);
+        if (heroTotal)     heroTotal.textContent     = fmt(grand);
+        // Sub-breakdown labels showing traveler count
         bdCounts.forEach(function(el) { el.textContent = count; });
     }
 
